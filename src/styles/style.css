@@ -1,38 +1,34 @@
-body{
-    padding: 0px;
-    margin: 0px;
-    
+/* Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+body {
+  margin: 0;
+  padding: 0;
 }
 
-/* Parent becomes stacking context */
+/* Slideshow */
 .slideshow {
   position: relative;
   overflow: hidden;
 }
 
-/* Background layer injected by JS */
 .slideshow-bg {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
-  ;
 }
 
-/* Slides */
 .slideshow-bg .slide {
   position: absolute;
-  filter: brightness(0.5);
   inset: 0;
   background-size: cover;
   background-position: center;
+  filter: brightness(0.5);
   opacity: 0;
   transition: opacity 4000ms ease;
 }
@@ -41,23 +37,21 @@ body{
   opacity: 1;
 }
 
-/* All existing content stays above */
 .slideshow > :not(.slideshow-bg) {
   position: relative;
   z-index: 1;
 }
 
-
+/* Utilities */
 .centered-to-parent {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    vertical-align: middle;
-    justify-content: center;
-    gap: 20px;
-    pointer-events: none;
-    
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 20px;
+  vertical-align: middle;
+  pointer-events: none;
 }

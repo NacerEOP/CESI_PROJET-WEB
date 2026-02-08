@@ -7,24 +7,31 @@ header {
     text-align: center;
 }
 
+
 nav ul {
     width: 45vw;
-    position: fixed;
     display: flex;
     justify-content: space-between;
     list-style: none;      
     padding: 12px;
     padding-left: 5vw;
     margin: 0;
-    gap: px;      
+    position: fixed;
     z-index: 10;
+    
+}
+
+nav ul li a {
+    color: white;
+    mix-blend-mode: difference;
+    text-decoration: none;
 }
 
 
 #home-header {
 
     height: 100vh;
-    
+   
 }
 
 @media screen and (max-width: 1068px) {
@@ -38,3 +45,4 @@ nav ul {
     gap: px;      
 }
 }
+

@@ -8,11 +8,12 @@ header {
 }
 
 nav ul {
-    width: 25vw;
+    width: 45vw;
     display: flex;
     justify-content: space-between;
     list-style: none;      
     padding: 12px;
+    padding-left: 5vw;
     margin: 0;
     gap: px;      
 }
@@ -22,4 +23,16 @@ nav ul {
     background-color: rgb(27, 29, 29);
     height: 100vh;
     
+}
+
+@media screen and (max-width: 1068px) {
+    nav ul {
+    width: 75vw;
+    display: flex;
+    justify-content: space-between;
+    list-style: none;      
+    padding: 12px;
+    margin: 0;
+    gap: px;      
+}
 }

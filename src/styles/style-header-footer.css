@@ -9,6 +9,7 @@ header {
 
 nav ul {
     width: 45vw;
+    position: fixed;
     display: flex;
     justify-content: space-between;
     list-style: none;      
@@ -16,6 +17,7 @@ nav ul {
     padding-left: 5vw;
     margin: 0;
     gap: px;      
+    z-index: 10;
 }
 
 

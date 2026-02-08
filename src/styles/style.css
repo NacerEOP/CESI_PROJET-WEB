@@ -9,3 +9,15 @@ body{
     padding: 0;
     box-sizing: border-box;
 }
+
+.slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+}
+
+.slide.active {
+  opacity: 1;
+}

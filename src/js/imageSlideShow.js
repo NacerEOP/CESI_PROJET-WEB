@@ -3,31 +3,30 @@ export class ImgSlideShow {
     this.parent = parent;
     this.images = images;
     this.interval = interval;
-    this.transition = transition; // ← DEV CHOICE
+    this.transition = transition;
     this.index = 0;
     this.current = 0;
 
-    this.slides = [
-      this.createSlide(),
-      this.createSlide()
-    ];
+    // mark parent as slideshow container
+    parent.classList.add("slideshow");
 
-    // apply transition behavior ONCE
-    if (this.transition === "fade") {
-      this.slides.forEach(slide => {
-        slide.style.transition = "opacity 600ms ease";
-      });
-    } else {
-      this.slides.forEach(slide => {
-        slide.style.transition = "none";
-      });
+    // create background layer
+    this.bg = document.createElement("div");
+    this.bg.className = "slideshow-bg";
+    parent.prepend(this.bg);
+
+    // create slides
+    this.slides = [this.createSlide(), this.createSlide()];
+
+    if (transition !== "fade") {
+      this.slides.forEach(s => (s.style.transition = "none"));
     }
   }
 
   createSlide() {
     const div = document.createElement("div");
     div.className = "slide";
-    this.parent.appendChild(div);
+    this.bg.appendChild(div);
     return div;
   }
 

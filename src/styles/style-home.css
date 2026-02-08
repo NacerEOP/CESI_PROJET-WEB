@@ -1,7 +1,24 @@
+/* Home titles */
 #main-Htitle {
   font-size: clamp(1.5rem, 6vw, 7rem);
+  color: white;
+  mix-blend-mode: difference;
 }
 
 #secondary-Htitle {
   font-size: clamp(0.8rem, 2.5vw, 2.8rem);
+  color: white;
+  mix-blend-mode: difference;
 }
+
+/* Header background overlay */
+#nav-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  width: 100vw;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.8) 100%);
+}
+

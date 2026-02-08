@@ -4,10 +4,10 @@ A full frontend-backend for finding internships using MVC architecture (Model-Vi
 
 
 
-Nacer/ Home Help Support
+Nacer/ Home, Help, Support
 
-Leith/ Browse Interniship
+Leith/ Browse, Interniship
 
-Yanis/ login signup settings
+Yanis/ Login, Signup, Settings
 
 Racim/ Application Profile 

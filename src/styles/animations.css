@@ -1,0 +1,19 @@
+@keyframes revealText {
+  from {
+    letter-spacing: 10px;
+    opacity: 0;
+  }
+  to {
+    letter-spacing: normal;
+    opacity: 1;
+  }
+}
+
+.reveal-text {
+  animation: revealText 200ms ease-out both;
+  will-change: letter-spacing, opacity;
+}
+
+.reveal-text.reverse {
+  animation-direction: reverse;
+}

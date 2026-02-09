@@ -1,12 +1,16 @@
 header {
-    
+    position: relative;
     color: white;
     margin: 0px;
     padding: 0px;
     margin-top: 0%;
     text-align: center;
+    z-index: 1000;
 }
 
+nav {
+    position: absolute; 
+}
 
 nav ul {
     width: 45vw;
@@ -22,9 +26,11 @@ nav ul {
 }
 
 nav ul li a {
-    color: white;
+    color: #9aeba3;
+    position: relative;
     mix-blend-mode: difference;
     text-decoration: none;
+    z-index: 10;
 }
 
 

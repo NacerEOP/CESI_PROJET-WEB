@@ -1,0 +1,86 @@
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(10px);
+
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+
+  transition: background 0.3s ease;
+}
+
+.search-bar:hover {
+  background: rgba(255,255,255,0.45);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1rem;
+  color: var(--dark-neutral);
+}
+
+.results-count {
+  font-size: 0.9rem;
+  color: var(--dark-neutral);
+  opacity: 0.8;
+}
+
+.sort-button {
+  background: transparent;
+  border: 1px solid var(--primary);
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+
+  transition: background 0.3s ease;
+}
+
+.sort-button:hover {
+  background: var(--secondary);
+  color: white;
+}
+
+.offers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.filters-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 300px;
+
+  transform: translateX(-260px);
+  transition: transform 0.4s ease;
+}
+
+.filters-sidebar.active {
+  transform: translateX(0);
+}
+
+.pagination button {
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pagination button:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.pagination .dots {
+  opacity: 0.5;
+  cursor: default;
+}
+

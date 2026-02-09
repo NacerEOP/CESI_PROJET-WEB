@@ -1,4 +1,4 @@
-import { ImgSlideShow } from "./imageSlideShow.js";
+import { MediaSlideShow } from "./SlideShow.js";
 import { Animation } from "./animations.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -34,12 +34,17 @@ document.addEventListener("DOMContentLoaded", () => {
     io.observe(target);
   }
 
-  new ImgSlideShow(
+  new MediaSlideShow(
     document.getElementById("home-header"),
     [
       "../assets/images/internship1.png",
+       { type: "video", src: "../assets/videos/vid1.mp4", muted: true, loop: true },
+       { type: "video", src: "../assets/videos/vid2.mp4", muted: true, loop: true },
       "../assets/images/internship2.jpg",
-      "../assets/images/internship3.jpg"
+      { type: "video", src: "../assets/videos/vid3.mp4", muted: true, loop: true },
+
+      "../assets/images/internship3.jpg",
+      { type: "video", src: "../assets/videos/vid4.mp4", muted: true, loop: true },
     ],
     10000
   ).start();

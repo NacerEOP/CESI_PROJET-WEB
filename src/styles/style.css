@@ -3,6 +3,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: sans-serif;
 }
 
 body {
@@ -54,4 +55,5 @@ body {
   gap: 20px;
   vertical-align: middle;
   pointer-events: none;
+  z-index: 0;
 }

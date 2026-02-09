@@ -9,6 +9,12 @@
 }
 
 
+/* Espace pour le Header */
+main {
+  padding-top: 70px;
+}
+
+
 /* Reset */
 *, *::before, *::after {
   box-sizing: border-box;

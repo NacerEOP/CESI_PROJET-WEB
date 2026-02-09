@@ -1,3 +1,14 @@
+
+/* Palette de Couleurs du Site */
+:root {
+  --accent: #9aeba3;
+  --background: #dafdba;
+  --dark-neutral: #012030;
+  --primary: #13678a;
+  --secondary: #45c4b0;
+}
+
+
 /* Reset */
 *, *::before, *::after {
   box-sizing: border-box;

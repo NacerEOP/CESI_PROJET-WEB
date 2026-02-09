@@ -31,7 +31,8 @@ body {
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 600ms ease;
+  transition: opacity 1200ms ease;
+  filter: brightness(0.5);
 }
 
 .slide.active {

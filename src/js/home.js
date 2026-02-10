@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const sug_gl_canvas = document.getElementById("gl-canvas");
   if(sug_gl_canvas){
-    const app = new GLApp(sug_gl_canvas);
+  const app = new GLApp(sug_gl_canvas);
   app.addEffect(new CurvedTrackEffect());
   app.start();
   }

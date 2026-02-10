@@ -1,40 +1,49 @@
 precision highp float;
 
 attribute vec3 a_pos;
+attribute vec2 a_uv;
+
+// If instancing is supported, these exist:
+attribute float a_baseTheta;
+attribute float a_panelId;
+
+// Fallback uniforms (used when no instancing):
+uniform float u_baseTheta;
+uniform float u_panelId;
 
 uniform float u_fov;
 uniform float u_radius;
-uniform float u_theta;
-uniform float u_slide;
 uniform float u_camZ;
-uniform float u_halfArc;
+uniform float u_thetaGlobal;
+uniform float u_slide;
+
+varying vec2 v_uv;
+varying float v_panelId;
 
 void main() {
-  float theta = u_theta + a_pos.x;
+  // Choose baseTheta/panelId from instanced attrib if present.
+  // In WebGL, missing attribs read as 0, so this still works:
+  float baseTheta = (a_baseTheta != 0.0) ? a_baseTheta : u_baseTheta;
+  float pid       = (a_panelId   != 0.0) ? a_panelId   : u_panelId;
 
-  // world pos on cylinder (axis = Y)
+  float theta = u_thetaGlobal + baseTheta + a_pos.x;
+
   vec3 world;
   world.x = u_radius * sin(theta);
   world.z = u_radius * cos(theta);
-  world.y = a_pos.y ;
+  world.y = a_pos.y + u_slide;
 
-  // camera-space depth for THIS vertex
   float z = world.z - u_camZ;
-
-  // ----- WHOLE QUAD CLIP -----
-  // compute the "worst" (smallest) depth among the 4 corners by checking the two arc endpoints
-  float zL = u_radius * cos(u_theta - u_halfArc) - u_camZ;
-  float zR = u_radius * cos(u_theta + u_halfArc) - u_camZ;
-  float zMin = min(zL, zR);
-
   float nearZ = 0.05;
-  if (zMin <= nearZ) {
+
+  if (z <= nearZ) {
     gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
-    return;
+  } else {
+    float invZ = 1.0 / z;
+    vec2 ndc = world.xy * invZ * u_fov;
+    gl_Position = vec4(ndc, 0.0, 1.0);
   }
 
-  // perspective
-  float invZ = 1.0 / max(z, nearZ);
-  vec2 ndc = world.xy * invZ * u_fov;
-  gl_Position = vec4(ndc, 0.0, 1.0);
+  v_uv = a_uv;
+  v_panelId = pid;
 }

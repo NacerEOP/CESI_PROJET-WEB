@@ -9,13 +9,13 @@ header {
 }
 
 nav {
-     height: 50px;
-     width: 100vw;
-     position: fixed;
-     z-index: 20;
-     display: flex;
-        align-items:center;
-        
+    height: 50px;
+    width: 100vw;
+    position: fixed;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+
 }
 
 nav ul {
@@ -24,13 +24,13 @@ nav ul {
     display: flex;
     vertical-align: middle;
     justify-content: space-between;
-    list-style: none;      
+    list-style: none;
     padding: 16px;
     padding-left: 5vw;
     margin: 0;
     position: fixed;
     z-index: 10;
-    
+
 }
 
 nav ul li a {
@@ -45,32 +45,42 @@ nav ul li a {
 #home-header {
 
     height: 100vh;
-   
+
 }
 
 
 .user-profile-picture {
-  margin: 0px;
-  width: auto;
-  height: 80%;
-  border-radius: 50%;
-  z-index: 20;
-  margin-left: auto;
-  margin-right: 2vw;
-  position: relative;
-  text-align: right;
+    margin: 0px;
+    width: auto;
+    height: 80%;
+    border-radius: 50%;
+    z-index: 20;
+    margin-left: auto;
+    margin-right: 2vw;
+    position: relative;
+    text-align: right;
 }
 
 
 @media screen and (max-width: 1068px) {
     nav ul {
-    width: 75vw;
-    display: flex;
-    justify-content: space-between;
-    list-style: none;      
-    padding: 12px;
-    margin: 0;
-    gap: px;      
-}
+        width: 75vw;
+        display: flex;
+        justify-content: space-between;
+        list-style: none;
+        padding: 12px;
+        margin: 0;
+        gap: px;
+    }
 }
 
+/* Header background overlay */
+#nav-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    width: 100vw;
+    height: 100%;
+    background: #012030;
+}

@@ -12,25 +12,16 @@
   color: #b7e0da;
   font-family: sans-serif;
   mix-blend-mode: difference;
-   text-shadow: 0px 0px 20px #000000;
+  text-shadow: 0px 0px 20px #000000;
 }
 
-/* Header background overlay */
-#nav-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  width: 100vw;
-  height: 100%;
-  background: #012030;
-}
+
 
 
 #t1 {
   margin-top: 40px;
   color: #13678a;
-  
+
 }
 
 #p1 {
@@ -40,18 +31,18 @@
 }
 
 
-#suggest-cont{
+#suggest-cont {
   display: flex;
   margin-top: 45px;
-  background-color:#c7cccf;
+  background-color: #c7cccf;
   height: 700px;
   width: 100%;
   justify-content: space-between;
   align-items: center;
-  
+
 }
 
-.suggest{
+.suggest {
   background-color: aqua;
   width: 25%;
   height: 60%;
@@ -62,5 +53,5 @@
   width: 100%;
   height: 100%;
   margin-top: 45px;
-  
+
 }

@@ -3,7 +3,7 @@ import { Animation } from "./animations.js";
 import { GLApp } from "./GLapp.js";
 import { CurvedTrackEffect } from "./ShaderEffects.js";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
  
   const target = document.querySelector('.centered-to-parent:not(#nav-bg)');
   if (target) {
@@ -52,8 +52,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const sug_gl_canvas = document.getElementById("gl-canvas");
   if(sug_gl_canvas){
   const app = new GLApp(sug_gl_canvas);
-  app.addEffect(new CurvedTrackEffect());
+  await app.addEffect(new CurvedTrackEffect());
   app.start();
+
   }
 
 });

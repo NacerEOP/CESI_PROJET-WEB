@@ -1,6 +1,6 @@
 @keyframes revealText {
   from {
-    letter-spacing: 10px;
+    letter-spacing: 1vw;
     opacity: 0;
   }
   to {
@@ -10,7 +10,7 @@
 }
 
 .reveal-text {
-  animation: revealText 200ms ease-out both;
+  animation: revealText 400ms ease-out both;
   will-change: letter-spacing, opacity;
 }
 

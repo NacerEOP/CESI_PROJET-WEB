@@ -9,15 +9,23 @@ header {
 }
 
 nav {
-    position: absolute; 
+     height: 50px;
+     width: 100vw;
+     position: fixed;
+     z-index: 20;
+     display: flex;
+        align-items:center;
+        
 }
 
 nav ul {
     width: 45vw;
+    height: 50px;
     display: flex;
+    vertical-align: middle;
     justify-content: space-between;
     list-style: none;      
-    padding: 12px;
+    padding: 16px;
     padding-left: 5vw;
     margin: 0;
     position: fixed;
@@ -39,6 +47,20 @@ nav ul li a {
     height: 100vh;
    
 }
+
+
+.user-profile-picture {
+  margin: 0px;
+  width: auto;
+  height: 80%;
+  border-radius: 50%;
+  z-index: 20;
+  margin-left: auto;
+  margin-right: 2vw;
+  position: relative;
+  text-align: right;
+}
+
 
 @media screen and (max-width: 1068px) {
     nav ul {

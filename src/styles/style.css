@@ -12,6 +12,7 @@ body {
   margin: 0;
   padding: 0;
   background-color: #d0d6da;
+  
 }
 
 /* Slideshow */
@@ -62,3 +63,11 @@ body {
   pointer-events: none;
   z-index: 0;
 }
+
+
+.centered-title {
+  text-align: center;
+  font-size: 3em;
+}
+
+

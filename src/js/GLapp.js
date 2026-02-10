@@ -15,8 +15,9 @@ export class GLApp {
     this._resize();
   }
 
-  addEffect(effect) {
-    effect.init(this.gl, this);
+  // ✅ must be async so we can await effect.init
+  async addEffect(effect) {
+    await effect.init(this.gl, this);
     this.effects.push(effect);
     return effect;
   }
@@ -44,7 +45,6 @@ export class GLApp {
     if (!this.running) return;
     const gl = this.gl;
 
-    // Clear once (effects can also draw over it)
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 

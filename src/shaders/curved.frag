@@ -1,100 +1,29 @@
+// curved.frag (WebGL1)
 precision highp float;
 
-uniform vec2 u_resolution;
-uniform float u_time;
+uniform sampler2D u_tex;
 
-mat2 rot(float a) {
-  float c = cos(a), s = sin(a);
-  return mat2(c,s,-s,c);
-}
+// if you use an atlas:
+uniform vec2 u_atlasSize;
+uniform vec2 u_tileSize; // size of each panel tile in pixels (e.g. 512,512)
+uniform float u_cols;    // number of columns in the atlas
 
-float sdBox(vec3 p, vec3 b) {
-  vec3 q = abs(p) - b;
-  return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
-}
-
-float gTime = 0.0;
-
-float box(vec3 pos, float scale) {
-  pos *= scale;
-  float base = sdBox(pos, vec3(.4,.4,.1)) / 1.5;
-  pos.xy *= 5.0;
-  pos.y -= 3.5;
-  pos.xy *= rot(.75);
-  float result = -base;
-  return result;
-}
-
-float box_set(vec3 pos) {
-  vec3 pos_origin = pos;
-
-  pos = pos_origin;
-  pos.y += sin(gTime * 0.4) * 2.5;
-  pos.xy *= rot(.8);
-  float box1 = box(pos, 2.0 - abs(sin(gTime * 0.4)) * 1.5);
-
-  pos = pos_origin;
-  pos.y -= sin(gTime * 0.4) * 2.5;
-  pos.xy *= rot(.8);
-  float box2 = box(pos, 2.0 - abs(sin(gTime * 0.4)) * 1.5);
-
-  pos = pos_origin;
-  pos.x += sin(gTime * 0.4) * 2.5;
-  pos.xy *= rot(.8);
-  float box3 = box(pos, 2.0 - abs(sin(gTime * 0.4)) * 1.5);
-
-  pos = pos_origin;
-  pos.x -= sin(gTime * 0.4) * 2.5;
-  pos.xy *= rot(.8);
-  float box4 = box(pos, 2.0 - abs(sin(gTime * 0.4)) * 1.5);
-
-  pos = pos_origin;
-  pos.xy *= rot(.8);
-  float box5 = box(pos, .5) * 6.0;
-
-  pos = pos_origin;
-  float box6 = box(pos, .5) * 6.0;
-
-  return max(max(max(max(max(box1, box2), box3), box4), box5), box6);
-}
-
-float map(vec3 pos) {
-  return box_set(pos);
-}
+varying vec2 v_uv;
+varying float v_panelId;
 
 void main() {
-  vec2 fragCoord = gl_FragCoord.xy;
-  float iTime = u_time;
-  vec2 iResolution = u_resolution;
+  // Panel -> tile position in atlas
+  float id = floor(v_panelId + 0.5);
+  float col = mod(id, u_cols);
+  float row = floor(id / u_cols);
 
-  vec2 p = (fragCoord * 2.0 - iResolution) / min(iResolution.x, iResolution.y);
+  vec2 tileUV = v_uv; // 0..1 within panel
 
-  vec3 ro = vec3(0.0, -0.2, iTime * 4.0);
-  vec3 ray = normalize(vec3(p, 1.5));
+  // convert tileUV to atlas UV
+  vec2 atlasUV;
+  atlasUV.x = (col * u_tileSize.x + tileUV.x * u_tileSize.x) / u_atlasSize.x;
+  atlasUV.y = (row * u_tileSize.y + tileUV.y * u_tileSize.y) / u_atlasSize.y;
 
-  ray.xy = ray.xy * rot(sin(iTime * 0.03) * 5.0);
-  ray.yz = ray.yz * rot(sin(iTime * 0.05) * 0.2);
-
-  float t = 0.1;
-  vec3 col = vec3(0.0);
-  float ac = 0.0;
-
-  for (int i = 0; i < 99; i++) {
-    vec3 pos = ro + ray * t;
-    pos = mod(pos - 2.0, 4.0) - 2.0;
-
-    gTime = iTime - float(i) * 0.01;
-
-    float d = map(pos);
-    d = max(abs(d), 0.01);
-
-    ac += exp(-d * 23.0);
-    t += d * 0.55;
-  }
-
-  col = vec3(ac * 0.02);
-  col += vec3(0.0, 0.2 * abs(sin(iTime)), 0.5 + sin(iTime) * 0.2);
-
-  float alpha = 1.0 - t * (0.02 + 0.02 * sin(iTime));
-  gl_FragColor = vec4(col, alpha);
+  vec4 color = texture2D(u_tex, atlasUV);
+  gl_FragColor = color;
 }

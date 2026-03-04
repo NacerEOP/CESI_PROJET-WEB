@@ -5,8 +5,8 @@ export default class OfferCard {
   }
 
   render() {
-    const card = document.createElement('div');
-    card.className = 'offer-card';
+    const card = document.createElement("article");
+    card.classList.add("offer-card");
 
     card.innerHTML = `
       <h3>${this.data.title}</h3>
@@ -14,8 +14,8 @@ export default class OfferCard {
       <p class="location">${this.data.location}</p>
     `;
 
-    card.addEventListener('click', () => {
-      window.location.href = 'internship.html';
+    card.addEventListener("click", () => {
+      window.location.href = "internship.html";
     });
 
     return card;

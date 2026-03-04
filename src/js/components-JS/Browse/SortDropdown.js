@@ -1,18 +1,22 @@
 
 export default class SortDropdown {
-  constructor(containerSelector) {
-    this.container = document.querySelector(containerSelector);
-    this.current = 'Relevance';
+  constructor() {
+    this.container = document.getElementById("sort-dropdown");
+    if (!this.container) {
+      console.warn("SortDropdown: container not found");
+      return;
+    }
 
+    this.isOpen = false;
     this.render();
-    this.init();
+    this.bindEvents();
   }
 
   render() {
     this.container.innerHTML = `
       <div class="sort-dropdown">
-        <button class="sort-button">
-          Sort By : <span class="current-sort">${this.current}</span>
+        <button class="sort-toggle">
+          Sort By : <span class="current-sort">Relevance</span>
         </button>
 
         <ul class="sort-menu hidden">
@@ -21,26 +25,30 @@ export default class SortDropdown {
           <li data-sort="salary-desc">Salary ↓</li>
           <li data-sort="date-desc">Newest</li>
           <li data-sort="date-asc">Oldest</li>
-          <li data-sort="distance-asc">Nearest</li>
+          <li data-sort="distance-asc">Closest</li>
           <li data-sort="distance-desc">Farthest</li>
         </ul>
       </div>
     `;
   }
 
-  init() {
-    this.button = this.container.querySelector('.sort-button');
-    this.menu = this.container.querySelector('.sort-menu');
-    this.label = this.container.querySelector('.current-sort');
+  bindEvents() {
+    const toggle = this.container.querySelector(".sort-toggle");
+    const menu = this.container.querySelector(".sort-menu");
+    const current = this.container.querySelector(".current-sort");
 
-    this.button.addEventListener('click', () => {
-      this.menu.classList.toggle('hidden');
+    toggle.addEventListener("click", () => {
+      this.isOpen = !this.isOpen;
+      menu.classList.toggle("hidden", !this.isOpen);
     });
 
-    this.menu.querySelectorAll('li').forEach(item => {
-      item.addEventListener('click', () => {
-        this.label.textContent = item.textContent;
-        this.menu.classList.add('hidden');
+    menu.querySelectorAll("li").forEach(item => {
+      item.addEventListener("click", () => {
+        current.textContent = item.textContent;
+        this.isOpen = false;
+        menu.classList.add("hidden");
+
+        console.log("Sort selected:", item.dataset.sort);
       });
     });
   }

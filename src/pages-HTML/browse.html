@@ -12,62 +12,39 @@
 
 <body>
 
+  <!-- HEADER -->
+  <header id="main-header"></header>
 
-  <header class="main-header">
-    <div class="header-content">
-      <div class="logo">InternHub</div>
+  <!-- MAIN CONTENT -->
+  <main id="browse-page">
 
-      <nav class="nav">
-        <a href="home.html">Home</a>
-        <a href="browse.html">Browse</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="help.html">Help</a>
-        <a href="profile.html">Profile</a>
-      </nav>
-    </div>
-  </header>
+    <!-- TOP CONTROLS -->
+    <section id="browse-controls">
 
+      <div id="results-count"></div>
 
+      <div id="search-bar"></div>
 
-  <main class="browse-page">
+      <div id="sort-dropdown"></div>
 
-        <!-- TOP CONTROLS -->
-        <section class="browse-controls">
+    </section>
 
-            <div class="results-count"></div>
-            <div class="search-container"></div>
-            <div class="sort-container"></div>
+    <!-- OFFERS -->
+    <section id="offers-grid"></section>
 
-        </section>
+    <!-- PAGINATION -->
+    <nav id="pagination"></nav>
 
-
-        <!-- CONTENT -->
-        <section class="browse-content">
-
-            <aside class="filters-sidebar"></aside>
-            <div class="offers-grid"></div>
-
-        </section>
-
-
-        <!-- PAGINATION -->
-        <section class="pagination-container"></section>
+    <!-- SIDEBAR -->
+    <aside id="sidebar"></aside>
 
   </main>
 
+  <!-- FOOTER -->
+  <footer id="main-footer"></footer>
 
-  <footer class="main-footer">
-        <p>© 2026 – Internship Platform</p>
-  </footer>
+  <!-- PAGE SCRIPT -->
+  <script type="module" src="../js/pages-JS/browse.js"></script>
 
-
-  <script src="../js/headerScroll.js"></script>
-  <script src="js/search.js"></script>
-  <script src="js/filters.js"></script>
-  <script src="js/offers.js"></script>
-  <script src="js/pagination.js"></script>
-  <script src="js/main.js"></script>
-  
-  
 </body>
 

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="../styles/style-header-footer.css">
+<link rel="stylesheet" href="../styles/style.css">
+<link rel="stylesheet" href="../styles/animations.css">
+
+<title>Internship Application</title>
+</head>
+
+<body>
+
+<header>
+<nav class="nav-bar">
+<ul>
+<div class="centered-to-parent" id="nav-bg"></div>
+<li><a href="home.html">Home</a></li>
+<li><a href="browse.html">Browse</a></li>
+<li><a href="dashboard.html">Dashboard</a></li>
+<li><a href="help.html">Help</a></li>
+</ul>
+
+<img class="user-profile-picture" src="../assets/images/default-user-pfp.jpg">
+</nav>
+</header>
+
+
+<h2>Apply for Internship</h2>
+
+<form action="../backend/upload_cv.php" method="POST" enctype="multipart/form-data">
+
+<label>Full Name</label><br>
+<input type="text" name="name" required><br><br>
+
+<label>Email</label><br>
+<input type="email" name="email" required><br><br>
+
+<label>Upload your CV</label><br>
+<input type="file" name="cv" accept=".pdf,.doc,.docx" required><br><br>
+
+<button type="submit">Submit Application</button>
+
+</form>
+
+</body>
+</html>

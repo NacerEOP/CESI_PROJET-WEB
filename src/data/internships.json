@@ -1,0 +1,37 @@
+[
+{
+"title":"Frontend Developer Intern",
+"company":"TechCorp",
+"location":"Algiers"
+},
+{
+"title":"Backend Developer Intern",
+"company":"DataSoft",
+"location":"Oran"
+},
+{
+"title":"AI Research Intern",
+"company":"DeepVision",
+"location":"Algiers"
+},
+{
+"title":"Cybersecurity Intern",
+"company":"SecureNet",
+"location":"Constantine"
+},
+{
+"title":"Mobile App Intern",
+"company":"AppWorks",
+"location":"Blida"
+},
+{
+"title":"Cloud Engineer Intern",
+"company":"SkyCompute",
+"location":"Algiers"
+},
+{
+"title":"Game Developer Intern",
+"company":"PixelForge",
+"location":"Oran"
+}
+]

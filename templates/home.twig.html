@@ -1,0 +1,40 @@
+{% extends "base.twig.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="static/styles/style-home.css">
+{% endblock %}
+
+{% block headerAttributes %}id="home-header"{% endblock %}
+
+{% block header %}
+<div class="centered-to-parent">
+    <h1 id="main-Htitle">Find your Internship Today</h1>
+    <h3 id="secondary-Htitle">Over 900 Internships to browse through</h3>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="height: 1000px;">
+    <h2 class="centered-title" id="t1">Small Overview</h2>
+    <p id="p1">Offers you might be interested in</p>
+    <div id="suggest-cont" style="position: relative;">
+        <canvas id="gl-canvas"></canvas>
+        <div class="suggest"></div>
+        <div class="suggest"></div>
+        <div class="suggest"></div>
+    </div>
+</div>
+
+<div>
+    <h2 class="centered-title" id="t1">Hello There!</h2>
+    <div>
+        <img src="" alt="">
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="static/js/home.js"></script>
+{% endblock %}

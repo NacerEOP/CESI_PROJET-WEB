@@ -1,0 +1,23 @@
+{% extends "base.twig.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<h2>Apply for Internship</h2>
+
+<form id="application-form" method="POST" enctype="multipart/form-data" action="upload-cv">
+
+    <label>Full Name</label><br>
+    <input type="text" name="name" required><br><br>
+
+    <label>Email</label><br>
+    <input type="email" name="email" required><br><br>
+
+    <label>Upload your CV</label><br>
+    <input type="file" name="cv" accept=".pdf,.doc,.docx" required><br><br>
+
+    <button type="submit">Submit Application</button>
+</form>
+
+<div id="app-message"></div>
+{% endblock %}

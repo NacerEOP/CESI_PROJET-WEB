@@ -1,0 +1,77 @@
+/* Browse page styles */
+
+main {
+    padding: 80px 20px 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#internship-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.internship-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.internship-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.internship-card h3 {
+    margin: 0 0 10px 0;
+    color: #012030;
+    font-size: 1.3em;
+}
+
+.internship-card p {
+    margin: 8px 0;
+    color: #555;
+    font-size: 0.95em;
+}
+
+.internship-card p strong {
+    color: #012030;
+}
+
+/* Pagination */
+#pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    padding: 20px 0;
+}
+
+#pagination button {
+    padding: 8px 12px;
+    border: 1px solid #9aeba3;
+    background-color: white;
+    color: #012030;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+#pagination button:hover {
+    background-color: #9aeba3;
+    color: white;
+}
+
+#pagination button:active {
+    background-color: #012030;
+    color: #9aeba3;
+    border-color: #012030;
+}

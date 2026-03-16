@@ -1,14 +1,21 @@
 {
-    "name": "nacer/cesi-projet-web",
-    "description": "MVC Internship Platform",
+    "name": "groupe1-prj-web/groupe1",
+    "description": "A frontend & backend website for finding the perfect internship",
     "type": "project",
-    "require": {
-        "php": ">=7.4",
-        "twig/twig": "^3.0"
-    },
+    "license": "GPL-3.0-or-later",
     "autoload": {
         "psr-4": {
             "App\\": "src/"
         }
+    },
+    "authors": [
+        {
+            "name": "groupe1-cesi-prj-web"
+        }
+    ],
+    "minimum-stability": "beta",
+    "require": {
+        "twig/twig": "^3.0",
+        "phpunit/phpunit": "^9.0"
     }
 }

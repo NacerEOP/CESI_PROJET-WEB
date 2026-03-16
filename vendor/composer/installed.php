@@ -3,7 +3,7 @@
         'name' => 'groupe1-prj-web/groupe1',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '1a3c3e5e98cf8d59b66681d33093120088903dd9',
+        'reference' => '5cbc8228fccd5c2dc3fcef13980e3cab5a418c7f',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'groupe1-prj-web/groupe1' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '1a3c3e5e98cf8d59b66681d33093120088903dd9',
+            'reference' => '5cbc8228fccd5c2dc3fcef13980e3cab5a418c7f',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

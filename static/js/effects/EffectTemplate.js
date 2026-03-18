@@ -10,7 +10,7 @@
  */
 
 import { BaseObject } from '../core/BaseObject.js';
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@r128/build/three.module.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
 export class EffectTemplate extends BaseObject {
   constructor(name = 'CustomEffect', options = {}) {

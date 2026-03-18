@@ -3,9 +3,9 @@
  * Utilities for loading textures, models, and other assets
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@r128/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@r128/examples/jsm/loaders/GLTFLoader.js';
-import { FBXLoader } from 'https://cdn.jsdelivr.net/npm/three@r128/examples/jsm/loaders/FBXLoader.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+import { FBXLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/FBXLoader.js';
 
 export class AssetLoader {
   constructor() {

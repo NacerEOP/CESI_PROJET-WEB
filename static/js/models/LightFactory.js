@@ -4,7 +4,7 @@
  * Provides common light configurations
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@r128/build/three.module.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
 export class LightFactory {
   static createDirectionalLight(intensity = 1, color = 0xffffff) {

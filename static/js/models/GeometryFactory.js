@@ -4,7 +4,7 @@
  * Centralizes geometry creation for consistency and reuse
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@r128/build/three.module.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
 export class GeometryFactory {
   static createBox(width = 1, height = 1, depth = 1) {

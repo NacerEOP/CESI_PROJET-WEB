@@ -4,7 +4,7 @@
  * Demonstrates basic object manipulation with rotation
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@r128/build/three.module.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 import { BaseObject } from '../core/BaseObject.js';
 
 export class RotatingGeometry extends BaseObject {

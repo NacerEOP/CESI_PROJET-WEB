@@ -324,6 +324,28 @@ This keeps code **DRY**, **modular**, and **maintainable**.
 4. **Limit particle counts** - Adjust in config
 5. **Use THREE.InstancedMesh** for many identical objects
 
+## 🧱 Inline 3D Models (HTML-embedded)
+
+You can now place a 3D model directly inside any page element by adding a `data-inline-model` attribute. The system will automatically create a Three.js canvas over the element and adjust the camera perspective as the page scrolls.
+
+### Example HTML
+```html
+<div data-inline-model data-model="static/assets/3dModels/Test-CUBE.glb" data-scale="0.8" style="width:320px;height:320px;">
+  <!-- Canvas is injected automatically -->
+</div>
+```
+
+### Supported data attributes
+- `data-model` (string): URL of the GLB/GLTF file (defaults to `static/assets/3dModels/Test-CUBE.glb`).
+- `data-scale` (number): Uniform scale multiplier.
+- `data-rotation` (x,y,z radians): Initial model rotation.
+- `data-position` (x,y,z): Initial model offset.
+- `data-light` (`false` to disable lighting).
+
+### How it works
+- The injected canvas is sized to its container and scrolls with the page.
+- As the container moves in/out of view, camera pitch and yaw update to give a "tabletop" look.
+
 ## 📚 Resources
 
 - [Three.js Docs](https://threejs.org/docs)

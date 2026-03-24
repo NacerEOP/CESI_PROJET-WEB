@@ -71,16 +71,11 @@ export class InlineModel {
   }
 
   async init() {
-    console.log('InlineModel.init() called for:', this.container);
     this._setupCanvas();
-    console.log('Canvas set up:', this.canvas);
-    
     this.manager = new ThreeManager(this.canvas, { alpha: true, antialias: true });
-    console.log('ThreeManager created');
 
     // Ensure the renderer matches the current container size
     this._resizeCanvas();
-    console.log('Canvas resized');
 
     // Keep the scene transparent so HTML can show through
     this.manager.renderer.setClearColor(0x000000, 0);
@@ -90,19 +85,10 @@ export class InlineModel {
     if (!disableLights) {
       const lights = LightFactory.createDefaultLighting();
       Object.values(lights).forEach((light) => this.manager.addObject(light));
-      console.log('Lights added');
     }
 
     await this._loadModel();
-    console.log('Model loaded');
-    
     this.manager.start();
-    console.log('Render loop started');
-
-    console.debug('InlineModel: initialized', {
-      container: this.container,
-      modelUrl: this.container.dataset.model || DEFAULT_MODEL
-    });
 
     this._registerListeners();
     this._update();
@@ -148,13 +134,6 @@ export class InlineModel {
     const url = resolveUrl(modelUrl, prefix);
     const cacheKey = url;
 
-    console.log('InlineModel: loading model', {
-      modelUrl,
-      baseHref: baseEl ? baseEl.getAttribute('href') : 'none',
-      prefix,
-      resolvedUrl: url
-    });
-
     let scene;
 
     try {
@@ -167,7 +146,6 @@ export class InlineModel {
 
       const source = gltf.scene || gltf;
       scene = source.clone(true);
-      console.log('InlineModel: model loaded successfully', { url, gltf });
     } catch (error) {
       console.error('InlineModel: failed to load model, falling back to a cube.', error);
 
@@ -212,9 +190,12 @@ export class InlineModel {
       // Place camera so model fits nicely
       const fov = this.manager.camera.fov * (Math.PI / 180);
       const distance = Math.abs(radius / Math.sin(fov / 2)) * 1.2;
-      this.manager.camera.position.set(0, radius * 0.7, distance);
-      this._baseDistance = distance;
+      
+      // Position camera above the model for top-down view
+      this.manager.camera.position.set(0, distance, 0);
       this.manager.camera.lookAt(0, 0, 0);
+      
+      this._baseDistance = distance;
     }
   }
 
@@ -275,20 +256,16 @@ export class InlineModel {
     // Progress where 0 == top of viewport, 1 == bottom of viewport
     const progress = Math.min(1, Math.max(0, (rect.top + rect.height / 2) / vh));
 
-    // Map progress to camera pitch and yaw (table / overhead look)
-    const pitchMin = 0.3; // more overhead
-    const pitchMax = 0.7; // more angled
-    const pitch = THREE.MathUtils.lerp(pitchMin, pitchMax, progress);
-    const yaw = THREE.MathUtils.lerp(-0.25, 0.25, (rect.left + rect.width / 2) / window.innerWidth);
-
-    this.manager.camera.rotation.set(pitch, yaw, 0);
-    this.manager.camera.lookAt(0, 0, 0);
-
-    // Slight camera distance shift to emphasize perspective during scroll
-    if (this._baseDistance) {
-      const distOffset = THREE.MathUtils.lerp(-0.4, 0.4, progress - 0.5);
-      this.manager.camera.position.set(0, this.manager.camera.position.y, this._baseDistance + distOffset);
-    }
+    // Move both camera and model together to maintain constant distance
+    // This creates the "stuck to page" effect without size changes
+    const baseY = this._baseDistance || 5;
+    const scrollOffset = THREE.MathUtils.lerp(2, -2, progress);
+    
+    // Move camera and model together
+    this.manager.camera.position.set(0, baseY + scrollOffset, 0);
+    this.model.position.set(0, scrollOffset, 0);
+    
+    this.manager.camera.lookAt(0, scrollOffset, 0);
   }
 
   dispose() {
@@ -308,25 +285,14 @@ export class InlineModel {
 export async function initInlineModels(options = {}) {
   const selector = options.selector || '[data-inline-model]';
   const nodes = Array.from(document.querySelectorAll(selector));
-  console.log(`InlineModel: found ${nodes.length} element(s) with selector "${selector}"`, nodes);
   const instances = nodes.map((node) => new InlineModel(node, options));
-  try {
-    await Promise.all(instances.map((inst) => inst.init()));
-    console.log('✅ InlineModel: all instances initialized');
-    return instances;
-  } catch (error) {
-    console.error('❌ InlineModel: initialization failed', error);
-    throw error;
-  }
+  await Promise.all(instances.map((inst) => inst.init()));
+  return instances;
 }
 
 // Auto-init by default
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log('InlineModel: DOMContentLoaded event fired, initializing...');
-    initInlineModels().catch(err => console.error('InlineModel init error:', err));
-  });
+  document.addEventListener('DOMContentLoaded', () => initInlineModels());
 } else {
-  console.log('InlineModel: document already loaded, initializing...');
-  initInlineModels().catch(err => console.error('InlineModel init error:', err));
+  initInlineModels();
 }

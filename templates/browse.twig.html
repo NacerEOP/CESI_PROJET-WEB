@@ -1,48 +1,33 @@
+
 {% extends "base.twig.html" %}
 
-{% block title %}{{ title }}{% endblock %}
-
-{% block styles %}
-<link rel="stylesheet" href="static/styles/style-browse.css">
-{% endblock %}
-
 {% block content %}
-<section id="internship-list"></section>
-<div id="pagination"></div>
-{% endblock %}
 
-{% block scripts %}
-<script>
-    function loadInternships(page = 1) {
-        fetch(`/NEWMVCtwigArchitecture/api/internships?page=${page}`)
-            .then(res => res.json())
-            .then(data => {
-                const list = document.getElementById("internship-list");
-                const pagination = document.getElementById("pagination");
+<div id="browse-root">
 
-                list.innerHTML = "";
-                pagination.innerHTML = "";
+  <!-- TOP BAR -->
+  <section id="browse-topbar">
 
-                data.data.forEach(internship => {
-                    const card = document.createElement("div");
-                    card.className = "internship-card";
-                    card.innerHTML = `
-<h3>${internship.title}</h3>
-<p><strong>Company:</strong> ${internship.company}</p>
-<p><strong>Location:</strong> ${internship.location}</p>
-            `;
-                    list.appendChild(card);
-                });
+    <div id="results-count"></div>
 
-                for (let i = 1; i <= data.totalPages; i++) {
-                    const btn = document.createElement("button");
-                    btn.innerText = i;
-                    btn.onclick = () => loadInternships(i);
-                    pagination.appendChild(btn);
-                }
-            });
-    }
+    <div id="search-bar"></div>
 
-    loadInternships();
-</script>
+    <div id="sort-dropdown"></div>
+
+  </section>
+
+  <!-- OFFERS -->
+  <section id="offers-grid"></section>
+
+  <!-- PAGINATION -->
+  <div id="pagination"></div>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar"></aside>
+
+</div>
+
+<!-- JS ENTRY -->
+<script type="module" src="/static/js/browse.js"></script>
+
 {% endblock %}

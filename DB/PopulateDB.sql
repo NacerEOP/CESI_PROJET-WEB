@@ -46,39 +46,6 @@ INSERT INTO Skills (Skill) VALUES
 ('Decision Making'),
 ('Networking');
 
--- Populate Technologies
-INSERT INTO Technologies (TechName) VALUES
-('Python'),
-('Java'),
-('JavaScript'),
-('React'),
-('Angular'),
-('Vue.js'),
-('Node.js'),
-('Django'),
-('Spring Boot'),
-('MySQL'),
-('PostgreSQL'),
-('MongoDB'),
-('AWS'),
-('Docker'),
-('Kubernetes'),
-('TensorFlow'),
-('PyTorch'),
-('Flutter'),
-('Swift'),
-('Kotlin'),
-('C++'),
-('C#'),
-('PHP'),
-('Ruby on Rails'),
-('GraphQL'),
-('Redis'),
-('Elasticsearch'),
-('Apache Spark'),
-('Tableau'),
-('Power BI');
-
 -- Populate Category
 INSERT INTO Category (CategoryName) VALUES
 ('Software Development'),
@@ -426,27 +393,6 @@ INSERT INTO InternshipSkillNeeds (IdInternship, IdSkills) VALUES
 (19, 3), (19, 4), (19, 9), (19, 18),
 (20, 3), (20, 4), (20, 5), (20, 9);
 
--- =====================================================
--- Populate IntershipsTechs
--- =====================================================
-INSERT INTO IntershipsTechs (IdInternship, Id_Technologies) VALUES
-(1, 3), (1, 4), (1, 6),
-(2, 7), (2, 1), (2, 8),
-(3, 1), (3, 16), (3, 17),
-(4, 2), (4, 3), (4, 4),
-(5, 1), (5, 2), (5, 3),
-(6, 1), (6, 2), (6, 3),
-(7, 1), (7, 2), (7, 3),
-(8, 1), (8, 2), (8, 3),
-(9, 1), (9, 2), (9, 3),
-(10, 13), (10, 14), (10, 15),
-(11, 1), (11, 2), (11, 3),
-(12, 16), (12, 17), (12, 1),
-(13, 13), (13, 14), (13, 15),
-(14, 18), (14, 19), (14, 20),
-(15, 3), (15, 4), (15, 7), (15, 1),
-(16, 1), (16, 2), (16, 3),
-(17, 1), (17, 2), (17, 3),
-(18, 1), (18, 10), (18, 11),
-(19, 4), (19, 18), (19, 3),
-(20, 1), (20, 8), (20, 3);
+-- (IntershipsTechs table removed, no seed data needed)
+
+-- VERIFY: All remaining INSERT statements refer to existing tables in CreateDB.sql.

@@ -22,19 +22,13 @@ CREATE TABLE Category(
    PRIMARY KEY(Id_Category)
 );
 
-CREATE TABLE Technologies(
-   Id_Technologies INT AUTO_INCREMENT,
-   TechName VARCHAR(50) NOT NULL,
-   PRIMARY KEY(Id_Technologies)
-);
-
 CREATE TABLE Users(
    IdUser INT AUTO_INCREMENT,
    FirstName VARCHAR(50) NOT NULL,
    LastName VARCHAR(50) NOT NULL,
    Email VARCHAR(50) NOT NULL,
    Password VARCHAR(50) NOT NULL,
-   UserPhone VARCHAR(20),
+   UserPhone INT,
    DoB DATE NOT NULL,
    JoinDate DATE NOT NULL,
    Id_Country INT NOT NULL,
@@ -45,9 +39,9 @@ CREATE TABLE Users(
 CREATE TABLE Companies(
    IdCompany INT AUTO_INCREMENT,
    Name VARCHAR(50) NOT NULL,
-   Description VARCHAR(255),
+   Description VARCHAR(50),
    Email VARCHAR(50) NOT NULL,
-   Phone VARCHAR(20),
+   Phone INT,
    Id_Country INT NOT NULL,
    PRIMARY KEY(IdCompany),
    FOREIGN KEY(Id_Country) REFERENCES Countries(Id_Country)
@@ -79,7 +73,7 @@ CREATE TABLE Student(
 CREATE TABLE Internships(
    IdInternship INT AUTO_INCREMENT,
    Title VARCHAR(50) NOT NULL,
-   Description VARCHAR(255),
+   Description VARCHAR(50),
    DateOfCreation DATE NOT NULL,
    Budget DECIMAL(10,2),
    Time_ INT,
@@ -132,12 +126,4 @@ CREATE TABLE InternshipSkillNeeds(
    PRIMARY KEY(IdInternship, IdSkills),
    FOREIGN KEY(IdInternship) REFERENCES Internships(IdInternship),
    FOREIGN KEY(IdSkills) REFERENCES Skills(IdSkills)
-);
-
-CREATE TABLE IntershipsTechs(
-   IdInternship INT,
-   Id_Technologies INT,
-   PRIMARY KEY(IdInternship, Id_Technologies),
-   FOREIGN KEY(IdInternship) REFERENCES Internships(IdInternship),
-   FOREIGN KEY(Id_Technologies) REFERENCES Technologies(Id_Technologies)
 );

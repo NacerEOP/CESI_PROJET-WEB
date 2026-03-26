@@ -194,6 +194,10 @@ export class InlineModel {
       // Position camera above the model for top-down view
       this.manager.camera.position.set(0, distance, 0);
       this.manager.camera.lookAt(0, 0, 0);
+
+      // Set fixed FOV for the inline camera and update projection
+      this.manager.camera.fov = 110;
+      this.manager.camera.updateProjectionMatrix();
       
       this._baseDistance = distance;
     }
@@ -259,7 +263,7 @@ export class InlineModel {
 
     // Keep camera straight down over model, move in X axis with model to keep it directly beneath.
     const baseY = this._baseDistance || 5;
-    const cameraY = baseY + 2.5;                // fixed altitude above model
+    const cameraY = baseY + 0.7;                // fixed altitude above model
     const cameraX = THREE.MathUtils.lerp(-2, 2, progress); // horizontal motion
     
     // Z offset based on model's horizontal position relative to viewport center
@@ -267,7 +271,7 @@ export class InlineModel {
 const normalized = (rect.left + rect.width / 2) / window.innerWidth;
 const modelCenterX = (normalized - 0.5) * 2;
     const distFromCenter = modelCenterX  ;
-    const cameraZ = -distFromCenter ;  // scale factor for Z offset
+    const cameraZ = -distFromCenter * 1.7;  // scale factor for Z offset
     
     this.manager.camera.position.set(-cameraY, cameraX, cameraZ);
     this.manager.camera.lookAt(cameraX, 0, 0);  // always straight down onto model

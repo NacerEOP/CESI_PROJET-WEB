@@ -263,8 +263,8 @@ export class InlineModel {
 
     // Keep camera straight down over model, move in X axis with model to keep it directly beneath.
     const baseY = this._baseDistance || 5;
-    const cameraY = baseY + 0.7;                // fixed altitude above model
-    const cameraX = THREE.MathUtils.lerp(-2, 2, progress); // horizontal motion
+    const cameraY = baseY + 0.5;                // fixed altitude above model
+    const cameraX = THREE.MathUtils.lerp(-4, 4, progress); // horizontal motion
     
     // Z offset based on model's horizontal position relative to viewport center
     const vpCenterX = window.innerWidth / 2;
@@ -274,7 +274,7 @@ const modelCenterX = (normalized - 0.5) * 2;
     const cameraZ = -distFromCenter * 1.7;  // scale factor for Z offset
     
     this.manager.camera.position.set(-cameraY, cameraX, cameraZ);
-    this.manager.camera.lookAt(cameraX, 0, 0);  // always straight down onto model
+    this.manager.camera.lookAt(90, 0, 0);  // always straight down onto model
 
     
 

@@ -3,5 +3,84 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1>{{ title }}</h1>
+</div>
 
+<div class="dashboard">
+    {% if user is defined and user %}
+    <div class="card">
+        <div class="flex-between">
+            <div>
+                <h3>Welcome back, {{ user.firstName }} {{ user.lastName }}!</h3>
+                <p style="margin: 0; color: var(--text-light);">Role: <span style="font-weight: 500;">{{ user.role|upper
+                        }}</span></p>
+            </div>
+            <div>
+                <a href="/NEWMVCtwigArchitecture/logout" class="button danger">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid cols-2" style="margin-top: var(--spacing-2xl);">
+        <div class="card">
+            <h3>📋 Internships</h3>
+            <p>Browse and apply for available internship positions</p>
+            <a href="/NEWMVCtwigArchitecture/browse" class="button" style="width: 100%;">Browse Internships</a>
+        </div>
+
+        <div class="card">
+            <h3>🏢 Companies</h3>
+            <p>Explore partner companies offering internships</p>
+            <a href="/NEWMVCtwigArchitecture/companies" class="button" style="width: 100%;">View Companies</a>
+        </div>
+
+        <div class="card">
+            <h3>👤 Profile</h3>
+            <p>Manage your profile and personal information</p>
+            <a href="/NEWMVCtwigArchitecture/profile" class="button" style="width: 100%;">Edit Profile</a>
+        </div>
+
+        <div class="card">
+            <h3>⚙️ Settings</h3>
+            <p>Update your account preferences and security</p>
+            <a href="/NEWMVCtwigArchitecture/settings" class="button" style="width: 100%;">Go to Settings</a>
+        </div>
+    </div>
+
+    {% if user.role in ['admin', 'pilot'] %}
+    <div
+        style="margin-top: var(--spacing-2xl); padding-top: var(--spacing-2xl); border-top: 1px solid var(--border-color);">
+        <h3>📊 Management Tools</h3>
+        <p style="color: var(--text-light);">Admin/Pilot only features</p>
+
+        <div class="grid cols-2">
+            <div class="card" style="border-color: var(--secondary-color); border-width: 2px;">
+                <h3 style="color: var(--secondary-color);">+ Create Internship</h3>
+                <p>Add a new internship position</p>
+                <a href="/NEWMVCtwigArchitecture/internship" class="button" style="width: 100%;">Create New</a>
+            </div>
+
+            <div class="card" style="border-color: var(--secondary-color); border-width: 2px;">
+                <h3 style="color: var(--secondary-color);">+ Create Company</h3>
+                <p>Register a new company</p>
+                <a href="/NEWMVCtwigArchitecture/companies" class="button" style="width: 100%;">Add Company</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="alert info">
+        <p style="margin: 0;"><strong>Login Required</strong></p>
+        <p style="margin: var(--spacing-sm) 0 0 0;">Please log in to access all features.</p>
+    </div>
+
+    <div class="grid cols-2" style="margin-top: var(--spacing-xl);">
+        <a href="/NEWMVCtwigArchitecture/login" class="button"
+            style="padding: var(--spacing-lg); text-align: center;">Sign In</a>
+        <a href="/NEWMVCtwigArchitecture/signup" class="button secondary"
+            style="padding: var(--spacing-lg); text-align: center;">Create Account</a>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

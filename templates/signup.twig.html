@@ -3,5 +3,49 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+<div class="auth-container">
+    <div class="auth-header">
+        <h1>Create Account</h1>
+        <p>Join us and find your internship</p>
+    </div>
 
+    <form method="POST" action="/NEWMVCtwigArchitecture/signup">
+        <div class="form-group">
+            <div>
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" name="firstName" required placeholder="John">
+            </div>
+
+            <div>
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" name="lastName" required placeholder="Doe">
+            </div>
+
+            <div>
+                <label for="signup-email">Email Address</label>
+                <input type="email" id="signup-email" name="email" required placeholder="your@email.com">
+            </div>
+
+            <div>
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" name="password" required placeholder="••••••••">
+            </div>
+
+            <div>
+                <label for="role">Account Type</label>
+                <select id="role" name="role" required>
+                    <option value="">Select your role</option>
+                    <option value="student">Student</option>
+                    <option value="pilot">Pilot</option>
+                </select>
+            </div>
+
+            <button type="submit" style="width: 100%; padding: var(--spacing-md);">Create Account</button>
+        </div>
+    </form>
+
+    <div class="auth-footer">
+        <p>Already have an account? <a href="/NEWMVCtwigArchitecture/login">Sign in</a></p>
+    </div>
+</div>
 {% endblock %}

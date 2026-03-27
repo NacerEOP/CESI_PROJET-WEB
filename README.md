@@ -55,3 +55,5 @@ This is the restructured project using MVC architecture with Twig templating.
 - `/browse` - Browse internships
 - `/api/internships` - JSON API for internships
 - Other pages: dashboard, help, login, signup, profile, settings, application, internship, form
+
+A2-project

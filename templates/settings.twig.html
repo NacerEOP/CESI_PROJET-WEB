@@ -3,5 +3,98 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1>{{ title }}</h1>
+</div>
 
+{% if user is defined and user %}
+<div class="grid cols-2">
+    <div class="card">
+        <h3>🔕 Notifications</h3>
+        <p>Manage your notification preferences</p>
+        <form method="POST">
+            <div class="form-group">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                    <input type="checkbox" id="email-notifications" name="email_notifications" checked
+                        style="width: auto;">
+                    <label for="email-notifications" style="margin: 0;">Receive email notifications</label>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: var(--spacing-md); margin-top: var(--spacing-md);">
+                    <input type="checkbox" id="updates" name="updates" checked style="width: auto;">
+                    <label for="updates" style="margin: 0;">Subscribe to updates</label>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: var(--spacing-md); margin-top: var(--spacing-md);">
+                    <input type="checkbox" id="promotions" name="promotions" style="width: auto;">
+                    <label for="promotions" style="margin: 0;">Promotional emails</label>
+                </div>
+
+                <button type="submit" style="width: 100%; margin-top: var(--spacing-lg);">Save Preferences</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>🌐 Privacy</h3>
+        <p>Control your privacy settings</p>
+        <form method="POST">
+            <div class="form-group">
+                <div>
+                    <label for="profile-visibility">Profile Visibility</label>
+                    <select id="profile-visibility" name="profile_visibility">
+                        <option value="public">Public</option>
+                        <option value="private" selected>Private</option>
+                        <option value="friends">Visible to Companies Only</option>
+                    </select>
+                </div>
+
+                <div style="margin-top: var(--spacing-md);">
+                    <label for="show-email">Show Email to Companies</label>
+                    <select id="show-email" name="show_email">
+                        <option value="yes" selected>Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+
+                <button type="submit" style="width: 100%; margin-top: var(--spacing-lg);">Save Privacy Settings</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>🔐 Two-Factor Authentication</h3>
+        <p>Add an extra layer of security</p>
+        <p style="color: var(--text-light); font-size: 0.95rem; margin-bottom: var(--spacing-lg);">Two-factor
+            authentication is currently <strong>disabled</strong></p>
+        <button class="button" style="width: 100%;">Enable 2FA</button>
+    </div>
+
+    <div class="card">
+        <h3>📲 Connected Devices</h3>
+        <p>Manage your connected devices and sessions</p>
+        <div
+            style="padding: var(--spacing-md); background: var(--light-bg); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);">
+            <p style="margin: 0; font-weight: 500;">Current Session</p>
+            <p style="margin: var(--spacing-sm) 0 0 0; color: var(--text-light); font-size: 0.9rem;">This Device • Last
+                active now</p>
+        </div>
+        <button class="button secondary" style="width: 100%;">Logout All Devices</button>
+    </div>
+
+    <div class="card">
+        <h3>🔑 API Keys</h3>
+        <p>Manage your API access tokens</p>
+        <p style="color: var(--text-light); font-size: 0.95rem; margin-bottom: var(--spacing-lg);">No API keys generated
+            yet</p>
+        <button class="button" style="width: 100%;">Generate New Key</button>
+    </div>
+</div>
+{% else %}
+<div class="alert info">
+    <p style="margin: 0;"><strong>Authentication Required</strong></p>
+    <p style="margin: var(--spacing-sm) 0 0 0;"><a href="/NEWMVCtwigArchitecture/login">Please log in</a> to access
+        settings.</p>
+</div>
+{% endif %}
 {% endblock %}

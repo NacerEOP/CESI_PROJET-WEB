@@ -3,5 +3,81 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1>{{ title }}</h1>
+</div>
 
+{% if user is defined and user %}
+<div class="profile-header">
+    <img src="/NEWMVCtwigArchitecture/static/assets/images/default-user-pfp.jpg" alt="Profile Avatar"
+        class="profile-avatar">
+    <div class="profile-info">
+        <h1 style="margin-bottom: var(--spacing-lg);">{{ user.firstName }} {{ user.lastName }}</h1>
+        <p style="margin: 0 0 var(--spacing-md) 0; color: var(--text-light);">{{ user.email }}</p>
+        <span class="role">{{ user.role|upper }}</span>
+    </div>
+</div>
+
+<div class="grid cols-2" style="margin-top: var(--spacing-2xl);">
+    <div class="card">
+        <h3>Personal Information</h3>
+        <p>Update your basic profile details</p>
+        <form method="POST">
+            <div class="form-group">
+                <div>
+                    <label for="prof-firstName">First Name</label>
+                    <input type="text" id="prof-firstName" name="firstName" value="{{ user.firstName }}" required>
+                </div>
+
+                <div>
+                    <label for="prof-lastName">Last Name</label>
+                    <input type="text" id="prof-lastName" name="lastName" value="{{ user.lastName }}" required>
+                </div>
+
+                <div>
+                    <label for="prof-email">Email</label>
+                    <input type="email" id="prof-email" name="email" value="{{ user.email }}" required>
+                </div>
+
+                <button type="submit" style="width: 100%;">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Account Security</h3>
+        <p>Manage your password and security settings</p>
+        <form method="POST">
+            <div class="form-group">
+                <div>
+                    <label for="prof-password">New Password</label>
+                    <input type="password" id="prof-password" name="password" placeholder="Leave blank to keep current">
+                </div>
+
+                <div>
+                    <label for="prof-password-confirm">Confirm Password</label>
+                    <input type="password" id="prof-password-confirm" name="password_confirm"
+                        placeholder="Confirm new password">
+                </div>
+
+                <button type="submit" style="width: 100%;">Update Password</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top: var(--spacing-2xl); background: #fee2e2; border: 1px solid var(--danger-color);">
+    <h3 style="color: var(--danger-color);">⚠️ Danger Zone</h3>
+    <p>Actions here cannot be undone</p>
+    <button class="danger"
+        onclick="if(confirm('Are you sure? This will delete your account permanently.')) { fetch('/NEWMVCtwigArchitecture/api/profile/delete', {method: 'POST'}).then(() => location.href='/NEWMVCtwigArchitecture/'); }"
+        style="width: 100%;">Delete Account</button>
+</div>
+{% else %}
+<div class="alert info">
+    <p style="margin: 0;"><strong>Authentication Required</strong></p>
+    <p style="margin: var(--spacing-sm) 0 0 0;"><a href="/NEWMVCtwigArchitecture/login">Please log in</a> to view your
+        profile.</p>
+</div>
+{% endif %}
 {% endblock %}

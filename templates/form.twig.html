@@ -3,21 +3,76 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<h2>Apply for Internship</h2>
+<div class="page-header">
+    <h1>Apply for Internship</h1>
+    <p style="color: var(--text-light);">Submit your application and CV</p>
+</div>
 
-<form id="application-form" method="POST" enctype="multipart/form-data" action="upload-cv">
+<div class="auth-container" style="max-width: 600px;">
+    <form id="application-form" method="POST" enctype="multipart/form-data" action="upload-cv">
+        <div class="form-group">
+            <div>
+                <label for="app-name">Full Name *</label>
+                <input type="text" id="app-name" name="name" required placeholder="John Doe">
+            </div>
 
-    <label>Full Name</label><br>
-    <input type="text" name="name" required><br><br>
+            <div>
+                <label for="app-email">Email Address *</label>
+                <input type="email" id="app-email" name="email" required placeholder="your@email.com">
+            </div>
 
-    <label>Email</label><br>
-    <input type="email" name="email" required><br><br>
+            <div>
+                <label for="app-cv">Upload Your CV (PDF/DOC/DOCX) *</label>
+                <input type="file" id="app-cv" name="cv" accept=".pdf,.doc,.docx" required>
+                <p style="font-size: 0.85rem; color: var(--text-light); margin-top: var(--spacing-sm);">Maximum file
+                    size: 5 MB</p>
+            </div>
 
-    <label>Upload your CV</label><br>
-    <input type="file" name="cv" accept=".pdf,.doc,.docx" required><br><br>
+            <button type="submit" style="width: 100%; padding: var(--spacing-md); margin-top: var(--spacing-lg);">Submit
+                Application</button>
+        </div>
+    </form>
 
-    <button type="submit">Submit Application</button>
-</form>
+    <div id="app-message" style="margin-top: var(--spacing-lg);"></div>
+</div>
 
-<div id="app-message"></div>
+<script>
+    const form = document.getElementById('application-form');
+    const messageDiv = document.getElementById('app-message');
+
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const file = form.querySelector('input[name="cv"]').files[0];
+            if (!file) {
+                messageDiv.innerHTML = '<div class="alert error"><p style="margin: 0;">Please select a CV file</p></div>';
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                messageDiv.innerHTML = '<div class="alert error"><p style="margin: 0;">File is too large (max 5 MB)</p></div>';
+                return;
+            }
+
+            const formData = new FormData(form);
+            fetch('/NEWMVCtwigArchitecture/upload-cv', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.text())
+                .then(message => {
+                    if (message.includes('success') || message.includes('successfully')) {
+                        messageDiv.innerHTML = '<div class="alert success"><p style="margin: 0;">✓ Application submitted successfully!</p></div>';
+                        form.reset();
+                    } else {
+                        messageDiv.innerHTML = '<div class="alert error"><p style="margin: 0;">❌ ' + message + '</p></div>';
+                    }
+                })
+                .catch(err => {
+                    messageDiv.innerHTML = '<div class="alert error"><p style="margin: 0;">Error: ' + err.message + '</p></div>';
+                });
+        });
+    }
+</script>
 {% endblock %}

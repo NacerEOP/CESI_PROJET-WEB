@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="{{ baseUrl }}/">
+    <link rel="stylesheet" href="static/styles/style-header-footer.css">
+    <link rel="stylesheet" href="static/styles/style.css">
+    <link rel="stylesheet" href="static/styles/animations.css">
+    <link rel="stylesheet" href="static/styles/app.css">
+    <title>{% block title %}{% endblock %}</title>
+    {% block styles %}{% endblock %}
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+    </script>
+</head>
+
+<body>
+    <header {% block headerAttributes %}{% endblock %}>
+        <nav class="nav-bar">
+            <ul>
+                <div class="centered-to-parent" id="nav-bg"></div>
+                <li><a href="/NEWMVCtwigArchitecture/">Home</a></li>
+                <li><a href="/NEWMVCtwigArchitecture/browse">Browse</a></li>
+                <li><a href="/NEWMVCtwigArchitecture/dashboard">Dashboard</a></li>
+                <li><a href="/NEWMVCtwigArchitecture/help">Help</a></li>
+            </ul>
+            <img class="user-profile-picture" src="/NEWMVCtwigArchitecture/static/assets/images/default-user-pfp.jpg"
+                alt="Profile">
+        </nav>
+        {% block header %}{% endblock %}
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <script type="module" src="static/js/inline-models.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

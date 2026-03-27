@@ -15,7 +15,11 @@
  *  - data-scale: numeric scale factor (default: 1)
  *  - data-rotation: comma-separated Euler angles in radians (default: 0,0,0)
  *  - data-position: comma-separated position offset (default: 0,0,0)
- *  - data-light: "false" to disable default lighting (default: true)
+ *  - data-light: "false" to disable dynamic lighting (default: true)
+ *  - data-camera-y: camera Y height offset from model (default: adaptive based on model size)
+ *  - data-scroll-speed: camera movement speed multiplier on scroll (default: 1.0)
+ *  - data-fov: camera field of view in degrees (default: 110)
+ *  - data-output-zoom: scale rendered output in div (default: 1.0, e.g. 1.2 for 20% zoom-in)
  *
  * The element is treated like a tabletop; camera pitch & yaw adjust as the element scrolls into view.
  */
@@ -64,6 +68,8 @@ export class InlineModel {
     this._raf = null;
     this._needsUpdate = true;
     this._baseDistance = null;
+    this._modelRadius = null;
+    this._customCameraY = null;
 
     this._onScroll = this._onScroll.bind(this);
     this._onResize = this._onResize.bind(this);
@@ -83,8 +89,9 @@ export class InlineModel {
     // Add lights unless explicitly disabled
     const disableLights = this._getBoolAttr('light', false);
     if (!disableLights) {
-      const lights = LightFactory.createDefaultLighting();
-      Object.values(lights).forEach((light) => this.manager.addObject(light));
+      // For now, add ambient light base - will add surface lights after model loads
+      const baseLight = LightFactory.createAmbientLight(1.7, 0xffffff);
+      this.manager.addObject(baseLight);
     }
 
     await this._loadModel();
@@ -187,19 +194,53 @@ export class InlineModel {
         radius = 1;
       }
 
+      // Store radius for later use (lighting, etc)
+      this._modelRadius = radius;
+
       // Place camera so model fits nicely
-      const fov = this.manager.camera.fov * (Math.PI / 180);
+      // Use custom FOV if provided in data attribute
+      const customFov = parseFloat(this.container.dataset.fov);
+      const fovDeg = !isNaN(customFov) ? customFov : 110;
+      const fov = fovDeg * (Math.PI / 180);
       const distance = Math.abs(radius / Math.sin(fov / 2)) * 1.2;
       
+      // Get custom camera Y height if provided
+      const customCameraY = parseFloat(this.container.dataset.cameraY);
+      const cameraYOffset = !isNaN(customCameraY) ? customCameraY : distance;
+      this._customCameraY = cameraYOffset;
+      
       // Position camera above the model for top-down view
-      this.manager.camera.position.set(0, distance, 0);
+      this.manager.camera.position.set(0, cameraYOffset, 0);
       this.manager.camera.lookAt(0, 0, 0);
 
-      // Set fixed FOV for the inline camera and update projection
-      this.manager.camera.fov = 110;
+      // Set FOV for the inline camera and update projection
+      this.manager.camera.fov = fovDeg;
       this.manager.camera.updateProjectionMatrix();
       
       this._baseDistance = distance;
+
+      // Add surface lighting with rim lights around the model
+      const disableLights = this._getBoolAttr('light', false);
+      if (!disableLights) {
+        const surfaceLights = LightFactory.createSurfaceLighting(
+          radius,
+          6,           // 6 lights around the model
+          10.6,         // intensity per light
+          radius * 1.8, // distance from center
+          radius * 0.5  // height offset
+        );
+        
+        // Add all surface lights to scene
+        Object.entries(surfaceLights).forEach(([key, light]) => {
+          if (Array.isArray(light)) {
+            // Array of rim lights
+            light.forEach((l) => this.manager.addObject(l));
+          } else if (light) {
+            // Single light (ambient, key, etc)
+            this.manager.addObject(light);
+          }
+        });
+      }
     }
   }
 
@@ -212,8 +253,13 @@ export class InlineModel {
   _resizeCanvas() {
     if (!this.canvas) return;
     const rect = this.canvas.getBoundingClientRect();
-    this.canvas.width = Math.max(1, Math.floor(rect.width * window.devicePixelRatio));
-    this.canvas.height = Math.max(1, Math.floor(rect.height * window.devicePixelRatio));
+
+    // Account for output zoom to render at higher resolution when zoomed
+    const outputZoom = parseFloat(this.container.dataset.outputZoom) || 1.0;
+    const effectivePixelRatio = window.devicePixelRatio * Math.max(1, outputZoom);
+
+    this.canvas.width = Math.max(1, Math.floor(rect.width * effectivePixelRatio));
+    this.canvas.height = Math.max(1, Math.floor(rect.height * effectivePixelRatio));
 
     // Update the ThreeManager renderer/camera config if needed
     if (this.manager) {
@@ -221,11 +267,19 @@ export class InlineModel {
       if (typeof this.manager._resize === 'function') {
         this.manager._resize();
       } else if (this.manager.renderer && this.manager.camera) {
-        const width = this.canvas.clientWidth;
-        const height = this.canvas.clientHeight;
-        this.manager.camera.aspect = width / height;
+        // Use the actual high-res canvas dimensions for renderer
+        const renderWidth = this.canvas.width;
+        const renderHeight = this.canvas.height;
+
+        // Update camera aspect ratio based on logical (CSS) size, not render size
+        const logicalWidth = rect.width;
+        const logicalHeight = rect.height;
+        this.manager.camera.aspect = logicalWidth / logicalHeight;
         this.manager.camera.updateProjectionMatrix();
-        this.manager.renderer.setSize(width, height, false);
+
+        // Set renderer to high-res canvas size and pixel ratio
+        this.manager.renderer.setSize(renderWidth, renderHeight, false);
+        this.manager.renderer.setPixelRatio(effectivePixelRatio);
       }
     }
   }
@@ -261,22 +315,43 @@ export class InlineModel {
     // Progress where 0 == top of viewport, 1 == bottom of viewport
     const progress = Math.min(1, Math.max(0, (rect.top + rect.height / 2) / vh));
 
+    // Get scroll speed multiplier from data attribute
+    const scrollSpeed = parseFloat(this.container.dataset.scrollSpeed) || 1.0;
+
     // Keep camera straight down over model, move in X axis with model to keep it directly beneath.
-    const baseY = this._baseDistance || 5;
-    const cameraY = baseY + 0.5;                // fixed altitude above model
-    const cameraX = THREE.MathUtils.lerp(-4, 4, progress); // horizontal motion
+    const cameraY = this._customCameraY || 5;
+    const cameraX = THREE.MathUtils.lerp(-2, 2, progress) * scrollSpeed; // horizontal motion with speed control
     
     // Z offset based on model's horizontal position relative to viewport center
     const vpCenterX = window.innerWidth / 2;
-const normalized = (rect.left + rect.width / 2) / window.innerWidth;
-const modelCenterX = (normalized - 0.5) * 2;
-    const distFromCenter = modelCenterX  ;
-    const cameraZ = -distFromCenter * 1.7;  // scale factor for Z offset
+    const normalized = (rect.left + rect.width / 2) / window.innerWidth;
+    const modelCenterX = (normalized - 0.5) * 2;
+    const distFromCenter = modelCenterX;
+    const cameraZ = distFromCenter * 1.7 * scrollSpeed;  // scale factor for Z offset with speed control
     
-    this.manager.camera.position.set(-cameraY, cameraX, cameraZ);
-    this.manager.camera.lookAt(90, 0, 0);  // always straight down onto model
+    this.manager.camera.position.set(cameraX, cameraY, -cameraZ);
+    // this.manager.camera.lookAt(0, 0, 0);  // not used, keep movement-only behavior
+    this.manager.camera.rotation.set(-Math.PI / 2, 0, -Math.PI / 2); // fixed top-down view
 
-    
+    // Keep the model visually centered in the div by compensating 2D output shift
+    if (this.manager.camera && this.canvas) {
+      this.manager.camera.updateMatrixWorld();
+
+      // Project world origin (model center) into normalized device coordinates [-1,1]
+      const ndc = new THREE.Vector3(0, 0, 0).project(this.manager.camera);
+      const canvasRect = this.canvas.getBoundingClientRect();
+      const projectedX = ((ndc.x + 1) / 2) * canvasRect.width;
+      const projectedY = ((-ndc.y + 1) / 2) * canvasRect.height;
+      const centerX = canvasRect.width / 2;
+      const centerY = canvasRect.height / 2;
+      const offsetX = centerX - projectedX;
+      const offsetY = centerY - projectedY;
+      const outputZoom = parseFloat(this.container.dataset.outputZoom) || 1.0;
+      const scale = outputZoom > 0 ? outputZoom : 1.0;
+
+      this.canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+      this.canvas.style.transformOrigin = 'center center';
+    }
 
     // ensure render if manager supports it
     if (this.manager.renderer && this.manager.camera) {

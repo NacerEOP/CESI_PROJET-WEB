@@ -11,9 +11,12 @@ abstract class BaseController
 
     public function __construct()
     {
-        // basic loader pointing at root templates directory
-        // controllers are in src/Controllers, so we need to go up two levels
-        $loader = new FilesystemLoader(__DIR__ . '/../../templates');
+        // basic loader points to src/Views first, fallback to templates for compatibility
+        $paths = [
+            __DIR__ . '/../Views',
+            __DIR__ . '/../../templates'
+        ];
+        $loader = new FilesystemLoader($paths);
         $this->twig = new Environment($loader);
     }
 

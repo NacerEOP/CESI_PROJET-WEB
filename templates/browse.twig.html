@@ -1,48 +1,61 @@
 {% extends "base.twig.html" %}
 
-{% block title %}{{ title }}{% endblock %}
-
-{% block styles %}
-<link rel="stylesheet" href="static/styles/style-browse.css">
-{% endblock %}
+{% block title %}Browse Internships{% endblock %}
 
 {% block content %}
-<section id="internship-list"></section>
-<div id="pagination"></div>
-{% endblock %}
+<div class="page-header">
+  <h1>Find Your Internship</h1>
+  <p style="color: var(--text-light); margin-bottom: 0;">Discover amazing opportunities from partner companies</p>
+</div>
 
-{% block scripts %}
-<script>
-    function loadInternships(page = 1) {
-        fetch(`/NEWMVCtwigArchitecture/api/internships?page=${page}`)
-            .then(res => res.json())
-            .then(data => {
-                const list = document.getElementById("internship-list");
-                const pagination = document.getElementById("pagination");
+<div id="browse-root" style="display: grid; grid-template-columns: 250px 1fr; gap: var(--spacing-2xl);">
 
-                list.innerHTML = "";
-                pagination.innerHTML = "";
+  <!-- SIDEBAR FILTERS -->
+  <aside id="sidebar" style="grid-row: 1 / 3;"></aside>
 
-                data.data.forEach(internship => {
-                    const card = document.createElement("div");
-                    card.className = "internship-card";
-                    card.innerHTML = `
-<h3>${internship.title}</h3>
-<p><strong>Company:</strong> ${internship.company}</p>
-<p><strong>Location:</strong> ${internship.location}</p>
-            `;
-                    list.appendChild(card);
-                });
+  <!-- MAIN CONTENT -->
+  <div>
+    <!-- TOP BAR -->
+    <section id="browse-topbar"
+      style="display: flex; gap: var(--spacing-lg); margin-bottom: var(--spacing-2xl); flex-wrap: wrap; align-items: center;">
+      <div id="results-count" style="flex: 1; color: var(--text-light);"></div>
+      <div id="search-bar" style="flex: 1; min-width: 250px;"></div>
+      <div id="sort-dropdown" style="flex: 0 0 auto;"></div>
+    </section>
 
-                for (let i = 1; i <= data.totalPages; i++) {
-                    const btn = document.createElement("button");
-                    btn.innerText = i;
-                    btn.onclick = () => loadInternships(i);
-                    pagination.appendChild(btn);
-                }
-            });
+    <!-- OFFERS GRID -->
+    <section id="offers-grid" class="grid"></section>
+
+    <!-- PAGINATION -->
+    <div id="pagination"></div>
+  </div>
+
+</div>
+
+<style>
+  #browse-topbar input[type="text"] {
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  #browse-topbar select {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-lg);
+  }
+
+  @media (max-width: 1024px) {
+    #browse-root {
+      grid-template-columns: 1fr;
     }
 
-    loadInternships();
-</script>
+    #sidebar {
+      grid-row: auto;
+      grid-column: 1;
+    }
+  }
+</style>
+
+<!-- JS ENTRY -->
+<script type="module" src="/static/js/browse.js"></script>
+
 {% endblock %}

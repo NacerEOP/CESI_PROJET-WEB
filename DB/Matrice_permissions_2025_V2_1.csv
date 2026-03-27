@@ -1,0 +1,28 @@
+;;;;;;
+Catégories et fonctionnalités;;;Rôles;;;
+;;;Administrateur;Pilote;Etudiant;Anonyme
+Gestion d'accès;SFx1;Authentification et gestion des accès;Oui;Oui;Oui;Oui
+Gestion des entreprises;SFx2;Rechercher et afficher une entreprise;Oui;Oui;Oui;Oui
+;SFx3;Créer une entreprise;Oui;Oui;Non;Non
+;SFx4;Modifier une entreprise;Oui;Oui;Non;Non
+;SFx5;Evaluer une entreprise;Oui;Oui;Non;Non
+;SFx6;Supprimer une entreprise;Oui;Oui;Non;Non
+Gestion des offres de stages;SFx7;Rechercher et afficher une offre;Oui;Oui;Oui;Oui
+;SFx8;Créer une offre;Oui;Oui;Non;Non
+;SFx9;Modifier une offre;Oui;Oui;Non;Non
+;SFx10;Supprimer une offre;Oui;Oui;Non;Non
+;SFx11;Consulter les statistiques des offres;Oui;Oui;Oui;Oui
+Gestion des pilotes;SFx12;Rechercher et afficher un compte Pilote;Oui;Non;Non;Non
+;SFx13;Créer un compte Pilote;Oui;Non;Non;Non
+;SFx14;Modifier un compte Pilote;Oui;Non;Non;Non
+;SFx15;Supprimer un compte Pilote;Oui;Non;Non;Non
+Gestion des étudiants;SFx16;Rechercher et afficher un compte Etudiant;Oui;Oui;Non;Non
+;SFx17;Créer un compte Etudiant;Oui;Oui;Non;Non
+;SFx18;Modifier un compte Etudiant;Oui;Oui;Non;Non
+;SFx19;Supprimer un compte Etudiant;Oui;Oui;Non;Non
+Gestion des candidatures;SFx20;Postuler à une offre;Non;Non;Oui;Non
+;SFx21;Afficher la liste des offres pour lesquelles l'étudiant a postulé.;Non;Non;Oui;Non
+;SFx22;Afficher la liste des offres auxquelles les élèves du pilote ont postulé;Non;Oui;Non;Non
+Gestion des wish-list;SFx23;Afficher les offres ajoutées à la wish-list;Non;Non;Oui;Non
+;SFx24;Ajouter une offre à la wish-list;Non;Non;Oui;Non
+;SFx25;Retirer une offre à la wish-list;Non;Non;Oui;Non

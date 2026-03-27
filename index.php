@@ -39,6 +39,18 @@ use App\Controllers\SettingsController;
 use App\Controllers\ApplicationController;
 use App\Controllers\InternshipController;
 use App\Controllers\FormController;
+use App\Models\Auth;
+
+// Start session for authentication
+session_start();
+
+// Function to check if user is logged in, redirect to login if not
+function requireAuth() {
+    if (!Auth::isLoggedIn()) {
+        header('Location: /NEWMVCtwigArchitecture/login');
+        exit;
+    }
+}
 
 // Simple router
 $request = $_SERVER['REQUEST_URI'];
@@ -51,6 +63,10 @@ $requestPath = parse_url($request, PHP_URL_PATH);
 switch ($requestPath) {
     case '/':
     case '/home':
+        if (!Auth::isLoggedIn()) {
+            header('Location: /NEWMVCtwigArchitecture/login');
+            exit;
+        }
         $controller = new HomeController();
         $controller->index();
         break;
@@ -59,6 +75,7 @@ switch ($requestPath) {
         $controller->index();
         break;
     case '/dashboard':
+        requireAuth();
         $controller = new DashboardController();
         $controller->index();
         break;
@@ -75,24 +92,33 @@ switch ($requestPath) {
         $controller->index();
         break;
     case '/profile':
+        requireAuth();
         $controller = new ProfileController();
         $controller->index();
         break;
     case '/settings':
+        requireAuth();
         $controller = new SettingsController();
         $controller->index();
         break;
     case '/application':
+        requireAuth();
         $controller = new ApplicationController();
         $controller->index();
         break;
     case '/internship':
+        requireAuth();
         $controller = new InternshipController();
         $controller->index();
         break;
     case '/form':
+        requireAuth();
         $controller = new FormController();
         $controller->index();
+        break;
+    case '/logout':
+        $controller = new LoginController();
+        $controller->logout();
         break;
     case '/api/internships':
         $controller = new BrowseController();

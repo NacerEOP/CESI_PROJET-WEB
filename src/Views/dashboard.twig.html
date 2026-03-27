@@ -23,27 +23,73 @@
     </div>
 
     <div class="grid cols-2" style="margin-top: var(--spacing-2xl);">
-        <div class="card">
-            <h3>📋 Internships</h3>
-            <p>Browse and apply for available internship positions</p>
-            <a href="/NEWMVCtwigArchitecture/browse" class="button" style="width: 100%;">Browse Internships</a>
-        </div>
-
-        <div class="card">
-            <h3>🏢 Companies</h3>
-            <p>Explore partner companies offering internships</p>
-            <a href="/NEWMVCtwigArchitecture/companies" class="button" style="width: 100%;">View Companies</a>
-        </div>
+        {% if role == 'student' %}
+            <div class="card">
+                <h3>📋 Applied Internships</h3>
+                {% if applications %}
+                    <ul>
+                        {% for app in applications %}
+                            <li>{{ app.Title }} at {{ app.CompanyName }} - Status: Pending</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No applications yet.</p>
+                {% endif %}
+            </div>
+            <div class="card">
+                <h3>🏢 Companies</h3>
+                <p>Explore partner companies</p>
+                <a href="/NEWMVCtwigArchitecture/browse" class="button" style="width: 100%;">Browse</a>
+            </div>
+        {% elseif role == 'pilot' %}
+            <div class="card">
+                <h3>👥 My Students</h3>
+                {% if students %}
+                    <ul>
+                        {% for student in students %}
+                            <li>{{ student.FirstName }} {{ student.LastName }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No students assigned.</p>
+                {% endif %}
+            </div>
+            <div class="card">
+                <h3>🏢 Company Reviews</h3>
+                {% if companies %}
+                    <ul>
+                        {% for company in companies %}
+                            <li>{{ company.Name }}: {{ company.Description }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% elseif role == 'admin' %}
+            <div class="card">
+                <h3>📊 Website Traffic</h3>
+                <p>Total Users: {{ totalUsers }}</p>
+            </div>
+            <div class="card">
+                <h3>🏢 Company Reviews</h3>
+                {% if companies %}
+                    <ul>
+                        {% for company in companies %}
+                            <li>{{ company.Name }}: {{ company.Description }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endif %}
 
         <div class="card">
             <h3>👤 Profile</h3>
-            <p>Manage your profile and personal information</p>
+            <p>Manage your profile</p>
             <a href="/NEWMVCtwigArchitecture/profile" class="button" style="width: 100%;">Edit Profile</a>
         </div>
 
         <div class="card">
             <h3>⚙️ Settings</h3>
-            <p>Update your account preferences and security</p>
+            <p>Update preferences</p>
             <a href="/NEWMVCtwigArchitecture/settings" class="button" style="width: 100%;">Go to Settings</a>
         </div>
     </div>

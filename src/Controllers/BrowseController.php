@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\InternshipModel;
+use App\Models\DbInternshipModel;
 
 class BrowseController extends BaseController
 {
@@ -11,7 +11,7 @@ class BrowseController extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->internshipModel = new InternshipModel();
+        $this->internshipModel = new DbInternshipModel();
     }
 
     public function index()
@@ -25,14 +25,14 @@ class BrowseController extends BaseController
     {
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
         $perPage = 3;
+        $offset = ($page - 1) * $perPage;
 
-        $internships = $this->internshipModel->getInternshipsPaginated($page, $perPage);
-        $totalPages = $this->internshipModel->getTotalPages($perPage);
+        $internships = $this->internshipModel->getAll($perPage, $offset);
 
         header("Content-Type: application/json");
         echo json_encode([
             "data" => $internships,
-            "totalPages" => $totalPages
+            "total" => count($internships)
         ]);
     }
 

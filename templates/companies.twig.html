@@ -1,0 +1,149 @@
+{% extends "base.twig.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="flex-between">
+        <div>
+            <h1>{{ title }}</h1>
+            <p style="color: var(--text-light);">Browse and manage all company partners</p>
+        </div>
+        {% if user is defined and user.role in ['admin', 'pilot'] %}
+        <button class="button" onclick="document.getElementById('company-form').scrollIntoView({behavior: 'smooth'})">+
+            Add Company</button>
+        {% endif %}
+    </div>
+</div>
+
+{% if user is not defined or not user %}
+<div class="alert info">
+    <p style="margin: 0;"><a href="/NEWMVCtwigArchitecture/login">Login as admin/pilot</a> to create or manage
+        companies.</p>
+</div>
+{% endif %}
+
+<div style="overflow-x: auto;">
+    <table>
+        <thead>
+            <tr>
+                <th>Company Name</th>
+                <th>Contact Email</th>
+                <th>Phone</th>
+                <th>Country</th>
+                <th>Description</th>
+                {% if user is defined and user.role in ['admin', 'pilot'] %}
+                <th>Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% if companies|length > 0 %}
+            {% for c in companies %}
+            <tr>
+                <td style="font-weight: 500;">{{ c.Name }}</td>
+                <td>{{ c.Email }}</td>
+                <td>{{ c.Phone|default('N/A') }}</td>
+                <td>{{ c.CountryName|default('Unknown') }}</td>
+                <td>{{ c.Description|default('N/A')|truncate(50) }}</td>
+                {% if user is defined and user.role in ['admin', 'pilot'] %}
+                <td>
+                    <button class="button btn-edit" data-company-id="{{ c.IdCompany }}"
+                        style="padding: var(--spacing-xs) var(--spacing-sm);">Edit</button>
+                    <button class="button danger btn-delete" data-company-id="{{ c.IdCompany }}"
+                        style="padding: var(--spacing-xs) var(--spacing-sm);">Delete</button>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: var(--spacing-lg);">
+                    <p style="margin: 0; color: var(--text-light);">No companies yet. {% if user is defined and
+                        user.role in ['admin', 'pilot'] %}<a href="#company-form">Create one</a>{% endif %}</p>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% if user is defined and user.role in ['admin', 'pilot'] %}
+<div id="company-form"
+    style="margin-top: var(--spacing-2xl); padding-top: var(--spacing-2xl); border-top: 1px solid var(--border-color);">
+    <h2>Create New Company</h2>
+    <form id="company-create-form" style="max-width: 600px;">
+        <div class="form-group">
+            <div>
+                <label for="company-name">Company Name *</label>
+                <input type="text" name="name" id="company-name" required placeholder="Enter company name">
+            </div>
+
+            <div>
+                <label for="company-description">Description</label>
+                <textarea name="description" id="company-description"
+                    placeholder="Tell us about the company..."></textarea>
+            </div>
+
+            <div>
+                <label for="company-email">Email *</label>
+                <input type="email" name="email" id="company-email" required placeholder="contact@company.com">
+            </div>
+
+            <div>
+                <label for="company-phone">Phone</label>
+                <input type="text" name="phone" id="company-phone" placeholder="+1 (555) 000-0000">
+            </div>
+
+            <div>
+                <label for="company-country">Country</label>
+                <input type="number" name="country" id="company-country" value="1" placeholder="1">
+            </div>
+
+            <button type="submit" style="width: 100%;">Create Company</button>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<script>
+    function companyEdit(id) {
+        alert('Editing not fully built yet. Use delete and recreate, or send PUT request to API.');
+    }
+
+    function companyDelete(id) {
+        if (!confirm('Are you sure you want to delete this company?')) return;
+        fetch('/NEWMVCtwigArchitecture/api/companies/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id=' + encodeURIComponent(id)
+        }).then(r => {
+            if (r.status === 204) {
+                alert('Company deleted successfully');
+                window.location.reload();
+            } else {
+                return r.text().then(txt => { throw new Error(txt) });
+            }
+        }).catch(err => alert('Error: ' + err.message));
+    }
+
+    const form = document.getElementById('company-create-form');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const fd = new FormData(form);
+            const body = new URLSearchParams(fd);
+            fetch('/NEWMVCtwigArchitecture/api/companies/create', {
+                method: 'POST',
+                body: body
+            }).then(res => {
+                if (!res.ok) throw new Error('Failed to create company');
+                return res.json();
+            }).then(data => {
+                alert('Company created successfully!');
+                window.location.reload();
+            }).catch(err => alert('Error: ' + err.message));
+        });
+    }
+</script>
+{% endblock %}

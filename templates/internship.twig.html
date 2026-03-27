@@ -3,5 +3,242 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <div class="flex-between">
+        <div>
+            <h1>{{ title }}</h1>
+            <p style="color: var(--text-light);">Manage internship positions and opportunities</p>
+        </div>
+        {% if user is defined and user.role in ['admin', 'pilot'] %}
+        <button class="button"
+            onclick="document.getElementById('internship-section').scrollIntoView({behavior: 'smooth'})">+ Add
+            Position</button>
+        {% endif %}
+    </div>
+</div>
 
+{% if user is not defined or not user %}
+<div class="alert info">
+    <p style="margin: 0;"><a href="/NEWMVCtwigArchitecture/login">Login as admin/pilot</a> to create or manage
+        internships.</p>
+</div>
+{% endif %}
+
+<div style="overflow-x: auto;">
+    <table>
+        <thead>
+            <tr>
+                <th>Position Title</th>
+                <th>Company</th>
+                <th>Category</th>
+                <th>Budget</th>
+                <th>Duration</th>
+                <th>Date</th>
+                {% if user is defined and user.role in ['admin', 'pilot'] %}
+                <th>Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% if internships|length > 0 %}
+            {% for i in internships %}
+            <tr>
+                <td style="font-weight: 500;">{{ i.Title }}</td>
+                <td>{{ i.CompanyName|default('Unknown') }}</td>
+                <td><span
+                        style="background: var(--light-bg); padding: var(--spacing-xs) var(--spacing-md); border-radius: var(--radius-md); font-size: 0.85rem;">{{
+                        i.CategoryName|default('General') }}</span></td>
+                <td>€{{ i.Budget|default(0) }}</td>
+                <td>{{ i.TemDureeInternship|default(0) }} weeks</td>
+                <td>{{ i.DateInternship|default('N/A') }}</td>
+                {% if user is defined and user.role in ['admin', 'pilot'] %}
+                <td>
+                    <button class="button" onclick="internshipEdit({{ i.IdInternship }})"
+                        style="padding: var(--spacing-xs) var(--spacing-sm);">Edit</button>
+                    <button class="button danger" onclick="internshipDelete({{ i.IdInternship }})"
+                        style="padding: var(--spacing-xs) var(--spacing-sm);">Delete</button>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; padding: var(--spacing-lg);">
+                    <p style="margin: 0; color: var(--text-light);">No internships available. {% if user is defined and
+                        user.role in ['admin', 'pilot'] %}<a href="#internship-section">Create one</a>{% endif %}</p>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% if user is defined and user.role in ['admin', 'pilot'] %}
+<div id="internship-section"
+    style="margin-top: var(--spacing-2xl); padding-top: var(--spacing-2xl); border-top: 1px solid var(--border-color);">
+    <h2>Create New Internship Position</h2>
+    <form id="internship-form" style="max-width: 600px;">
+        <div class="form-group">
+            <div>
+                <label for="internship-title">Position Title *</label>
+                <input type="text" name="title" id="internship-title" required
+                    placeholder="e.g., Frontend Developer Intern">
+            </div>
+
+            <div>
+                <label for="internship-description">Description</label>
+                <textarea name="description" id="internship-description"
+                    placeholder="Describe the position and responsibilities..."></textarea>
+            </div>
+
+            <div>
+                <label for="internship-company">Company *</label>
+                <input type="number" name="company" id="internship-company" value="1" required placeholder="Company ID">
+            </div>
+
+            <div>
+                <label for="internship-category">Category *</label>
+                <input type="number" name="category" id="internship-category" value="1" required
+                    placeholder="Category ID">
+            </div>
+
+            <div>
+                <label for="internship-date">Start Date</label>
+                <input type="date" name="date" id="internship-date" value="{{ " now"|date("Y-m-d") }}">
+            </div>
+
+            <div>
+                <label for="internship-budget">Budget (€)</label>
+                <input type="number" name="budget" id="internship-budget" step="0.01" value="0" placeholder="0.00">
+            </div>
+
+            <div>
+                <label for="internship-time">Duration (weeks)</label>
+                <input type="number" name="time" id="internship-time" value="1" min="1" placeholder="1">
+            </div>
+
+            <button type="submit" style="width: 100%;">Create Internship</button>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+{% if user is defined and user %}
+<p>Signed in as {{ user.firstName }} {{ user.lastName }} ({{ user.role }})</p>
+{% else %}
+<p><a href="/NEWMVCtwigArchitecture/login">Login</a> to create or edit internships.</p>
+{% endif %}
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Budget</th>
+            <th>Time (weeks)</th>
+            <th>Category</th>
+            <th>Company</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in internships %}
+        <tr>
+            <td>{{ i.IdInternship }}</td>
+            <td>{{ i.Title }}</td>
+            <td>{{ i.Description|default('N/A') }}</td>
+            <td>{{ i.DateInternship }}</td>
+            <td>{{ i.Budget }}</td>
+            <td>{{ i.TemDureeInternship }}</td>
+            <td>{{ i.CategoryName }}</td>
+            <td>{{ i.CompanyName }}</td>
+            <td>
+                {% if user is defined and user.role in ['admin', 'pilot'] %}
+                <button onclick="internshipEdit({{ i.IdInternship }})">Edit</button>
+                <button onclick="internshipDelete({{ i.IdInternship }})">Delete</button>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if user is defined and user.role in ['admin', 'pilot'] %}
+<h2>Create Internship</h2>
+<form id="internship-form">
+    <input type="hidden" name="id" id="internship-id" value="" />
+    <div>
+        <label for="internship-title">Title:</label>
+        <input type="text" name="title" id="internship-title" required>
+    </div>
+    <div>
+        <label for="internship-description">Description:</label>
+        <textarea name="description" id="internship-description"></textarea>
+    </div>
+    <div>
+        <label for="internship-date">Date:</label>
+        <input type="date" name="date" id="internship-date" value="{{ " now"|date("Y-m-d") }}">
+    </div>
+    <div>
+        <label for="internship-budget">Budget:</label>
+        <input type="number" name="budget" id="internship-budget" step="0.01" value="0.0">
+    </div>
+    <div>
+        <label for="internship-time">Time (weeks):</label>
+        <input type="number" name="time" id="internship-time" value="1">
+    </div>
+    <div>
+        <label for="internship-category">Category:</label>
+        <input type="number" name="category" id="internship-category" value="1">
+    </div>
+    <div>
+        <label for="internship-company">Company:</label>
+        <input type="number" name="company" id="internship-company" value="1">
+    </div>
+    <button type="submit">Save</button>
+</form>
+{% endif %}
+
+<script>
+    function internshipEdit(id) {
+        alert('Editing not fully built yet. Use delete and recreate, or send PUT request to API.');
+    }
+
+    function internshipDelete(id) {
+        if (!confirm('Are you sure you want to delete this internship position?')) return;
+        fetch('/NEWMVCtwigArchitecture/api/internships/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id=' + encodeURIComponent(id)
+        }).then(r => {
+            if (r.status === 204) {
+                alert('Internship deleted successfully');
+                window.location.reload();
+            } else {
+                return r.text().then(txt => { throw new Error(txt) });
+            }
+        }).catch(err => alert('Error: ' + err.message));
+    }
+
+    const form = document.getElementById('internship-form');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const fd = new FormData(form);
+            const body = new URLSearchParams(fd);
+            fetch('/NEWMVCtwigArchitecture/api/internships/create', {
+                method: 'POST',
+                body: body
+            }).then(res => {
+                if (!res.ok) throw new Error('Failed to create internship');
+                return res.json();
+            }).then(data => {
+                alert('Internship created successfully!');
+                window.location.reload();
+            }).catch(err => alert('Error: ' + err.message));
+        });
+    }
+</script>
 {% endblock %}

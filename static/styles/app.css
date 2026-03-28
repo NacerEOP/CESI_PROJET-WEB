@@ -104,8 +104,7 @@ a:hover {
    ================================ */
 main {
     min-height: calc(100vh - 200px);
-   
-    
+    padding-top: 70px;
     margin: 0 auto;
 }
 
@@ -525,6 +524,7 @@ tbody tr:last-child td {
    ================================ */
 .auth-container {
     max-width: 500px;
+    width: 100%;
     margin: var(--spacing-2xl) auto;
     padding: var(--spacing-xl);
     background: var(--surface);

@@ -29,7 +29,8 @@ class CompanyController extends BaseController
     {
         if (!Auth::hasRole(['admin', 'pilot'])) {
             http_response_code(403);
-            echo 'Forbidden';
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Forbidden']);
             return;
         }
 
@@ -41,6 +42,14 @@ class CompanyController extends BaseController
                 'phone' => trim($_POST['phone'] ?? ''),
                 'country' => intval($_POST['country'] ?? 1),
             ];
+            
+            if (empty($data['name']) || empty($data['email'])) {
+                http_response_code(400);
+                header('Content-Type: application/json');
+                echo json_encode(['error' => 'Name and email are required']);
+                return;
+            }
+            
             $company = $this->model->create($data);
             header('Content-Type: application/json');
             echo json_encode($company);
@@ -48,7 +57,8 @@ class CompanyController extends BaseController
         }
 
         http_response_code(405);
-        echo 'Method not allowed';
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Method not allowed']);
     }
 
     public function update($id)
@@ -81,17 +91,31 @@ class CompanyController extends BaseController
     {
         if (!Auth::hasRole(['admin', 'pilot'])) {
             http_response_code(403);
-            echo 'Forbidden';
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Forbidden']);
             return;
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
-            echo 'Method not allowed';
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Method not allowed']);
             return;
         }
 
-        $this->model->delete($id);
-        http_response_code(204);
+        try {
+            $success = $this->model->delete($id);
+            if ($success) {
+                http_response_code(204);
+            } else {
+                http_response_code(500);
+                header('Content-Type: application/json');
+                echo json_encode(['error' => 'Failed to delete company']);
+            }
+        } catch (\Exception $e) {
+            http_response_code(500);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+        }
     }
 }

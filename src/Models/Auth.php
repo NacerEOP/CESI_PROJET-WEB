@@ -93,7 +93,7 @@ class Auth
     public static function isStudent($idUser)
     {
         $db = Database::getInstance()->getConnection();
-        $sql = 'SELECT 1 FROM Student WHERE IdUser = :id LIMIT 1';
+        $sql = 'SELECT 1 FROM Student WHERE IdUser_1 = :id LIMIT 1';
         $stmt = $db->prepare($sql);
         $stmt->execute(['id' => $idUser]);
         return (bool)$stmt->fetch();

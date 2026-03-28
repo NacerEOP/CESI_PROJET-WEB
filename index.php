@@ -39,6 +39,7 @@ use App\Controllers\SettingsController;
 use App\Controllers\ApplicationController;
 use App\Controllers\InternshipController;
 use App\Controllers\FormController;
+use App\Controllers\CompanyController;
 use App\Models\Auth;
 
 // Start session for authentication
@@ -116,6 +117,10 @@ switch ($requestPath) {
         $controller = new FormController();
         $controller->index();
         break;
+    case '/companies':
+        $controller = new CompanyController();
+        $controller->index();
+        break;
     case '/logout':
         $controller = new LoginController();
         $controller->logout();
@@ -123,6 +128,21 @@ switch ($requestPath) {
     case '/api/internships':
         $controller = new BrowseController();
         $controller->getInternships();
+        break;
+    case '/api/companies/create':
+        requireAuth();
+        $controller = new CompanyController();
+        $controller->create();
+        break;
+    case '/api/companies/delete':
+        requireAuth();
+        if (isset($_POST['id'])) {
+            $controller = new CompanyController();
+            $controller->delete($_POST['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
         break;
     case '/upload-cv':
         $controller = new BrowseController();

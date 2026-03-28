@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use App\Models\Auth;
 
 abstract class BaseController
 {
@@ -24,6 +25,9 @@ abstract class BaseController
     {
         // ensure baseUrl is available in every view
         $data['baseUrl'] = '/NEWMVCtwigArchitecture';
+
+        // Pass authenticated user to all views
+        $data['authUser'] = Auth::user();
 
         // append default extension if not provided
         if (!str_ends_with($template, '.twig.html')) {

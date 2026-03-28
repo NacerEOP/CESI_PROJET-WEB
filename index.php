@@ -144,6 +144,15 @@ switch ($requestPath) {
             echo json_encode(['error' => 'Bad request']);
         }
         break;
+    case '/api/companies/rate':
+        requireAuth();
+        $controller = new CompanyController();
+        $controller->rate();
+        break;
+    case '/api/companies/ratings':
+        $controller = new CompanyController();
+        $controller->getRatings();
+        break;
     case '/upload-cv':
         $controller = new BrowseController();
         $controller->uploadCV();

@@ -3,16 +3,19 @@
 namespace App\Controllers;
 
 use App\Models\CompanyModel;
+use App\Models\CompanyRatingModel;
 use App\Models\Auth;
 
 class CompanyController extends BaseController
 {
     private $model;
+    private $ratingModel;
 
     public function __construct()
     {
         parent::__construct();
         $this->model = new CompanyModel();
+        $this->ratingModel = new CompanyRatingModel();
     }
 
     public function index()
@@ -112,6 +115,150 @@ class CompanyController extends BaseController
                 header('Content-Type: application/json');
                 echo json_encode(['error' => 'Failed to delete company']);
             }
+        } catch (\Exception $e) {
+            http_response_code(500);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * SFx5 - Save a rating for a company
+     */
+    public function rate()
+    {
+        // Check authorization - only admin and pilot can rate
+        if (!Auth::hasRole(['admin', 'pilot'])) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Forbidden - Only Admin and Pilot can rate companies']);
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Method not allowed']);
+            return;
+        }
+
+        // Get user info
+        $user = Auth::user();
+        if (!$user) {
+            http_response_code(401);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        // Validate input
+        $companyId = intval($_POST['companyId'] ?? 0);
+        $rating = intval($_POST['rating'] ?? 0);
+        $ratingText = trim($_POST['ratingText'] ?? '');
+
+        if ($companyId <= 0) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid company ID']);
+            return;
+        }
+
+        if ($rating < 1 || $rating > 5) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Rating must be between 1 and 5']);
+            return;
+        }
+
+        // Check if company exists
+        $company = $this->model->getById($companyId);
+        if (!$company) {
+            http_response_code(404);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Company not found']);
+            return;
+        }
+
+        try {
+            $result = $this->ratingModel->saveRating(
+                $companyId,
+                $user['id'],
+                $rating,
+                $ratingText,
+                $user['role']
+            );
+
+            if ($result) {
+                http_response_code(200);
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'message' => 'Rating saved successfully',
+                    'rating' => $result
+                ]);
+            } else {
+                http_response_code(500);
+                header('Content-Type: application/json');
+                echo json_encode(['error' => 'Failed to save rating']);
+            }
+        } catch (\Exception $e) {
+            http_response_code(500);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Get ratings for a company
+     */
+    public function getRatings($companyId = null)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            http_response_code(405);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Method not allowed']);
+            return;
+        }
+
+        // Get company ID from URL parameter if not provided
+        if ($companyId === null) {
+            $companyId = intval($_GET['companyId'] ?? 0);
+        }
+
+        if ($companyId <= 0) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid company ID']);
+            return;
+        }
+
+        // Check if company exists
+        $company = $this->model->getById($companyId);
+        if (!$company) {
+            http_response_code(404);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Company not found']);
+            return;
+        }
+
+        try {
+            $ratings = $this->ratingModel->getCompanyRatings($companyId);
+            $averageRating = $this->ratingModel->getAverageRating($companyId);
+            $ratingCount = $this->ratingModel->getRatingCount($companyId);
+
+            $user = Auth::user();
+            $userRating = null;
+            if ($user && Auth::hasRole(['admin', 'pilot'])) {
+                $userRating = $this->ratingModel->getRating($companyId, $user['id'], $user['role']);
+            }
+
+            http_response_code(200);
+            header('Content-Type: application/json');
+            echo json_encode([
+                'ratings' => $ratings,
+                'averageRating' => $averageRating,
+                'ratingCount' => $ratingCount,
+                'userRating' => $userRating
+            ]);
         } catch (\Exception $e) {
             http_response_code(500);
             header('Content-Type: application/json');

@@ -324,4 +324,3 @@ _loadCurrentScene() {
 Pick an effect file and customize it. You got this! 💪
 
 
-this was hard

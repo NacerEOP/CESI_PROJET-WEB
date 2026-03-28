@@ -70,7 +70,7 @@
     <h3 style="color: var(--danger-color);">⚠️ Danger Zone</h3>
     <p>Actions here cannot be undone</p>
     <button class="danger"
-        onclick="if(confirm('Are you sure? This will delete your account permanently.')) { fetch('{{ baseUrl }}/api/profile/delete', {method: 'POST'}).then(() => location.href='{{ baseUrl }}/'); }"
+        onclick="if(confirm('Are you sure? This will delete your account permanently.')) { fetch(api('profile/delete'), {method: 'POST'}).then(() => location.href='{{ baseUrl }}/'); }"
         style="width: 100%;">Delete Account</button>
 </div>
 {% else %}

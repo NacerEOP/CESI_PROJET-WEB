@@ -1,13 +1,6 @@
 RewriteEngine On
 
-# Simuler le bon basePath
-RewriteBase /CESI_PROJET-WEB/
-
-# Rediriger les URLs "attendues" vers le bon dossier
-RewriteCond %{REQUEST_URI} ^/NEWMVCtwigArchitecture
-RewriteRule ^NEWMVCtwigArchitecture/(.*)$ /CESI_PROJET-WEB/$1 [L]
-
-# Router toutes les requêtes vers index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+
 RewriteRule ^ index.php [QSA,L]

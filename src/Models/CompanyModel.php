@@ -71,13 +71,18 @@ class CompanyModel
             $stmt->execute(['id' => $id]);
             $internships = $stmt->fetchAll(\PDO::FETCH_COLUMN);
 
-            // Delete applications and wishlists for these internships
-            foreach ($internships as $internshipId) {
-                $stmt = $this->db->prepare('DELETE FROM Application WHERE IdInternship = :id');
-                $stmt->execute(['id' => $internshipId]);
+            if (count($internships) > 0) {
+                // Delete dependent data for internships in bulk to avoid fk constraint failures
+                $placeholders = implode(',', array_fill(0, count($internships), '?'));
 
-                $stmt = $this->db->prepare('DELETE FROM WishList WHERE IdInternship = :id');
-                $stmt->execute(['id' => $internshipId]);
+                $stmt = $this->db->prepare("DELETE FROM InternshipSkillNeeds WHERE IdInternship IN ($placeholders)");
+                $stmt->execute($internships);
+
+                $stmt = $this->db->prepare("DELETE FROM Application WHERE IdInternship IN ($placeholders)");
+                $stmt->execute($internships);
+
+                $stmt = $this->db->prepare("DELETE FROM WishList WHERE IdInternship IN ($placeholders)");
+                $stmt->execute($internships);
             }
 
             // Delete internships for this company

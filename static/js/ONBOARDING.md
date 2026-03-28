@@ -322,3 +322,6 @@ _loadCurrentScene() {
 **Ready to code?** Let's go! 🚀
 
 Pick an effect file and customize it. You got this! 💪
+
+
+this was hard

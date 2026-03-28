@@ -70,6 +70,7 @@ export class InlineModel {
     this._baseDistance = null;
     this._modelRadius = null;
     this._customCameraY = null;
+    this._baseQuaternion = null;
 
     this._onScroll = this._onScroll.bind(this);
     this._onResize = this._onResize.bind(this);
@@ -176,6 +177,7 @@ export class InlineModel {
     // Add to scene
     this.manager.addObject(scene);
     this.model = scene;
+    this._baseQuaternion = scene.quaternion.clone();
   }
 
   _centerObject(object) {
@@ -217,6 +219,11 @@ export class InlineModel {
       this.manager.camera.fov = fovDeg;
       this.manager.camera.updateProjectionMatrix();
       
+      // Extend frustum distance to avoid clipping when camera moves around (including parallax shifts)
+      this.manager.camera.near = 0.1;
+      this.manager.camera.far = Math.max(2000, distance * 30, radius * 50);
+      this.manager.camera.updateProjectionMatrix();
+
       this._baseDistance = distance;
 
       // Add surface lighting with rim lights around the model
@@ -318,34 +325,73 @@ export class InlineModel {
     // Get scroll speed multiplier from data attribute
     const scrollSpeed = parseFloat(this.container.dataset.scrollSpeed) || 1.0;
 
-    // Keep camera straight down over model, move in X axis with model to keep it directly beneath.
+    // Keep camera fixed vertically but adjust horizontally/depth based on container position on page.
     const cameraY = this._customCameraY || 5;
-    const cameraX = THREE.MathUtils.lerp(-2, 2, progress) * scrollSpeed; // horizontal motion with speed control
     
-    // Z offset based on model's horizontal position relative to viewport center
-    const vpCenterX = window.innerWidth / 2;
+    // Horizontal camera adjustment based on where the container is positioned on the page.
     const normalized = (rect.left + rect.width / 2) / window.innerWidth;
     const modelCenterX = (normalized - 0.5) * 2;
-    const distFromCenter = modelCenterX;
-    const cameraZ = distFromCenter * 1.7 * scrollSpeed;  // scale factor for Z offset with speed control
     
-    this.manager.camera.position.set(cameraX, cameraY, -cameraZ);
-    // this.manager.camera.lookAt(0, 0, 0);  // not used, keep movement-only behavior
-    this.manager.camera.rotation.set(-Math.PI / 2, 0, -Math.PI / 2); // fixed top-down view
+    // Get parallax amplitude from data attribute (default 1.0 for normal effect).
+    const parallaxAmp = parseFloat(this.container.dataset.parallaxAmp) || 5.0;
+    
+    // Apply inverted parallax (negative modelCenterX) with amplitude control.
+    // Clamp limits scale with amplitude to allow proportional camera movement.
+    const maxClamp = 3 + parallaxAmp * 2; // allows more movement as amplitude increases
+    const cameraX = THREE.MathUtils.clamp(-modelCenterX * 2 * parallaxAmp * scrollSpeed, -maxClamp, maxClamp);
+    const cameraZ = THREE.MathUtils.clamp(-modelCenterX * 1.7 * parallaxAmp * scrollSpeed, -maxClamp, maxClamp);
 
-    // Keep the model visually centered in the div by compensating 2D output shift
+    this.manager.camera.position.set(cameraX, cameraY, cameraZ);
+
+    // Keep camera rotated strictly downwards with explicit roll.
+    const roll = parseFloat(this.container.dataset.cameraRoll);
+    const cameraRoll = Number.isFinite(roll) ? roll : -Math.PI / 2;
+    this.manager.camera.rotation.set(-Math.PI / 2, 0, cameraRoll);
+
+    // Apply scroll-based rotation to the model so it moves naturally while staying centered.
+    const spinAmount = (progress - 0.5) * scrollSpeed * Math.PI * 0.5; // +/-90 degrees
+    const axisName = (this.container.dataset.scrollAxis || 'z').toLowerCase();
+    let axisVector;
+
+    switch (axisName) {
+      case 'x':
+        axisVector = new THREE.Vector3(1, 0, 0);
+        break;
+      case 'y':
+        axisVector = new THREE.Vector3(0, 1, 0);
+        break;
+      case 'z':
+      default:
+        axisVector = new THREE.Vector3(0, 0, 1);
+        break;
+    }
+
+    if (this.model && this._baseQuaternion) {
+      const spinQuat = new THREE.Quaternion().setFromAxisAngle(axisVector, spinAmount);
+      this.model.quaternion.copy(this._baseQuaternion).multiply(spinQuat);
+    }
+
+    // Keep world matrix updated so projection remains stable.
+    this.manager.camera.updateMatrixWorld();
+
+    // Keep the model visually centered in the div by compensating 2D output shift from camera parallax
     if (this.manager.camera && this.canvas) {
       this.manager.camera.updateMatrixWorld();
 
       // Project world origin (model center) into normalized device coordinates [-1,1]
       const ndc = new THREE.Vector3(0, 0, 0).project(this.manager.camera);
       const canvasRect = this.canvas.getBoundingClientRect();
+
+      // Do NOT clamp NDC - let the offset compensate for off-screen projection
       const projectedX = ((ndc.x + 1) / 2) * canvasRect.width;
       const projectedY = ((-ndc.y + 1) / 2) * canvasRect.height;
       const centerX = canvasRect.width / 2;
       const centerY = canvasRect.height / 2;
+
+      // Calculate offset to re-center the projected model
       const offsetX = centerX - projectedX;
       const offsetY = centerY - projectedY;
+
       const outputZoom = parseFloat(this.container.dataset.outputZoom) || 1.0;
       const scale = outputZoom > 0 ? outputZoom : 1.0;
 

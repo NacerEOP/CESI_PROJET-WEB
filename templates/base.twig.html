@@ -26,12 +26,12 @@
         <nav class="nav-bar">
             <ul>
                 <div class="centered-to-parent" id="nav-bg"></div>
-                <li><a href="/NEWMVCtwigArchitecture/">Home</a></li>
-                <li><a href="/NEWMVCtwigArchitecture/browse">Browse</a></li>
-                <li><a href="/NEWMVCtwigArchitecture/dashboard">Dashboard</a></li>
-                <li><a href="/NEWMVCtwigArchitecture/help">Help</a></li>
+                <li><a href="{{ baseUrl }}/">Home</a></li>
+                <li><a href="{{ baseUrl }}/browse">Browse</a></li>
+                <li><a href="{{ baseUrl }}/dashboard">Dashboard</a></li>
+                <li><a href="{{ baseUrl }}/help">Help</a></li>
             </ul>
-            <img class="user-profile-picture" src="/NEWMVCtwigArchitecture/static/assets/images/default-user-pfp.jpg"
+            <img class="user-profile-picture" src="{{ baseUrl }}/static/assets/images/default-user-pfp.jpg"
                 alt="Profile">
         </nav>
         {% block header %}{% endblock %}

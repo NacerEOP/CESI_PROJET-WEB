@@ -17,7 +17,7 @@
                         }}</span></p>
             </div>
             <div>
-                <a href="/NEWMVCtwigArchitecture/logout" class="button danger">Logout</a>
+                <a href="{{ baseUrl }}/logout" class="button danger">Logout</a>
             </div>
         </div>
     </div>
@@ -39,7 +39,7 @@
             <div class="card">
                 <h3>🏢 Companies</h3>
                 <p>Explore partner companies</p>
-                <a href="/NEWMVCtwigArchitecture/browse" class="button" style="width: 100%;">Browse</a>
+                <a href="{{ baseUrl }}/browse" class="button" style="width: 100%;">Browse</a>
             </div>
         {% elseif role == 'pilot' %}
             <div class="card">
@@ -84,13 +84,13 @@
         <div class="card">
             <h3>👤 Profile</h3>
             <p>Manage your profile</p>
-            <a href="/NEWMVCtwigArchitecture/profile" class="button" style="width: 100%;">Edit Profile</a>
+            <a href="{{ baseUrl }}/profile" class="button" style="width: 100%;">Edit Profile</a>
         </div>
 
         <div class="card">
             <h3>⚙️ Settings</h3>
             <p>Update preferences</p>
-            <a href="/NEWMVCtwigArchitecture/settings" class="button" style="width: 100%;">Go to Settings</a>
+            <a href="{{ baseUrl }}/settings" class="button" style="width: 100%;">Go to Settings</a>
         </div>
     </div>
 
@@ -104,13 +104,13 @@
             <div class="card" style="border-color: var(--secondary-color); border-width: 2px;">
                 <h3 style="color: var(--secondary-color);">+ Create Internship</h3>
                 <p>Add a new internship position</p>
-                <a href="/NEWMVCtwigArchitecture/internship" class="button" style="width: 100%;">Create New</a>
+                <a href="{{ baseUrl }}/internship" class="button" style="width: 100%;">Create New</a>
             </div>
 
             <div class="card" style="border-color: var(--secondary-color); border-width: 2px;">
                 <h3 style="color: var(--secondary-color);">+ Create Company</h3>
                 <p>Register a new company</p>
-                <a href="/NEWMVCtwigArchitecture/companies" class="button" style="width: 100%;">Add Company</a>
+                <a href="{{ baseUrl }}/companies" class="button" style="width: 100%;">Add Company</a>
             </div>
         </div>
     </div>
@@ -122,9 +122,9 @@
     </div>
 
     <div class="grid cols-2" style="margin-top: var(--spacing-xl);">
-        <a href="/NEWMVCtwigArchitecture/login" class="button"
+        <a href="{{ baseUrl }}/login" class="button"
             style="padding: var(--spacing-lg); text-align: center;">Sign In</a>
-        <a href="/NEWMVCtwigArchitecture/signup" class="button secondary"
+        <a href="{{ baseUrl }}/signup" class="button secondary"
             style="padding: var(--spacing-lg); text-align: center;">Create Account</a>
     </div>
     {% endif %}

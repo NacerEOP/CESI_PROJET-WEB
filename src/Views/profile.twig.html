@@ -9,7 +9,7 @@
 
 {% if user is defined and user %}
 <div class="profile-header">
-    <img src="/NEWMVCtwigArchitecture/static/assets/images/default-user-pfp.jpg" alt="Profile Avatar"
+    <img src="{{ baseUrl }}/static/assets/images/default-user-pfp.jpg" alt="Profile Avatar"
         class="profile-avatar">
     <div class="profile-info">
         <h1 style="margin-bottom: var(--spacing-lg);">{{ user.firstName }} {{ user.lastName }}</h1>
@@ -70,13 +70,13 @@
     <h3 style="color: var(--danger-color);">⚠️ Danger Zone</h3>
     <p>Actions here cannot be undone</p>
     <button class="danger"
-        onclick="if(confirm('Are you sure? This will delete your account permanently.')) { fetch('/NEWMVCtwigArchitecture/api/profile/delete', {method: 'POST'}).then(() => location.href='/NEWMVCtwigArchitecture/'); }"
+        onclick="if(confirm('Are you sure? This will delete your account permanently.')) { fetch('{{ baseUrl }}/api/profile/delete', {method: 'POST'}).then(() => location.href='{{ baseUrl }}/'); }"
         style="width: 100%;">Delete Account</button>
 </div>
 {% else %}
 <div class="alert info">
     <p style="margin: 0;"><strong>Authentication Required</strong></p>
-    <p style="margin: var(--spacing-sm) 0 0 0;"><a href="/NEWMVCtwigArchitecture/login">Please log in</a> to view your
+    <p style="margin: var(--spacing-sm) 0 0 0;"><a href="{{ baseUrl }}/login">Please log in</a> to view your
         profile.</p>
 </div>
 {% endif %}

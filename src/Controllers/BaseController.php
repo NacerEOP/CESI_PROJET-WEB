@@ -5,6 +5,7 @@ namespace App\Controllers;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use App\Models\Auth;
+use App\Config\AppConfig;
 
 abstract class BaseController
 {
@@ -23,8 +24,8 @@ abstract class BaseController
 
     protected function render($template, $data = [])
     {
-        // ensure baseUrl is available in every view
-        $data['baseUrl'] = '/NEWMVCtwigArchitecture';
+        // ensure baseUrl is available in every view (dynamically detected)
+        $data['baseUrl'] = AppConfig::getBasePath();
 
         // Pass authenticated user to all views
         $data['authUser'] = Auth::user();

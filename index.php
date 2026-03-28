@@ -1,11 +1,19 @@
 <?php
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+use App\Config\AppConfig;
+
 // Serve static files directly
-$basePath = '/NEWMVCtwigArchitecture';
+$basePath = AppConfig::getBasePath();
 $request = $_SERVER['REQUEST_URI'];
 
 // Check if it's a static file request
 if (strpos($request, '/static/') !== false || strpos($request, '.css') !== false || strpos($request, '.js') !== false || strpos($request, '.jpg') !== false || strpos($request, '.png') !== false) {
-    $filePath = __DIR__ . str_replace($basePath, '', $request);
+    // Remove base path from request to get the relative file path
+    $relativePath = str_replace($basePath, '', $request);
+    // Convert URL path to filesystem path (replace forward slashes with directory separator)
+    $filePath = __DIR__ . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, trim($relativePath, '/'));
     if (file_exists($filePath)) {
         // Set proper content type
         $ext = pathinfo($filePath, PATHINFO_EXTENSION);
@@ -26,8 +34,6 @@ if (strpos($request, '/static/') !== false || strpos($request, '.css') !== false
     }
 }
 
-require_once __DIR__ . '/vendor/autoload.php';
-
 use App\Controllers\HomeController;
 use App\Controllers\BrowseController;
 use App\Controllers\DashboardController;
@@ -46,16 +52,15 @@ use App\Models\Auth;
 session_start();
 
 // Function to check if user is logged in, redirect to login if not
-function requireAuth() {
+function requireAuth($basePath = '/') {
     if (!Auth::isLoggedIn()) {
-        header('Location: /NEWMVCtwigArchitecture/login');
+        header('Location: ' . $basePath . '/login');
         exit;
     }
 }
 
 // Simple router
 $request = $_SERVER['REQUEST_URI'];
-$basePath = '/NEWMVCtwigArchitecture';
 $request = str_replace($basePath, '', $request);
 
 // Remove query string for routing
@@ -65,7 +70,7 @@ switch ($requestPath) {
     case '/':
     case '/home':
         if (!Auth::isLoggedIn()) {
-            header('Location: /NEWMVCtwigArchitecture/login');
+            header('Location: ' . $basePath . '/login');
             exit;
         }
         $controller = new HomeController();
@@ -76,7 +81,7 @@ switch ($requestPath) {
         $controller->index();
         break;
     case '/dashboard':
-        requireAuth();
+        requireAuth($basePath);
         $controller = new DashboardController();
         $controller->index();
         break;
@@ -93,27 +98,27 @@ switch ($requestPath) {
         $controller->index();
         break;
     case '/profile':
-        requireAuth();
+        requireAuth($basePath);
         $controller = new ProfileController();
         $controller->index();
         break;
     case '/settings':
-        requireAuth();
+        requireAuth($basePath);
         $controller = new SettingsController();
         $controller->index();
         break;
     case '/application':
-        requireAuth();
+        requireAuth($basePath);
         $controller = new ApplicationController();
         $controller->index();
         break;
     case '/internship':
-        requireAuth();
+        requireAuth($basePath);
         $controller = new InternshipController();
         $controller->index();
         break;
     case '/form':
-        requireAuth();
+        requireAuth($basePath);
         $controller = new FormController();
         $controller->index();
         break;
@@ -130,12 +135,12 @@ switch ($requestPath) {
         $controller->getInternships();
         break;
     case '/api/companies/create':
-        requireAuth();
+        requireAuth($basePath);
         $controller = new CompanyController();
         $controller->create();
         break;
     case '/api/companies/delete':
-        requireAuth();
+        requireAuth($basePath);
         if (isset($_POST['id'])) {
             $controller = new CompanyController();
             $controller->delete($_POST['id']);
@@ -145,7 +150,7 @@ switch ($requestPath) {
         }
         break;
     case '/api/companies/rate':
-        requireAuth();
+        requireAuth($basePath);
         $controller = new CompanyController();
         $controller->rate();
         break;

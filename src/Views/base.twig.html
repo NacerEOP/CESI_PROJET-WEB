@@ -26,30 +26,30 @@
         <nav class="nav-bar">
             <ul>
                 <div class="centered-to-parent" id="nav-bg"></div>
-                <li><a href="/NEWMVCtwigArchitecture/">Home</a></li>
-                <li><a href="/NEWMVCtwigArchitecture/browse">Browse</a></li>
-                <li><a href="/NEWMVCtwigArchitecture/companies">Companies</a></li>
-                <li><a href="/NEWMVCtwigArchitecture/dashboard">Dashboard</a></li>
-                <li><a href="/NEWMVCtwigArchitecture/help">Help</a></li>
+                <li><a href="{{ baseUrl }}/">Home</a></li>
+                <li><a href="{{ baseUrl }}/browse">Browse</a></li>
+                <li><a href="{{ baseUrl }}/companies">Companies</a></li>
+                <li><a href="{{ baseUrl }}/dashboard">Dashboard</a></li>
+                <li><a href="{{ baseUrl }}/help">Help</a></li>
             </ul>
             
             {% if authUser %}
             <div class="user-menu-container">
-                <img class="user-profile-picture" id="userProfileBtn" src="/NEWMVCtwigArchitecture/static/assets/images/default-user-pfp.jpg" alt="Profile">
+                <img class="user-profile-picture" id="userProfileBtn" src="{{ baseUrl }}/static/assets/images/default-user-pfp.jpg" alt="Profile">
                 <div class="user-dropdown" id="userDropdown">
                     <div class="dropdown-header">
                         <span class="user-name">{{ authUser.firstName }} {{ authUser.lastName }}</span>
                         <span class="user-role">{{ authUser.role|upper }}</span>
                     </div>
                     <hr>
-                    <a href="/NEWMVCtwigArchitecture/profile" class="dropdown-item">👤 Profile</a>
-                    <a href="/NEWMVCtwigArchitecture/settings" class="dropdown-item">⚙️ Settings</a>
+                    <a href="{{ baseUrl }}/profile" class="dropdown-item">👤 Profile</a>
+                    <a href="{{ baseUrl }}/settings" class="dropdown-item">⚙️ Settings</a>
                     <hr>
-                    <a href="/NEWMVCtwigArchitecture/logout" class="dropdown-item logout">🚪 Logout</a>
+                    <a href="{{ baseUrl }}/logout" class="dropdown-item logout">🚪 Logout</a>
                 </div>
             </div>
             {% else %}
-            <img class="user-profile-picture" src="/NEWMVCtwigArchitecture/static/assets/images/default-user-pfp.jpg" alt="Profile">
+            <img class="user-profile-picture" src="{{ baseUrl }}/static/assets/images/default-user-pfp.jpg" alt="Profile">
             {% endif %}
         </nav>
         {% block header %}{% endblock %}

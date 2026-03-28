@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Models\Auth;
+use App\Config\AppConfig;
 
 class LoginController extends BaseController
 {
@@ -23,7 +24,7 @@ class LoginController extends BaseController
 
             if ($user) {
                 Auth::login($user);
-                header('Location: /NEWMVCtwigArchitecture/dashboard');
+                header('Location: ' . AppConfig::getBasePath() . '/dashboard');
                 exit;
             }
 
@@ -37,7 +38,7 @@ class LoginController extends BaseController
     public function logout()
     {
         Auth::logout();
-        header('Location: /NEWMVCtwigArchitecture/login');
+        header('Location: ' . AppConfig::getBasePath() . '/login');
         exit;
     }
 }

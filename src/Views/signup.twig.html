@@ -9,7 +9,7 @@
         <p>Join us and find your internship</p>
     </div>
 
-    <form method="POST" action="/NEWMVCtwigArchitecture/signup">
+    <form method="POST" action="{{ baseUrl }}/signup">
         <div class="form-group">
             <div>
                 <label for="firstName">First Name</label>
@@ -45,7 +45,7 @@
     </form>
 
     <div class="auth-footer">
-        <p>Already have an account? <a href="/NEWMVCtwigArchitecture/login">Sign in</a></p>
+        <p>Already have an account? <a href="{{ baseUrl }}/login">Sign in</a></p>
     </div>
 </div>
 {% endblock %}

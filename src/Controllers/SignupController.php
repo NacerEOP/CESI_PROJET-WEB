@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Models\Auth;
+use App\Config\AppConfig;
 
 class SignupController extends BaseController
 {
@@ -44,10 +45,11 @@ class SignupController extends BaseController
             ]);
 
             Auth::login($user);
-            header('Location: /NEWMVCtwigArchitecture/dashboard');
+            header('Location: ' . AppConfig::getBasePath() . '/dashboard');
             exit;
         }
 
         $this->render('signup', ['title' => 'Sign Up']);
     }
+}
 }

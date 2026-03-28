@@ -1,6 +1,6 @@
 <?php
 // Serve static files directly
-$basePath = '/CESI_PROJET-WEB';
+$basePath = '/NEWMVCtwigArchitecture';
 $request = $_SERVER['REQUEST_URI'];
 
 // Check if it's a static file request

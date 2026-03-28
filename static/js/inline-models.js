@@ -317,7 +317,6 @@ export class InlineModel {
 
     const rect = this.container.getBoundingClientRect();
     const vh = window.innerHeight;
-    
 
     // Progress where 0 == top of viewport, 1 == bottom of viewport
     const progress = Math.min(1, Math.max(0, (rect.top + rect.height / 2) / vh));
@@ -325,21 +324,20 @@ export class InlineModel {
     // Get scroll speed multiplier from data attribute
     const scrollSpeed = parseFloat(this.container.dataset.scrollSpeed) || 1.0;
 
-    // Keep camera fixed vertically but adjust horizontally/depth based on container position on page.
+    // Keep camera fixed vertically but adjust horizontally/depth based on container position in viewport.
     const cameraY = this._customCameraY || 5;
     
-    // Horizontal camera adjustment based on where the container is positioned on the page.
-    const normalized = (rect.left + rect.width / 2) / window.innerWidth;
-    const modelCenterX = (normalized - 0.5) * 2;
+    // Horizontal progress: 0 when container is at left edge of viewport, 1 when at right edge
+    const horizontalProgress = Math.min(1, Math.max(0, (rect.left + rect.width / 2) / window.innerWidth));
+    const horizontalOffset = (horizontalProgress - 0.5) * 2; // -1 to +1 range
     
-    // Get parallax amplitude from data attribute (default 1.0 for normal effect).
-    const parallaxAmp = parseFloat(this.container.dataset.parallaxAmp) || 5.0;
+    // Get parallax amplitude from data attribute (default 0 for no parallax)
+    const parallaxAmp = parseFloat(this.container.dataset.parallaxAmp) || 0;
     
-    // Apply inverted parallax (negative modelCenterX) with amplitude control.
-    // Clamp limits scale with amplitude to allow proportional camera movement.
-    const maxClamp = 3 + parallaxAmp * 2; // allows more movement as amplitude increases
-    const cameraX = THREE.MathUtils.clamp(-modelCenterX * 2 * parallaxAmp * scrollSpeed, -maxClamp, maxClamp);
-    const cameraZ = THREE.MathUtils.clamp(-modelCenterX * 1.7 * parallaxAmp * scrollSpeed, -maxClamp, maxClamp);
+    // Apply parallax - subtle camera movement
+    const maxClamp = 3;
+    const cameraX = THREE.MathUtils.clamp(horizontalOffset * parallaxAmp, -maxClamp, maxClamp);
+    const cameraZ = THREE.MathUtils.clamp(horizontalOffset * parallaxAmp * 0.7, -maxClamp, maxClamp);
 
     this.manager.camera.position.set(cameraX, cameraY, cameraZ);
 
@@ -348,27 +346,54 @@ export class InlineModel {
     const cameraRoll = Number.isFinite(roll) ? roll : -Math.PI / 2;
     this.manager.camera.rotation.set(-Math.PI / 2, 0, cameraRoll);
 
-    // Apply scroll-based rotation to the model so it moves naturally while staying centered.
+    // Apply scroll-based rotation to the model (original perfect rotation)
     const spinAmount = (progress - 0.5) * scrollSpeed * Math.PI * 0.5; // +/-90 degrees
-    const axisName = (this.container.dataset.scrollAxis || 'z').toLowerCase();
-    let axisVector;
+    const scrollAxis = (this.container.dataset.scrollAxis || 'z').toLowerCase();
+    let scrollAxisVector;
 
-    switch (axisName) {
+    switch (scrollAxis) {
       case 'x':
-        axisVector = new THREE.Vector3(1, 0, 0);
+        scrollAxisVector = new THREE.Vector3(1, 0, 0);
         break;
       case 'y':
-        axisVector = new THREE.Vector3(0, 1, 0);
+        scrollAxisVector = new THREE.Vector3(0, 1, 0);
         break;
       case 'z':
       default:
-        axisVector = new THREE.Vector3(0, 0, 1);
+        scrollAxisVector = new THREE.Vector3(0, 0, 1);
         break;
     }
 
+    // Get parallax rotation axis (default 'x' for horizontal parallax rotation)
+    const parallaxRotationAmp = parseFloat(this.container.dataset.parallaxRotationAmp) || 0;
+    const parallaxAxis = (this.container.dataset.parallaxRotationAxis || 'x').toLowerCase();
+    const parallaxRotationLimit = 0.3; // Clamp parallax rotation to ±0.3 radians (~17 degrees) for natural look
+    let parallaxAxisVector;
+
+    switch (parallaxAxis) {
+      case 'x':
+        parallaxAxisVector = new THREE.Vector3(1, 0, 0);
+        break;
+      case 'y':
+        parallaxAxisVector = new THREE.Vector3(0, 1, 0);
+        break;
+      case 'z':
+      default:
+        parallaxAxisVector = new THREE.Vector3(0, 0, 1);
+        break;
+    }
+
+    // Apply both rotations to model
     if (this.model && this._baseQuaternion) {
-      const spinQuat = new THREE.Quaternion().setFromAxisAngle(axisVector, spinAmount);
-      this.model.quaternion.copy(this._baseQuaternion).multiply(spinQuat);
+      // Scroll-based rotation
+      const scrollQuat = new THREE.Quaternion().setFromAxisAngle(scrollAxisVector, spinAmount);
+      
+      // Parallax-based rotation on different axis (clamped for natural look)
+      const clampedParallaxRotation = THREE.MathUtils.clamp(horizontalOffset * parallaxRotationAmp, -parallaxRotationLimit, parallaxRotationLimit);
+      const parallaxQuat = new THREE.Quaternion().setFromAxisAngle(parallaxAxisVector, clampedParallaxRotation);
+      
+      // Combine both rotations
+      this.model.quaternion.copy(this._baseQuaternion).multiply(scrollQuat).multiply(parallaxQuat);
     }
 
     // Keep world matrix updated so projection remains stable.

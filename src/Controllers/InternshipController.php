@@ -21,8 +21,33 @@ class InternshipController extends BaseController
         $perPage = 20;
         $offset = ($page - 1) * $perPage;
 
-        $internships = $this->model->getAll($perPage, $offset);
-        $totalInternships = $this->model->count();
+        $filters = [
+            'query' => trim($_GET['q'] ?? ''),
+            'category' => trim($_GET['category'] ?? ''),
+            'company' => trim($_GET['company'] ?? ''),
+        ];
+
+        if ($filters['query'] === '' && $filters['category'] === '' && $filters['company'] === '') {
+            $internships = $this->model->getAll($perPage, $offset);
+            $totalInternships = $this->model->count();
+        } else {
+            $internships = $this->model->search($filters, $perPage, $offset);
+            $totalInternships = $this->model->count($filters);
+        }
+
+        // Build options for filters from available internships.
+        $allInternships = $this->model->getAll();
+        $categories = [];
+        $companies = [];
+
+        foreach ($allInternships as $internship) {
+            if (!empty($internship['Id_Category']) && !isset($categories[$internship['Id_Category']])) {
+                $categories[$internship['Id_Category']] = $internship['CategoryName'];
+            }
+            if (!empty($internship['IdCompany']) && !isset($companies[$internship['IdCompany']])) {
+                $companies[$internship['IdCompany']] = $internship['CompanyName'];
+            }
+        }
 
         $this->render('internship', [
             'title' => 'Internship Details',
@@ -31,6 +56,9 @@ class InternshipController extends BaseController
             'current_page' => $page,
             'per_page' => $perPage,
             'total' => $totalInternships,
+            'filters' => $filters,
+            'categoryOptions' => $categories,
+            'companyOptions' => $companies,
         ]);
     }
 

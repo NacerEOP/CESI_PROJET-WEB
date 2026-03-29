@@ -20,10 +20,25 @@ class CompanyController extends BaseController
 
     public function index()
     {
-        $companies = $this->model->getAll();
+        $filters = [
+            'query' => trim($_GET['q'] ?? ''),
+            'country' => trim($_GET['country'] ?? ''),
+        ];
+
+        // If no filters, show all companies
+        if ($filters['query'] === '' && $filters['country'] === '') {
+            $companies = $this->model->getAll();
+        } else {
+            $companies = $this->model->search($filters, 1000, 0);
+        }
+
+        $countries = $this->model->getAllCountries();
+
         $this->render('companies', [
             'title' => 'Companies',
             'companies' => $companies,
+            'countries' => $countries,
+            'filters' => $filters,
             'user' => Auth::user(),
         ]);
     }

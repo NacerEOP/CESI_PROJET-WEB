@@ -146,6 +146,20 @@
 </div>
 {% endif %}
 
+<div style="margin: var(--spacing-lg) 0; display: flex; gap: var(--spacing-sm); flex-wrap: wrap; align-items: center;">
+    <form method="get" action="{{ baseUrl }}/companies" style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap; align-items: center; width: 100%;">
+        <input type="text" name="q" id="companies-search-q" placeholder="Search companies by name or description" value="{{ filters.query|default('') }}" style="flex:1; min-width: 200px;">
+        <select name="country" id="companies-country-filter" style="min-width: 170px;">
+            <option value="">All countries</option>
+            {% for country in countries %}
+            <option value="{{ country.Id_Country }}" {% if filters.country is defined and filters.country == country.Id_Country %}selected{% endif %}>{{ country.CountryName }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="button">Search</button>
+        <a href="{{ baseUrl }}/companies" class="button secondary">Clear</a>
+    </form>
+</div>
+
 <div style="overflow-x: auto;">
     <table>
         <thead>

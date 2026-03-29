@@ -24,6 +24,30 @@
 </div>
 {% endif %}
 
+<div style="margin: var(--spacing-lg) 0; display: flex; gap: var(--spacing-sm); flex-wrap: wrap; align-items: center;">
+    <form method="get" action="{{ baseUrl }}/internship" style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap; align-items: center; width: 100%;">
+        <input type="text" name="q" id="internships-search-q" placeholder="Search internships by title, company, or keyword" value="{{ filters.query|default('') }}" style="flex:1; min-width: 220px;">
+        <select name="category" id="internships-category-filter" style="min-width: 180px;">
+            <option value="">All Categories</option>
+            {% if categoryOptions is defined %}
+                {% for id, name in categoryOptions %}
+                <option value="{{ id }}" {% if filters.category is defined and filters.category == id %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            {% endif %}
+        </select>
+        <select name="company" id="internships-company-filter" style="min-width: 180px;">
+            <option value="">All Companies</option>
+            {% if companyOptions is defined %}
+                {% for id, name in companyOptions %}
+                <option value="{{ id }}" {% if filters.company is defined and filters.company == id %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            {% endif %}
+        </select>
+        <button type="submit" class="button">Search</button>
+        <a href="{{ baseUrl }}/internship" class="button secondary">Clear</a>
+    </form>
+</div>
+
 <div style="overflow-x: auto;">
     <table>
         <thead>

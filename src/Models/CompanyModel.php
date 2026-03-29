@@ -111,6 +111,13 @@ class CompanyModel
         return (int) $stmt->fetchColumn();
     }
 
+    public function getAllCountries()
+    {
+        $stmt = $this->db->prepare('SELECT Id_Country, CountryName FROM Countries ORDER BY CountryName');
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
     public function create(array $data)
     {
         $stmt = $this->db->prepare('INSERT INTO Companies (Name, Description, Email, Phone, Id_Country) VALUES (:name, :description, :email, :phone, :country)');

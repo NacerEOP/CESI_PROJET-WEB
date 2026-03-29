@@ -318,6 +318,55 @@ tbody tr:last-child td {
     margin-bottom: var(--spacing-sm);
 }
 
+/* SFx11 statistics carousel */
+.stats-carousel-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.stats-carousel {
+    display: flex;
+    gap: var(--spacing-lg);
+    overflow-x: auto;
+    padding-bottom: var(--spacing-sm);
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    width: 100%;
+}
+
+.stats-carousel .stat-card {
+    min-width: 280px;
+    flex: 0 0 auto;
+}
+
+.carousel-nav {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.carousel-nav:hover {
+    background: var(--light-bg);
+}
+
+.stats-carousel .stat-card ul,
+.stats-carousel .stat-card ol {
+    padding-left: var(--spacing-lg);
+    margin: var(--spacing-sm) 0 0 0;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+
 .offer-card .description {
     color: var(--text-light);
     margin-bottom: var(--spacing-md);

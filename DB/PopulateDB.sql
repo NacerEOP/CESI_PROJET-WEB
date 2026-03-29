@@ -1,4 +1,5 @@
 -- Use the database
+CREATE DATABASE IF NOT EXISTS find_your_internship;
 USE find_your_internship;
 
 -- =====================================================

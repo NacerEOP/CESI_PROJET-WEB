@@ -13,13 +13,20 @@ class ApplicationController extends BaseController
         ]);
     }
 
+    private function ensureSession()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+    }
+
     public function apply()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             return;
         }
-        session_start();
+        $this->ensureSession();
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'student') {
             http_response_code(403);
             return;
@@ -59,7 +66,7 @@ class ApplicationController extends BaseController
 
     public function myApplications()
     {
-        session_start();
+        $this->ensureSession();
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'student') {
             http_response_code(403);
             return;
@@ -74,7 +81,7 @@ class ApplicationController extends BaseController
 
     public function pilotApplications()
     {
-        session_start();
+        $this->ensureSession();
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'pilot') {
             http_response_code(403);
             return;

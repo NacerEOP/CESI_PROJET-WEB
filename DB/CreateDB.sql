@@ -28,7 +28,7 @@ CREATE TABLE Users(
    LastName VARCHAR(50) NOT NULL,
    Email VARCHAR(50) NOT NULL,
    Password VARCHAR(50) NOT NULL,
-   UserPhone INT,
+   UserPhone VARCHAR(20),
    DoB DATE NOT NULL,
    JoinDate DATE NOT NULL,
    Id_Country INT NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE Companies(
    Name VARCHAR(50) NOT NULL,
    Description VARCHAR(50),
    Email VARCHAR(50) NOT NULL,
-   Phone INT,
+   Phone VARCHAR(20),
    Id_Country INT NOT NULL,
    PRIMARY KEY(IdCompany),
    FOREIGN KEY(Id_Country) REFERENCES Countries(Id_Country)

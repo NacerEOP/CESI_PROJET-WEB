@@ -126,8 +126,9 @@ switch ($requestPath) {
         $controller->index();
         break;
     case '/companies':
-        header('Location: ' . $basePath . '/browse');
-        exit;
+        requireAuth($basePath);
+        $controller = new CompanyController();
+        $controller->index();
         break;
     case '/logout':
         $controller = new LoginController();

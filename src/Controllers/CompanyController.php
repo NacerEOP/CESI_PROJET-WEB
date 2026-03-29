@@ -59,6 +59,7 @@ class CompanyController extends BaseController
 
             $companies = $this->model->search($filters, $perPage, $offset);
 
+            $totalCompanies = $this->model->count($filters);
             foreach ($companies as &$company) {
                 $company['average_rating'] = $this->ratingModel->getAverageRating($company['IdCompany']);
             }
@@ -68,7 +69,7 @@ class CompanyController extends BaseController
                 'data' => $companies,
                 'page' => $page,
                 'per_page' => $perPage,
-                'total' => count($companies), // approximate
+                'total' => $totalCompanies,
             ]);
         } catch (\Exception $e) {
             header('Content-Type: application/json');

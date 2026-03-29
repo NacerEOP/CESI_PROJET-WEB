@@ -34,11 +34,14 @@ class BrowseController extends BaseController
         $offset = ($page - 1) * $perPage;
 
         $internships = $this->internshipModel->getAll($perPage, $offset);
+        $totalInternships = $this->internshipModel->count();
 
         header("Content-Type: application/json");
         echo json_encode([
             "data" => $internships,
-            "total" => count($internships)
+            "total" => $totalInternships,
+            "per_page" => $perPage,
+            "page" => $page
         ]);
     }
 
@@ -56,11 +59,14 @@ class BrowseController extends BaseController
 
         // For now, simple pagination
         $paginated = array_slice($companies, $offset, $perPage);
+        $totalCompanies = count($companies);
 
         header("Content-Type: application/json");
         echo json_encode([
             "data" => $paginated,
-            "total" => count($companies)
+            "total" => $totalCompanies,
+            "per_page" => $perPage,
+            "page" => $page
         ]);
     }
 

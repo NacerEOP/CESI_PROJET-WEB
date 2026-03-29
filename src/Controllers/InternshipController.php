@@ -17,12 +17,20 @@ class InternshipController extends BaseController
 
     public function index()
     {
-        $internships = $this->model->getAll();
+        $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+        $perPage = 20;
+        $offset = ($page - 1) * $perPage;
+
+        $internships = $this->model->getAll($perPage, $offset);
+        $totalInternships = $this->model->count();
 
         $this->render('internship', [
             'title' => 'Internship Details',
             'internships' => $internships,
             'user' => Auth::user(),
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total' => $totalInternships,
         ]);
     }
 
@@ -60,13 +68,14 @@ class InternshipController extends BaseController
             $offset = ($page - 1) * $perPage;
 
             $internships = $this->model->search($filters, $perPage, $offset);
+            $totalInternships = $this->model->count($filters);
 
             header('Content-Type: application/json');
             echo json_encode([
                 'data' => $internships,
                 'page' => $page,
                 'per_page' => $perPage,
-                'total' => count($internships), // approximate for now
+                'total' => $totalInternships,
             ]);
         } catch (\Exception $e) {
             header('Content-Type: application/json');

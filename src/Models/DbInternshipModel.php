@@ -11,13 +11,64 @@ class DbInternshipModel
         $this->db = Database::getInstance()->getConnection();
     }
 
-    public function getAll($limit = 20, $offset = 0)
+    public function getAll($limit = 0, $offset = 0)
     {
-        $stmt = $this->db->prepare('SELECT i.*, c.CategoryName, co.Name AS CompanyName FROM Internships i JOIN Category c ON i.Id_Category = c.Id_Category JOIN Companies co ON i.IdCompany = co.IdCompany ORDER BY i.IdInternship DESC LIMIT :limit OFFSET :offset');
-        $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
-        $stmt->bindValue(':offset', (int)$offset, \PDO::PARAM_INT);
+        if ($limit > 0) {
+            $stmt = $this->db->prepare('SELECT i.*, c.CategoryName, co.Name AS CompanyName FROM Internships i JOIN Category c ON i.Id_Category = c.Id_Category JOIN Companies co ON i.IdCompany = co.IdCompany ORDER BY i.IdInternship DESC LIMIT :limit OFFSET :offset');
+            $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
+            $stmt->bindValue(':offset', (int)$offset, \PDO::PARAM_INT);
+        } else {
+            $stmt = $this->db->prepare('SELECT i.*, c.CategoryName, co.Name AS CompanyName FROM Internships i JOIN Category c ON i.Id_Category = c.Id_Category JOIN Companies co ON i.IdCompany = co.IdCompany ORDER BY i.IdInternship DESC');
+        }
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    public function count($filters = [])
+    {
+        $where = [];
+        $params = [];
+
+        if (!empty($filters['query'])) {
+            $where[] = '(i.Title LIKE ? OR i.Description LIKE ? OR co.Name LIKE ?)';
+            $queryValue = '%' . $filters['query'] . '%';
+            $params[] = $queryValue;
+            $params[] = $queryValue;
+            $params[] = $queryValue;
+        }
+
+        if (!empty($filters['skills'])) {
+            $skillIds = $filters['skills'];
+            $placeholders = str_repeat('?,', count($skillIds) - 1) . '?';
+            $where[] = "i.IdInternship IN (SELECT IdInternship FROM InternshipSkillNeeds WHERE IdSkills IN ($placeholders))";
+            $params = array_merge($params, $skillIds);
+        }
+
+        if (!empty($filters['category'])) {
+            $where[] = 'i.Id_Category = ?';
+            $params[] = $filters['category'];
+        }
+
+        if (!empty($filters['company'])) {
+            $where[] = 'i.IdCompany = ?';
+            $params[] = $filters['company'];
+        }
+
+        if (!empty($filters['budget_min'])) {
+            $where[] = 'i.Budget >= ?';
+            $params[] = $filters['budget_min'];
+        }
+
+        if (!empty($filters['budget_max'])) {
+            $where[] = 'i.Budget <= ?';
+            $params[] = $filters['budget_max'];
+        }
+
+        $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM Internships i JOIN Category c ON i.Id_Category = c.Id_Category JOIN Companies co ON i.IdCompany = co.IdCompany $whereClause");
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
     }
 
     public function getById($id)

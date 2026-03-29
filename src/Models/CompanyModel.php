@@ -88,6 +88,29 @@ class CompanyModel
         return $stmt->fetchAll();
     }
 
+    public function count($filters = [])
+    {
+        $where = [];
+        $params = [];
+
+        if (!empty($filters['query'])) {
+            $where[] = '(c.Name LIKE ? OR c.Description LIKE ?)';
+            $queryValue = '%' . $filters['query'] . '%';
+            $params[] = $queryValue;
+            $params[] = $queryValue;
+        }
+
+        if (!empty($filters['country'])) {
+            $where[] = 'c.Id_Country = ?';
+            $params[] = $filters['country'];
+        }
+
+        $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM Companies c JOIN Countries co ON c.Id_Country = co.Id_Country $whereClause");
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
     public function create(array $data)
     {
         $stmt = $this->db->prepare('INSERT INTO Companies (Name, Description, Email, Phone, Id_Country) VALUES (:name, :description, :email, :phone, :country)');

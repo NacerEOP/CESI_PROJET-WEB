@@ -133,7 +133,7 @@
             <p style="color: var(--text-light);">Browse and manage all company partners</p>
         </div>
         {% if user is defined and user.role in ['admin', 'pilot'] %}
-        <button class="button" onclick="document.getElementById('company-form').scrollIntoView({behavior: 'smooth'})">+
+        <button class="button" onclick="openCreateCompanyModal()">+
             Add Company</button>
         {% endif %}
     </div>
@@ -192,8 +192,7 @@
                 {% if user is defined and user.role in ['admin', 'pilot'] %}
                 <td>
                     <button class="button" style="padding: var(--spacing-xs) var(--spacing-sm); margin-right: 5px;" onclick="openCompanyModal({{ c.IdCompany }}, '{{ c.Name }}')">View & Rate</button>
-                    <button class="button btn-edit" data-company-id="{{ c.IdCompany }}"
-                        style="padding: var(--spacing-xs) var(--spacing-sm); margin-right: 5px;">Edit</button>
+                    <button class="button" style="padding: var(--spacing-xs) var(--spacing-sm); margin-right: 5px;" onclick="openCompanyEditModal({{ c.IdCompany }})">Edit</button>
                     <button class="button danger btn-delete" data-company-id="{{ c.IdCompany }}"
                         style="padding: var(--spacing-xs) var(--spacing-sm);">Delete</button>
                 </td>
@@ -208,7 +207,7 @@
             <tr>
                 <td colspan="7" style="text-align: center; padding: var(--spacing-lg);">
                     <p style="margin: 0; color: var(--text-light);">No companies yet. {% if user is defined and
-                        user.role in ['admin', 'pilot'] %}<a href="#company-form">Create one</a>{% endif %}</p>
+                        user.role in ['admin', 'pilot'] %}<a href="#" onclick="openCreateCompanyModal(); return false;">Create one</a>{% endif %}</p>
                 </td>
             </tr>
             {% endif %}
@@ -261,46 +260,98 @@
     </div>
 </div>
 
-{% if user is defined and user.role in ['admin', 'pilot'] %}
-<div id="company-form"
-    style="margin-top: var(--spacing-2xl); padding-top: var(--spacing-2xl); border-top: 1px solid var(--border-color);">
-    <h2>Create New Company</h2>
-    <form id="company-create-form" style="max-width: 600px;">
-        <div class="form-group">
-            <div>
-                <label for="company-name">Company Name *</label>
-                <input type="text" name="name" id="company-name" required placeholder="Enter company name">
-            </div>
-
-            <div>
-                <label for="company-description">Description</label>
-                <textarea name="description" id="company-description"
-                    placeholder="Tell us about the company..."></textarea>
-            </div>
-
-            <div>
-                <label for="company-email">Email *</label>
-                <input type="email" name="email" id="company-email" required placeholder="contact@company.com">
-            </div>
-
-            <div>
-                <label for="company-phone">Phone</label>
-                <input type="text" name="phone" id="company-phone" placeholder="+1 (555) 000-0000">
-            </div>
-
-            <div>
-                <label for="company-country">Country</label>
-                <input type="number" name="country" id="company-country" value="1" placeholder="1">
-            </div>
-
-            <button type="submit" style="width: 100%;">Create Company</button>
+<!-- Company Edit Modal -->
+<div id="companyEditModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="company-edit-modal-title">Edit Company</h2>
+            <button class="modal-close" onclick="closeCompanyEditModal()">&times;</button>
         </div>
-    </form>
+        <form id="company-edit-form" style="max-width: 600px; margin-top: var(--spacing-lg);">
+            <input type="hidden" id="company-edit-id" name="id" value="">
+            <div class="form-group">
+                <div>
+                    <label for="company-edit-name">Company Name *</label>
+                    <input type="text" name="name" id="company-edit-name" required placeholder="Enter company name">
+                </div>
+                <div>
+                    <label for="company-edit-description">Description</label>
+                    <textarea name="description" id="company-edit-description" placeholder="Tell us about the company..."></textarea>
+                </div>
+                <div>
+                    <label for="company-edit-email">Email *</label>
+                    <input type="email" name="email" id="company-edit-email" required placeholder="contact@company.com">
+                </div>
+                <div>
+                    <label for="company-edit-phone">Phone</label>
+                    <input type="text" name="phone" id="company-edit-phone" placeholder="+1 (555) 000-0000">
+                </div>
+                <div>
+                    <label for="company-edit-country">Country</label>
+                    <input type="number" name="country" id="company-edit-country" value="1" placeholder="1">
+                </div>
+                <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm);">
+                    <button type="submit" class="button">Save Changes</button>
+                    <button type="button" class="button secondary" onclick="closeCompanyEditModal()">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Company Create Modal -->
+<div id="companyCreateModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create New Company</h2>
+            <button class="modal-close" onclick="closeCreateCompanyModal()">&times;</button>
+        </div>
+        <form id="company-create-form" style="max-width: 600px; margin-top: var(--spacing-lg);">
+            <div class="form-group">
+                <div>
+                    <label for="company-name">Company Name *</label>
+                    <input type="text" name="name" id="company-name" required placeholder="Enter company name">
+                </div>
+                <div>
+                    <label for="company-description">Description</label>
+                    <textarea name="description" id="company-description" placeholder="Tell us about the company..."></textarea>
+                </div>
+                <div>
+                    <label for="company-email">Email *</label>
+                    <input type="email" name="email" id="company-email" required placeholder="contact@company.com">
+                </div>
+                <div>
+                    <label for="company-phone">Phone</label>
+                    <input type="text" name="phone" id="company-phone" placeholder="+1 (555) 000-0000">
+                </div>
+                <div>
+                    <label for="company-country">Country</label>
+                    <input type="number" name="country" id="company-country" value="1" placeholder="1">
+                </div>
+                <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm);">
+                    <button type="submit" class="button">Create Company</button>
+                    <button type="button" class="button secondary" onclick="closeCreateCompanyModal()">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if user is defined and user.role in ['admin', 'pilot'] %}
+<div style="margin-top: var(--spacing-2xl); padding-top: var(--spacing-2xl); border-top: 1px solid var(--border-color); text-align: center;">
+    <button class="button" onclick="openCreateCompanyModal()">+ Create New Company</button>
 </div>
 {% endif %}
 
 <script>
     let currentCompanyId = null;
+    var user = {{ user|default(null)|json_encode|raw }};
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 
     function openCompanyModal(companyId, companyName) {
         currentCompanyId = companyId;
@@ -406,7 +457,7 @@
     }
 
     // Rating stars interaction
-    {% if user is defined and user.role in ['admin', 'pilot'] %}
+    if (user && ['admin', 'pilot'].includes(user.role)) {
     document.querySelectorAll('#ratingStars .star').forEach(star => {
         star.addEventListener('click', function() {
             document.getElementById('ratingValue').value = this.getAttribute('data-rating');
@@ -466,7 +517,7 @@
               alert('Error: ' + err.message);
           });
     });
-    {% endif %}
+    }
 
     function updateRatingDisplay(companyId) {
         const url = api('companies/ratings?companyId=' + encodeURIComponent(companyId));
@@ -501,8 +552,26 @@
     });
 
     // Company CRUD functions
-    function companyEdit(id) {
-        alert('Editing not fully built yet. Use delete and recreate, or send PUT request to API.');
+    function openCompanyEditModal(id) {
+        fetch(api('companies/detail?id=' + encodeURIComponent(id)))
+            .then(r => {
+                if (!r.ok) throw new Error('Failed to load company details');
+                return r.json();
+            })
+            .then(company => {
+                document.getElementById('company-edit-id').value = company.IdCompany;
+                document.getElementById('company-edit-name').value = company.Name;
+                document.getElementById('company-edit-description').value = company.Description || '';
+                document.getElementById('company-edit-email').value = company.Email;
+                document.getElementById('company-edit-phone').value = company.Phone || '';
+                document.getElementById('company-edit-country').value = company.Id_Country || '';
+                document.getElementById('companyEditModal').classList.add('show');
+            })
+            .catch(err => alert('Error loading company: ' + err.message));
+    }
+
+    function closeCompanyEditModal() {
+        document.getElementById('companyEditModal').classList.remove('show');
     }
 
     function companyDelete(id) {
@@ -523,20 +592,30 @@
         }).catch(err => alert('Error: ' + err.message));
     }
 
-    // Attach event listeners to edit and delete buttons
-    document.querySelectorAll('.btn-edit').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.getAttribute('data-company-id');
-            companyEdit(id);
-        });
-    });
+    // Company edit form
+    const editForm = document.getElementById('company-edit-form');
+    if (editForm) {
+        editForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const companyId = document.getElementById('company-edit-id').value;
+            const fd = new FormData(editForm);
+            const body = new URLSearchParams(fd);
 
-    document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.getAttribute('data-company-id');
-            companyDelete(id);
+            fetch(api('companies/update?id=' + encodeURIComponent(companyId)), {
+                method: 'POST',
+                body: body
+            }).then(res => {
+                if (!res.ok) {
+                    return res.json().then(data => { throw new Error(data.error || 'Failed to update company'); });
+                }
+                return res.json();
+            }).then(data => {
+                alert('Company updated successfully!');
+                closeCompanyEditModal();
+                window.location.reload();
+            }).catch(err => alert('Error: ' + err.message));
         });
-    });
+    }
 
     // Company creation form
     const form = document.getElementById('company-create-form');
@@ -545,14 +624,20 @@
             e.preventDefault();
             const fd = new FormData(form);
             const body = new URLSearchParams(fd);
+
             fetch(api('companies/create'), {
                 method: 'POST',
                 body: body
             }).then(res => {
-                if (!res.ok) throw new Error('Failed to create company');
+                if (!res.ok) {
+                    return res.json().then(data => {
+                        throw new Error(data.error || 'Failed to create company');
+                    });
+                }
                 return res.json();
             }).then(data => {
                 alert('Company created successfully!');
+                closeCreateCompanyModal();
                 window.location.reload();
             }).catch(err => alert('Error: ' + err.message));
         });
@@ -565,18 +650,39 @@
         }
     });
 
-    // Escape key to close modal
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeCompanyModal();
+    // Close create modal on outside click
+    document.getElementById('companyCreateModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCreateCompanyModal();
         }
     });
 
-    // Utility function to escape HTML
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+    // Escape key to close modals
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeCompanyModal();
+            closeCompanyEditModal();
+            closeCreateCompanyModal();
+        }
+    });
+
+    // Company delete button event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.btn-delete').forEach(button => {
+            button.addEventListener('click', function() {
+                const companyId = this.getAttribute('data-company-id');
+                companyDelete(companyId);
+            });
+        });
+    });
+
+    // Create company modal functions
+    function openCreateCompanyModal() {
+        document.getElementById('companyCreateModal').classList.add('show');
+    }
+
+    function closeCreateCompanyModal() {
+        document.getElementById('companyCreateModal').classList.remove('show');
     }
 </script>
 {% endblock %}

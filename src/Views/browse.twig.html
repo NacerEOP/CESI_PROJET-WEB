@@ -118,6 +118,40 @@
     </div>
 </div>
 
+<!-- Edit Company Modal -->
+<div id="editCompanyModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="edit-company-modal-title">Edit Company</h2>
+            <button class="modal-close" onclick="closeEditCompanyModal()">&times;</button>
+        </div>
+        <form id="editCompanyForm">
+            <input type="hidden" id="edit-company-id" name="id" value="">
+            <div class="form-group">
+                <label for="edit-name">Company Name *</label>
+                <input type="text" name="name" id="edit-name" required placeholder="Enter company name">
+                
+                <label for="edit-description">Description</label>
+                <textarea name="description" id="edit-description" placeholder="Tell us about the company..."></textarea>
+                
+                <label for="edit-email">Email *</label>
+                <input type="email" name="email" id="edit-email" required placeholder="contact@company.com">
+                
+                <label for="edit-phone">Phone</label>
+                <input type="text" name="phone" id="edit-phone" placeholder="+1 (555) 000-0000">
+                
+                <label for="edit-country">Country</label>
+                <input type="number" name="country" id="edit-country" value="1" placeholder="1">
+                
+                <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm);">
+                    <button type="submit" class="button">Save Changes</button>
+                    <button type="button" class="button secondary" onclick="closeEditCompanyModal()">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <style>
   .rating-stars {
       display: inline-flex;
@@ -441,7 +475,25 @@ window.user = {{ authUser|json_encode|raw }};
 
     // Company CRUD functions
     function companyEdit(id) {
-        alert('Editing not fully built yet. Use delete and recreate, or send PUT request to API.');
+        fetch(api('companies/detail?id=' + encodeURIComponent(id)))
+            .then(r => {
+                if (!r.ok) throw new Error('Failed to load company details');
+                return r.json();
+            })
+            .then(company => {
+                document.getElementById('edit-company-id').value = company.IdCompany;
+                document.getElementById('edit-name').value = company.Name;
+                document.getElementById('edit-description').value = company.Description || '';
+                document.getElementById('edit-email').value = company.Email;
+                document.getElementById('edit-phone').value = company.Phone || '';
+                document.getElementById('edit-country').value = company.Id_Country || '';
+                document.getElementById('editCompanyModal').classList.add('show');
+            })
+            .catch(err => alert('Error loading company: ' + err.message));
+    }
+
+    function closeEditCompanyModal() {
+        document.getElementById('editCompanyModal').classList.remove('show');
     }
 
     function companyDelete(id) {
@@ -467,6 +519,7 @@ window.user = {{ authUser|json_encode|raw }};
     window.closeCompanyModal = closeCompanyModal;
     window.companyEdit = companyEdit;
     window.companyDelete = companyDelete;
+    window.closeEditCompanyModal = closeEditCompanyModal;
 
     // Create company modal
     function openCreateCompanyModal() {
@@ -496,10 +549,33 @@ window.user = {{ authUser|json_encode|raw }};
         }).catch(err => alert('Error: ' + err.message));
     });
 
-    // Close create modal on outside click
-    document.getElementById('createCompanyModal').addEventListener('click', function(e) {
+    // Edit form submission
+    document.getElementById('editCompanyForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const companyId = document.getElementById('edit-company-id').value;
+        const fd = new FormData(this);
+        const body = new URLSearchParams(fd);
+
+        fetch(api('companies/update?id=' + encodeURIComponent(companyId)), {
+            method: 'POST',
+            body: body
+        }).then(res => {
+            if (!res.ok) {
+                return res.json().then(data => { throw new Error(data.error || 'Failed to update company'); });
+            }
+            return res.json();
+        }).then(data => {
+            alert('Company updated successfully!');
+            closeEditCompanyModal();
+            // Reload data
+            document.dispatchEvent(new CustomEvent('dataReload'));
+        }).catch(err => alert('Error: ' + err.message));
+    });
+
+    // Close edit modal on outside click
+    document.getElementById('editCompanyModal').addEventListener('click', function(e) {
         if (e.target === this) {
-            closeCreateCompanyModal();
+            closeEditCompanyModal();
         }
     });
 </script>

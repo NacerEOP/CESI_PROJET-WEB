@@ -163,9 +163,9 @@ switch ($requestPath) {
         break;
     case '/api/internships/delete':
         requireAuth($basePath);
-        if (isset($_GET['id'])) {
+        if (isset($_POST['id'])) {
             $controller = new InternshipController();
-            $controller->delete($_GET['id']);
+            $controller->delete($_POST['id']);
         } else {
             http_response_code(400);
             echo json_encode(['error' => 'Bad request']);
@@ -197,6 +197,16 @@ switch ($requestPath) {
         requireAuth($basePath);
         $controller = new CompanyController();
         $controller->create();
+        break;
+    case '/api/companies/update':
+        requireAuth($basePath);
+        if (isset($_GET['id'])) {
+            $controller = new CompanyController();
+            $controller->update($_GET['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
         break;
     case '/api/companies/delete':
         requireAuth($basePath);

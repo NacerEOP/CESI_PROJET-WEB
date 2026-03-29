@@ -3,6 +3,60 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        animation: fadeIn 0.3s;
+    }
+    
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-content {
+        background-color: white;
+        padding: var(--spacing-2xl);
+        border-radius: var(--border-radius);
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--text-light);
+    }
+    
+    .modal-close:hover {
+        color: var(--text-dark);
+    }
+</style>
 <div class="page-header">
     <div class="flex-between">
         <div>
@@ -11,7 +65,7 @@
         </div>
         {% if user is defined and user.role in ['admin', 'pilot'] %}
         <button class="button"
-            onclick="document.getElementById('internship-section').scrollIntoView({behavior: 'smooth'})">+ Add
+            onclick="openCreateInternshipModal()">+ Add
             Position</button>
         {% endif %}
     </div>
@@ -77,7 +131,7 @@
                 <td>{{ i.DateInternship|default('N/A') }}</td>
                 {% if user is defined and user.role in ['admin', 'pilot'] %}
                 <td>
-                    <button class="button" onclick="internshipEdit({{ i.IdInternship }})"
+                    <button class="button" onclick="openInternshipEditModal({{ i.IdInternship }})"
                         style="padding: var(--spacing-xs) var(--spacing-sm);">Edit</button>
                     <button class="button danger" onclick="internshipDelete({{ i.IdInternship }})"
                         style="padding: var(--spacing-xs) var(--spacing-sm);">Delete</button>
@@ -89,12 +143,105 @@
             <tr>
                 <td colspan="7" style="text-align: center; padding: var(--spacing-lg);">
                     <p style="margin: 0; color: var(--text-light);">No internships available. {% if user is defined and
-                        user.role in ['admin', 'pilot'] %}<a href="#internship-section">Create one</a>{% endif %}</p>
+                        user.role in ['admin', 'pilot'] %}<a href="#" onclick="openCreateInternshipModal(); return false;">Create one</a>{% endif %}</p>
                 </td>
             </tr>
             {% endif %}
         </tbody>
     </table>
+</div>
+
+<!-- Internship Edit Modal -->
+<div id="internshipEditModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="internship-edit-modal-title">Edit Internship</h2>
+            <button class="modal-close" onclick="closeInternshipEditModal()">&times;</button>
+        </div>
+        <form id="internship-edit-form" style="max-width: 600px; margin-top: var(--spacing-lg);">
+            <input type="hidden" id="internship-edit-id" name="id" value="">
+            <div class="form-group">
+                <div>
+                    <label for="internship-edit-title">Position Title *</label>
+                    <input type="text" name="title" id="internship-edit-title" required placeholder="e.g., Frontend Developer Intern">
+                </div>
+                <div>
+                    <label for="internship-edit-description">Description</label>
+                    <textarea name="description" id="internship-edit-description" placeholder="Describe the position..."></textarea>
+                </div>
+                <div>
+                    <label for="internship-edit-company">Company</label>
+                    <input type="number" name="company" id="internship-edit-company" required placeholder="Company ID">
+                </div>
+                <div>
+                    <label for="internship-edit-category">Category</label>
+                    <input type="number" name="category" id="internship-edit-category" required placeholder="Category ID">
+                </div>
+                <div>
+                    <label for="internship-edit-date">Start Date</label>
+                    <input type="date" name="date" id="internship-edit-date">
+                </div>
+                <div>
+                    <label for="internship-edit-budget">Budget (€)</label>
+                    <input type="number" name="budget" id="internship-edit-budget" step="0.01" placeholder="0.00">
+                </div>
+                <div>
+                    <label for="internship-edit-time">Duration (weeks)</label>
+                    <input type="number" name="time" id="internship-edit-time" min="1" placeholder="1">
+                </div>
+                <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm);">
+                    <button type="submit" class="button">Save Changes</button>
+                    <button type="button" class="button secondary" onclick="closeInternshipEditModal()">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Internship Create Modal -->
+<div id="internshipCreateModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create New Internship Position</h2>
+            <button class="modal-close" onclick="closeCreateInternshipModal()">&times;</button>
+        </div>
+        <form id="internship-form" style="max-width: 600px; margin-top: var(--spacing-lg);">
+            <div class="form-group">
+                <div>
+                    <label for="internship-title">Position Title *</label>
+                    <input type="text" name="title" id="internship-title" required placeholder="e.g., Frontend Developer Intern">
+                </div>
+                <div>
+                    <label for="internship-description">Description</label>
+                    <textarea name="description" id="internship-description" placeholder="Describe the position and responsibilities..."></textarea>
+                </div>
+                <div>
+                    <label for="internship-company">Company *</label>
+                    <input type="number" name="company" id="internship-company" value="1" required placeholder="Company ID">
+                </div>
+                <div>
+                    <label for="internship-category">Category *</label>
+                    <input type="number" name="category" id="internship-category" value="1" required placeholder="Category ID">
+                </div>
+                <div>
+                    <label for="internship-date">Start Date</label>
+                    <input type="date" name="date" id="internship-date" value="{{ " now"|date("Y-m-d") }}">
+                </div>
+                <div>
+                    <label for="internship-budget">Budget (€)</label>
+                    <input type="number" name="budget" id="internship-budget" step="0.01" value="0" placeholder="0.00">
+                </div>
+                <div>
+                    <label for="internship-time">Duration (weeks)</label>
+                    <input type="number" name="time" id="internship-time" value="1" min="1" placeholder="1">
+                </div>
+                <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm);">
+                    <button type="submit" class="button">Create Internship</button>
+                    <button type="button" class="button secondary" onclick="closeCreateInternshipModal()">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 {% set total_pages = (total is defined and per_page is defined and per_page > 0) ? ((total + per_page - 1) // per_page) : 1 %}
@@ -107,52 +254,8 @@
 {% endif %}
 
 {% if user is defined and user.role in ['admin', 'pilot'] %}
-<div id="internship-section"
-    style="margin-top: var(--spacing-2xl); padding-top: var(--spacing-2xl); border-top: 1px solid var(--border-color);">
-    <h2>Create New Internship Position</h2>
-    <form id="internship-form" style="max-width: 600px;">
-        <div class="form-group">
-            <div>
-                <label for="internship-title">Position Title *</label>
-                <input type="text" name="title" id="internship-title" required
-                    placeholder="e.g., Frontend Developer Intern">
-            </div>
-
-            <div>
-                <label for="internship-description">Description</label>
-                <textarea name="description" id="internship-description"
-                    placeholder="Describe the position and responsibilities..."></textarea>
-            </div>
-
-            <div>
-                <label for="internship-company">Company *</label>
-                <input type="number" name="company" id="internship-company" value="1" required placeholder="Company ID">
-            </div>
-
-            <div>
-                <label for="internship-category">Category *</label>
-                <input type="number" name="category" id="internship-category" value="1" required
-                    placeholder="Category ID">
-            </div>
-
-            <div>
-                <label for="internship-date">Start Date</label>
-                <input type="date" name="date" id="internship-date" value="{{ " now"|date("Y-m-d") }}">
-            </div>
-
-            <div>
-                <label for="internship-budget">Budget (€)</label>
-                <input type="number" name="budget" id="internship-budget" step="0.01" value="0" placeholder="0.00">
-            </div>
-
-            <div>
-                <label for="internship-time">Duration (weeks)</label>
-                <input type="number" name="time" id="internship-time" value="1" min="1" placeholder="1">
-            </div>
-
-            <button type="submit" style="width: 100%;">Create Internship</button>
-        </div>
-    </form>
+<div style="margin-top: var(--spacing-2xl); padding-top: var(--spacing-2xl); border-top: 1px solid var(--border-color); text-align: center;">
+    <button class="button" onclick="openCreateInternshipModal()">+ Create New Internship Position</button>
 </div>
 {% endif %}
 
@@ -163,8 +266,28 @@
 {% endif %}
 
 <script>
-    function internshipEdit(id) {
-        alert('Editing not fully built yet. Use delete and recreate, or send PUT request to API.');
+    function openInternshipEditModal(id) {
+        fetch(api('internships/detail?id=' + encodeURIComponent(id)))
+            .then(r => {
+                if (!r.ok) throw new Error('Failed to load internship details');
+                return r.json();
+            })
+            .then(internship => {
+                document.getElementById('internship-edit-id').value = internship.IdInternship;
+                document.getElementById('internship-edit-title').value = internship.Title;
+                document.getElementById('internship-edit-description').value = internship.Description || '';
+                document.getElementById('internship-edit-company').value = internship.IdCompany;
+                document.getElementById('internship-edit-category').value = internship.Id_Category;
+                document.getElementById('internship-edit-date').value = internship.DateOfCreation || '';
+                document.getElementById('internship-edit-budget').value = internship.Budget || 0;
+                document.getElementById('internship-edit-time').value = internship.Time_ || 1;
+                document.getElementById('internshipEditModal').classList.add('show');
+            })
+            .catch(err => alert('Error loading internship: ' + err.message));
+    }
+
+    function closeInternshipEditModal() {
+        document.getElementById('internshipEditModal').classList.remove('show');
     }
 
     function internshipDelete(id) {
@@ -183,23 +306,75 @@
         }).catch(err => alert('Error: ' + err.message));
     }
 
+    const editForm = document.getElementById('internship-edit-form');
+    if (editForm) {
+        editForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const internshipId = document.getElementById('internship-edit-id').value;
+            const fd = new FormData(editForm);
+            const body = new URLSearchParams(fd);
+
+            fetch(api('internships/update?id=' + encodeURIComponent(internshipId)), {
+                method: 'POST',
+                body: body
+            }).then(res => {
+                if (!res.ok) {
+                    return res.text().then(txt => { throw new Error(txt || 'Failed to update internship'); });
+                }
+                return res.json();
+            }).then(data => {
+                alert('Internship updated successfully!');
+                closeInternshipEditModal();
+                window.location.reload();
+            }).catch(err => alert('Error: ' + err.message));
+        });
+    }
+
     const form = document.getElementById('internship-form');
     if (form) {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             const fd = new FormData(form);
             const body = new URLSearchParams(fd);
+
             fetch(api('internships/create'), {
                 method: 'POST',
                 body: body
             }).then(res => {
-                if (!res.ok) throw new Error('Failed to create internship');
+                if (!res.ok) {
+                    return res.text().then(txt => { throw new Error(txt || 'Failed to create internship'); });
+                }
                 return res.json();
             }).then(data => {
                 alert('Internship created successfully!');
+                closeCreateInternshipModal();
                 window.location.reload();
             }).catch(err => alert('Error: ' + err.message));
         });
     }
+
+    // Create internship modal functions
+    function openCreateInternshipModal() {
+        document.getElementById('internshipCreateModal').classList.add('show');
+    }
+
+    function closeCreateInternshipModal() {
+        document.getElementById('internshipCreateModal').classList.remove('show');
+    }
+
+    // Close create modal on outside click
+    document.getElementById('internshipCreateModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCreateInternshipModal();
+        }
+    });
+
+    // Escape key to close modals
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeInternshipEditModal();
+            closeCreateInternshipModal();
+        }
+    });
 </script>
 {% endblock %}

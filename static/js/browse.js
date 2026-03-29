@@ -17,8 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
       tabButtons.forEach(btn => btn.classList.remove('active'));
       button.classList.add('active');
       currentTab = button.dataset.tab;
+      window.currentTab = currentTab;
       const event = new CustomEvent('tabChange', { detail: { tab: currentTab } });
       document.dispatchEvent(event);
+      // Show add company button only for companies tab
+      const addBtn = document.getElementById('add-company-btn');
+      if (addBtn) {
+        addBtn.style.display = currentTab === 'companies' ? 'block' : 'none';
+      }
     });
   });
 

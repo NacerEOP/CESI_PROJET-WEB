@@ -4,17 +4,20 @@ namespace App\Controllers;
 
 use App\Models\DbInternshipModel;
 use App\Models\CompanyModel;
+use App\Models\CompanyRatingModel;
 
 class BrowseController extends BaseController
 {
     private $internshipModel;
     private $companyModel;
+    private $ratingModel;
 
     public function __construct()
     {
         parent::__construct();
         $this->internshipModel = new DbInternshipModel();
         $this->companyModel = new CompanyModel();
+        $this->ratingModel = new CompanyRatingModel();
     }
 
     public function index()
@@ -46,6 +49,10 @@ class BrowseController extends BaseController
         $offset = ($page - 1) * $perPage;
 
         $companies = $this->companyModel->getAll();
+
+        foreach ($companies as &$company) {
+            $company['average_rating'] = $this->ratingModel->getAverageRating($company['IdCompany']);
+        }
 
         // For now, simple pagination
         $paginated = array_slice($companies, $offset, $perPage);

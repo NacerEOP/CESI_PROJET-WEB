@@ -59,6 +59,10 @@ class CompanyController extends BaseController
 
             $companies = $this->model->search($filters, $perPage, $offset);
 
+            foreach ($companies as &$company) {
+                $company['average_rating'] = $this->ratingModel->getAverageRating($company['IdCompany']);
+            }
+
             header('Content-Type: application/json');
             echo json_encode([
                 'data' => $companies,

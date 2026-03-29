@@ -28,6 +28,9 @@ export default class OfferGrid {
             this.page = e.detail.page;
             this.loadData();
         });
+        document.addEventListener('dataReload', () => {
+            this.loadData();
+        });
     }
 
     async loadData() {
@@ -71,11 +74,17 @@ export default class OfferGrid {
                     <button onclick="viewInternship(${item.IdInternship})">View Details</button>
                 `;
             } else {
+                const ratingHtml = item.average_rating ? `<p>Rating: ${'★'.repeat(Math.round(item.average_rating))} (${item.average_rating.toFixed(1)})</p>` : '<p>No ratings yet</p>';
+                let buttons = `<button onclick="openCompanyModal(${item.IdCompany}, '${item.Name.replace(/'/g, "\\'")}')">View & Rate</button>`;
+                if (window.user && ['admin', 'pilot'].includes(window.user.role)) {
+                    buttons += ` <button onclick="companyEdit(${item.IdCompany})" style="margin-left: 5px;">Edit</button> <button onclick="companyDelete(${item.IdCompany})" style="margin-left: 5px;" class="danger">Delete</button>`;
+                }
                 card.innerHTML = `
                     <h4>${item.Name}</h4>
-                    <p>${item.Description}</p>
+                    <p>${item.Description || 'No description'}</p>
                     <p>Country: ${item.CountryName}</p>
-                    <button onclick="viewCompany(${item.IdCompany})">View Details</button>
+                    ${ratingHtml}
+                    ${buttons}
                 `;
             }
             this.container.appendChild(card);

@@ -27,6 +27,11 @@
       <div id="results-count" style="flex: 1; color: var(--text-light);"></div>
       <div id="search-bar" style="flex: 1; min-width: 250px;"></div>
       <div id="sort-dropdown" style="flex: 0 0 auto;"></div>
+      <div id="add-company-btn" style="flex: 0 0 auto; display: none;">
+        {% if authUser is defined and authUser.role in ['admin', 'pilot'] %}
+        <button class="button" onclick="openCreateCompanyModal()">+ Add Company</button>
+        {% endif %}
+      </div>
     </section>
 
     <!-- OFFERS GRID -->
@@ -38,57 +43,465 @@
 
 </div>
 
+<!-- Company Details Modal -->
+<div id="companyModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle" style="margin: 0;">Company Details</h2>
+            <button class="modal-close" onclick="closeCompanyModal()">&times;</button>
+        </div>
+        
+        <!-- Company Ratings Section -->
+        <div id="companyRatingSection"></div>
+        
+        <!-- Rating Form for Admin/Pilot -->
+        {% if authUser is defined and authUser.role in ['admin', 'pilot'] %}
+        <div class="company-rating-section">
+            <h3>Your Evaluation (SFx5)</h3>
+            <form id="ratingForm" style="display: none;">
+                <input type="hidden" id="modalCompanyId" name="companyId">
+                
+                <div class="rating-form-group">
+                    <label style="display: block; margin-bottom: var(--spacing-sm);">Rating (1-5 stars) *</label>
+                    <div class="rating-stars" id="ratingStars">
+                        <span class="star" data-rating="1">★</span>
+                        <span class="star" data-rating="2">★</span>
+                        <span class="star" data-rating="3">★</span>
+                        <span class="star" data-rating="4">★</span>
+                        <span class="star" data-rating="5">★</span>
+                    </div>
+                    <input type="hidden" id="ratingValue" name="rating" value="0" required>
+                </div>
+                
+                <div class="rating-form-group">
+                    <label for="ratingText">Comment</label>
+                    <textarea id="ratingText" name="ratingText" placeholder="Share your thoughts about this company..." style="width: 100%; min-height: 100px;"></textarea>
+                </div>
+                
+                <button type="submit" class="button" style="width: 100%;">Submit Rating</button>
+            </form>
+            <div id="ratingFormPlaceholder" style="padding: var(--spacing-md); background: var(--bg-lighter); text-align: center; color: var(--text-light); border-radius: var(--border-radius);">
+                <p>Login as Admin or Pilot to evaluate this company</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Create Company Modal -->
+<div id="createCompanyModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 style="margin: 0;">Create New Company</h2>
+            <button class="modal-close" onclick="closeCreateCompanyModal()">&times;</button>
+        </div>
+        <form id="createCompanyForm">
+            <div class="form-group">
+                <label for="create-name">Company Name *</label>
+                <input type="text" name="name" id="create-name" required placeholder="Enter company name">
+                
+                <label for="create-description">Description</label>
+                <textarea name="description" id="create-description" placeholder="Tell us about the company..."></textarea>
+                
+                <label for="create-email">Email *</label>
+                <input type="email" name="email" id="create-email" required placeholder="contact@company.com">
+                
+                <label for="create-phone">Phone</label>
+                <input type="text" name="phone" id="create-phone" placeholder="+1 (555) 000-0000">
+                
+                <label for="create-country">Country</label>
+                <input type="number" name="country" id="create-country" value="1" placeholder="1">
+                
+                <button type="submit" class="button" style="width: 100%;">Create Company</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <style>
-  .tabs {
-    display: flex;
-    gap: var(--spacing-md);
+  .rating-stars {
+      display: inline-flex;
+      gap: 5px;
+      font-size: 20px;
+      cursor: pointer;
   }
-
-  .tab-button {
-    padding: var(--spacing-md) var(--spacing-lg);
-    border: 1px solid var(--border-color);
-    background: var(--bg-color);
-    color: var(--text-color);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all 0.2s;
+  
+  .rating-stars .star {
+      color: #ddd;
+      cursor: pointer;
+      transition: color 0.2s;
   }
-
-  .tab-button.active {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
+  
+  .rating-stars .star.filled {
+      color: #ffc107;
   }
-
-  .tab-button:hover {
-    background: var(--primary-hover);
-    border-color: var(--primary-hover);
-    color: white;
+  
+  .rating-stars .star:hover,
+  .rating-stars .star.hover {
+      color: #ffc107;
   }
-
-  #browse-topbar input[type="text"] {
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-md) var(--spacing-lg);
+  
+  .company-rating-section {
+      background: var(--bg-light);
+      padding: var(--spacing-lg);
+      border-radius: var(--border-radius);
+      margin-top: var(--spacing-md);
+      border: 1px solid var(--border-color);
   }
-
-  #browse-topbar select {
-    padding: var(--spacing-md) var(--spacing-lg);
-    border-radius: var(--radius-lg);
+  
+  .rating-item {
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: var(--spacing-md);
   }
-
-  @media (max-width: 1024px) {
-    #browse-root {
-      grid-template-columns: 1fr;
-    }
-
-    #sidebar {
-      grid-row: auto;
-      grid-column: 1;
-    }
+  
+  .rating-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--spacing-sm);
+  }
+  
+  .rating-user-badge {
+      background: var(--primary-color);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+  }
+  
+  .avg-rating {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ffc107;
+  }
+  
+  .rating-count {
+      color: var(--text-light);
+      font-size: 14px;
+      margin-top: 5px;
+  }
+  
+  .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      animation: fadeIn 0.3s;
+  }
+  
+  .modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+  
+  @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+  }
+  
+  .modal-content {
+      background-color: white;
+      padding: var(--spacing-2xl);
+      border-radius: var(--border-radius);
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+  }
+  
+  .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-light);
+  }
+  
+  .modal-close:hover {
+      color: var(--text-dark);
+  }
+  
+  .rating-form-group {
+      margin-bottom: var(--spacing-lg);
   }
 </style>
 
+<script>
+window.user = {{ authUser|json_encode|raw }};
+</script>
+
 <!-- JS ENTRY -->
 <script type="module" src="static/js/browse.js"></script>
+
+<script>
+    let currentCompanyId = null;
+
+    function openCompanyModal(companyId, companyName) {
+        currentCompanyId = companyId;
+        document.getElementById('modalTitle').textContent = companyName;
+        document.getElementById('modalCompanyId').value = companyId;
+        document.getElementById('companyModal').classList.add('show');
+        loadCompanyRatings(companyId);
+    }
+
+    function closeCompanyModal() {
+        document.getElementById('companyModal').classList.remove('show');
+        currentCompanyId = null;
+    }
+
+    function api(path) {
+        if (typeof window.APP_API_URL === 'string' && window.APP_API_URL.length) {
+            const cleaned = path.toString().replace(/^\/+/, '');
+            return window.APP_API_URL.replace(/\/+$/, '') + '/' + cleaned;
+        }
+        const baseUrl = '{{ baseUrl|default('') }}'.replace(/\/+$/, '');
+        const prefix = baseUrl.length ? baseUrl + '/api' : '/api';
+        const cleaned = path.toString().replace(/^\/+/, '');
+        return prefix.replace(/\/+$/, '') + '/' + cleaned;
+    }
+
+    function loadCompanyRatings(companyId) {
+        const url = api('companies/ratings?companyId=' + encodeURIComponent(companyId));
+        console.debug('loadCompanyRatings URL:', url);
+        fetch(url)
+            .then(r => {
+                if (!r.ok) throw new Error('Failed to load ratings: ' + r.statusText);
+                return r.json();
+            })
+            .then(data => {
+                const section = document.getElementById('companyRatingSection');
+                if (!section) {
+                    console.error('Company rating section not found');
+                    return;
+                }
+                let html = '<div class="company-rating-section"><h3>Evaluations</h3>';
+                
+                // Show average rating
+                if (data.averageRating) {
+                    const stars = '★'.repeat(Math.round(data.averageRating)) + '☆'.repeat(5 - Math.round(data.averageRating));
+                    html += `<div style="text-align: center; margin-bottom: var(--spacing-lg);">
+                        <div class="avg-rating">${data.averageRating.toFixed(1)}</div>
+                        <div>${stars}</div>
+                        <div class="rating-count">${data.ratingCount} evaluation${data.ratingCount !== 1 ? 's' : ''}</div>
+                    </div>`;
+                } else {
+                    html += '<p style="text-align: center; color: var(--text-light); padding: var(--spacing-md);">No evaluations yet</p>';
+                }
+                
+                // Show individual ratings
+                if (data.ratings && data.ratings.length > 0) {
+                    html += '<div style="margin-top: var(--spacing-lg); border-top: 1px solid var(--border-color); padding-top: var(--spacing-lg);"><h4 style="margin-top: 0;">Recent Evaluations</h4>';
+                    data.ratings.forEach(rating => {
+                        const stars = '★'.repeat(rating.Rating) + '☆'.repeat(5 - rating.Rating);
+                        html += `<div class="rating-item">
+                            <div class="rating-header">
+                                <div>
+                                    <strong>${rating.FirstName} ${rating.LastName}</strong>
+                                    <span class="rating-user-badge">${rating.UserRole}</span>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 18px; color: #ffc107;">${stars}</div>
+                                </div>
+                            </div>
+                            ${rating.RatingText ? `<p style="margin: var(--spacing-sm) 0; color: var(--text-dark);">${escapeHtml(rating.RatingText)}</p>` : ''}
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+                
+                html += '</div>';
+                section.innerHTML = html;
+                
+                // Load user's rating if available
+                {% if authUser is defined and authUser.role in ['admin', 'pilot'] %}
+                const form = document.getElementById('ratingForm');
+                const placeholder = document.getElementById('ratingFormPlaceholder');
+                if (form && placeholder) {
+                    placeholder.style.display = 'none';
+                    form.style.display = 'block';
+                    if (data.userRating) {
+                        document.getElementById('ratingValue').value = data.userRating.Rating;
+                        document.getElementById('ratingText').value = data.userRating.RatingText || '';
+                        updateStarDisplay();
+                    }
+                }
+                {% endif %}
+            })
+            .catch(err => {
+                document.getElementById('companyRatingSection').innerHTML = `<div class="alert danger">Error loading ratings: ${err.message}</div>`;
+            });
+    }
+
+    function updateStarDisplay() {
+        const rating = parseInt(document.getElementById('ratingValue').value);
+        document.querySelectorAll('#ratingStars .star').forEach(star => {
+            star.classList.toggle('filled', parseInt(star.getAttribute('data-rating')) <= rating);
+        });
+    }
+
+    // Rating stars interaction
+    {% if authUser is defined and authUser.role in ['admin', 'pilot'] %}
+    document.querySelectorAll('#ratingStars .star').forEach(star => {
+        star.addEventListener('click', function() {
+            document.getElementById('ratingValue').value = this.getAttribute('data-rating');
+            updateStarDisplay();
+        });
+        
+        star.addEventListener('mouseover', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            document.querySelectorAll('#ratingStars .star').forEach(s => {
+                s.classList.toggle('hover', parseInt(s.getAttribute('data-rating')) <= rating);
+            });
+        });
+    });
+    
+    document.getElementById('ratingStars').addEventListener('mouseout', function() {
+        document.querySelectorAll('#ratingStars .star').forEach(s => s.classList.remove('hover'));
+    });
+
+    // Rating form submission
+    document.getElementById('ratingForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const rating = parseInt(document.getElementById('ratingValue').value);
+        
+        if (rating === 0) {
+            alert('Please select a rating');
+            return;
+        }
+        
+        const formData = new FormData(this);
+        console.log('Submitting rating:', {
+            companyId: formData.get('companyId'),
+            rating: formData.get('rating'),
+            ratingText: formData.get('ratingText')
+        });
+        
+        fetch(api('companies/rate'), {
+            method: 'POST',
+            body: new URLSearchParams(formData)
+        }).then(r => {
+            if (!r.ok) throw new Error('Failed to save rating: ' + r.statusText);
+            return r.json();
+        })
+          .then(data => {
+              console.log('Rating submission response:', data);
+              if (data.message) {
+                  alert('Thank you! Your evaluation has been submitted.');
+                  // Refresh modal
+                  setTimeout(() => {
+                      loadCompanyRatings(currentCompanyId);
+                  }, 100);
+                  // Refresh grid
+                  document.dispatchEvent(new CustomEvent('dataReload'));
+              } else {
+                  alert('Error: ' + (data.error || 'Failed to save rating'));
+              }
+          }).catch(err => {
+              console.error('Error submitting rating:', err);
+              alert('Error: ' + err.message);
+          });
+    });
+    {% endif %}
+
+    // Close modal on outside click
+    document.getElementById('companyModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCompanyModal();
+        }
+    });
+
+    // Escape key to close modal
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeCompanyModal();
+        }
+    });
+
+    // Utility function to escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Company CRUD functions
+    function companyEdit(id) {
+        alert('Editing not fully built yet. Use delete and recreate, or send PUT request to API.');
+    }
+
+    function companyDelete(id) {
+        if (!confirm('Are you sure you want to delete this company? All associated internships, applications, and ratings will also be deleted.')) return;
+        fetch(api('companies/delete'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id=' + encodeURIComponent(id)
+        }).then(r => {
+            if (r.status === 204) {
+                alert('Company and all associated data deleted successfully');
+                document.dispatchEvent(new CustomEvent('dataReload'));
+            } else {
+                return r.json().then(data => {
+                    alert('Error: ' + (data.error || 'Failed to delete company'));
+                });
+            }
+        }).catch(err => alert('Error: ' + err.message));
+    }
+
+    // Make functions global for OfferGrid
+    window.openCompanyModal = openCompanyModal;
+    window.closeCompanyModal = closeCompanyModal;
+    window.companyEdit = companyEdit;
+    window.companyDelete = companyDelete;
+
+    // Create company modal
+    function openCreateCompanyModal() {
+        document.getElementById('createCompanyModal').classList.add('show');
+    }
+
+    function closeCreateCompanyModal() {
+        document.getElementById('createCompanyModal').classList.remove('show');
+    }
+
+    // Create form submission
+    document.getElementById('createCompanyForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const fd = new FormData(this);
+        const body = new URLSearchParams(fd);
+        fetch(api('companies/create'), {
+            method: 'POST',
+            body: body
+        }).then(res => {
+            if (!res.ok) throw new Error('Failed to create company');
+            return res.json();
+        }).then(data => {
+            alert('Company created successfully!');
+            closeCreateCompanyModal();
+            // Reload data
+            document.dispatchEvent(new CustomEvent('dataReload'));
+        }).catch(err => alert('Error: ' + err.message));
+    });
+
+    // Close create modal on outside click
+    document.getElementById('createCompanyModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCreateCompanyModal();
+        }
+    });
+</script>
 
 {% endblock %}

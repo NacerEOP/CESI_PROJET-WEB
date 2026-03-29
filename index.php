@@ -176,6 +176,16 @@ switch ($requestPath) {
             echo json_encode(['error' => 'Bad request']);
         }
         break;
+    case '/api/internships/delete':
+        requireAuth($basePath);
+        if (isset($_POST['id'])) {
+            $controller = new InternshipController();
+            $controller->delete($_POST['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
+        break;
     case '/api/companies/search':
         $controller = new BrowseController();
         $controller->getCompanies();

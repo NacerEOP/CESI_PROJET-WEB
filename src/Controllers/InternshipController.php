@@ -52,11 +52,49 @@ class InternshipController extends BaseController
     {
         $user = Auth::user();
         if ($user && in_array($user['role'], ['admin', 'pilot'])) {
-            // Show list of internships for management
-            $internships = $this->model->getAll();
+            // Get category options
+            $stmt = $this->db->prepare('SELECT Id_Category, CategoryName FROM Category ORDER BY CategoryName');
+            $stmt->execute();
+            $categories = $stmt->fetchAll();
+            $categoryOptions = [];
+            foreach ($categories as $cat) {
+                $categoryOptions[$cat['Id_Category']] = $cat['CategoryName'];
+            }
+
+            // Get company options
+            $stmt = $this->db->prepare('SELECT IdCompany, Name FROM Companies ORDER BY Name');
+            $stmt->execute();
+            $companies = $stmt->fetchAll();
+            $companyOptions = [];
+            foreach ($companies as $comp) {
+                $companyOptions[$comp['IdCompany']] = $comp['Name'];
+            }
+
+            // Show list of internships for management with filters
+            $filters = [
+                'query' => $_GET['q'] ?? '',
+                'skills' => isset($_GET['skills']) ? explode(',', $_GET['skills']) : [],
+                'category' => $_GET['category'] ?? '',
+                'company' => $_GET['company'] ?? '',
+                'budget_min' => $_GET['budget_min'] ?? '',
+                'budget_max' => $_GET['budget_max'] ?? '',
+            ];
+            $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+            $perPage = 20;
+            $offset = ($page - 1) * $perPage;
+
+            $internships = $this->model->search($filters, $perPage, $offset);
+            $totalInternships = $this->model->count($filters);
+
             $this->render('internship', [
                 'title' => 'Manage Internships',
                 'internships' => $internships,
+                'filters' => $filters,
+                'categoryOptions' => $categoryOptions,
+                'companyOptions' => $companyOptions,
+                'total' => $totalInternships,
+                'per_page' => $perPage,
+                'current_page' => $page,
                 'user' => $user
             ]);
         } else {

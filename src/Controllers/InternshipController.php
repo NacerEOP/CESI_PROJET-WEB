@@ -2,64 +2,70 @@
 
 namespace App\Controllers;
 
+use App\Models\Database;
 use App\Models\DbInternshipModel;
 use App\Models\Auth;
+use App\Config\AppConfig;
 
 class InternshipController extends BaseController
 {
     private $model;
+    private $db;
 
     public function __construct()
     {
         parent::__construct();
         $this->model = new DbInternshipModel();
+        $this->db = Database::getInstance()->getConnection();
+    }
+
+    public function detailPage()
+    {
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: ' . AppConfig::getBasePath() . '/browse');
+            exit;
+        }
+        $internship = $this->model->getDetailedById($id);
+        if (!$internship) {
+            header('Location: ' . AppConfig::getBasePath() . '/browse');
+            exit;
+        }
+
+        $user = Auth::user();
+        $applied = false;
+        if ($user && $user['role'] === 'student') {
+            // Check if applied
+            $stmt = $this->db->prepare('SELECT COUNT(*) FROM Application WHERE IdInternship = ? AND IdUser = ?');
+            $stmt->execute([$id, $user['id']]);
+            $applied = $stmt->fetchColumn() > 0;
+        }
+
+        $this->render('internship_detail', [
+            'internship' => $internship,
+            'applied' => $applied,
+            'user' => $user
+        ]);
     }
 
     public function index()
     {
-        $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-        $perPage = 20;
-        $offset = ($page - 1) * $perPage;
-
-        $filters = [
-            'query' => trim($_GET['q'] ?? ''),
-            'category' => trim($_GET['category'] ?? ''),
-            'company' => trim($_GET['company'] ?? ''),
-        ];
-
-        if ($filters['query'] === '' && $filters['category'] === '' && $filters['company'] === '') {
-            $internships = $this->model->getAll($perPage, $offset);
-            $totalInternships = $this->model->count();
+        $user = Auth::user();
+        if ($user && in_array($user['role'], ['admin', 'pilot'])) {
+            // Show list of internships for management
+            $internships = $this->model->getAll();
+            $this->render('internship', [
+                'title' => 'Manage Internships',
+                'internships' => $internships,
+                'user' => $user
+            ]);
         } else {
-            $internships = $this->model->search($filters, $perPage, $offset);
-            $totalInternships = $this->model->count($filters);
+            // Show create form or redirect
+            $this->render('internship', [
+                'title' => 'Create Internship',
+                'user' => $user
+            ]);
         }
-
-        // Build options for filters from available internships.
-        $allInternships = $this->model->getAll();
-        $categories = [];
-        $companies = [];
-
-        foreach ($allInternships as $internship) {
-            if (!empty($internship['Id_Category']) && !isset($categories[$internship['Id_Category']])) {
-                $categories[$internship['Id_Category']] = $internship['CategoryName'];
-            }
-            if (!empty($internship['IdCompany']) && !isset($companies[$internship['IdCompany']])) {
-                $companies[$internship['IdCompany']] = $internship['CompanyName'];
-            }
-        }
-
-        $this->render('internship', [
-            'title' => 'Internship Details',
-            'internships' => $internships,
-            'user' => Auth::user(),
-            'current_page' => $page,
-            'per_page' => $perPage,
-            'total' => $totalInternships,
-            'filters' => $filters,
-            'categoryOptions' => $categories,
-            'companyOptions' => $companies,
-        ]);
     }
 
     public function getDetailed($id)

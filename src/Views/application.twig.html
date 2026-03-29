@@ -3,5 +3,52 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1>{{ title }}</h1>
+</div>
 
+{% if applications %}
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Company</th>
+            <th>Description</th>
+            {% if title == 'Student Applications' %}
+            <th>Student</th>
+            {% endif %}
+            <th>CV</th>
+            <th>LM</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for app in applications %}
+        <tr>
+            <td>{{ app.Title }}</td>
+            <td>{{ app.CompanyName }}</td>
+            <td>{{ app.Description }}</td>
+            {% if title == 'Student Applications' %}
+            <td>{{ app.FirstName }} {{ app.LastName }}</td>
+            {% endif %}
+            <td><a href="{{ baseUrl }}/static/uploads/cv_{{ app.IdInternship }}_{{ app.IdUser }}.pdf" download>Download CV</a></td>
+            <td><button onclick="viewLM({{ app.IdInternship }}, {{ app.IdUser }})">View LM</button></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No applications.</p>
+{% endif %}
+
+<script>
+function viewLM(internshipId, userId) {
+    fetch('{{ baseUrl }}/static/uploads/lm_' + internshipId + '_' + userId + '.txt')
+        .then(r => {
+            if (!r.ok) throw new Error('LM not found');
+            return r.text();
+        })
+        .then(text => alert(text))
+        .catch(() => alert('LM not found.'));
+}
+</script>
 {% endblock %}

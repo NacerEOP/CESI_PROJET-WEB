@@ -50,6 +50,7 @@ use App\Controllers\InternshipController;
 use App\Controllers\FormController;
 use App\Controllers\CompanyController;
 use App\Models\Auth;
+use App\Models\ApplicationModel;
 
 // Start session for authentication
 session_start();
@@ -113,12 +114,26 @@ switch ($requestPath) {
     case '/application':
         requireAuth($basePath);
         $controller = new ApplicationController();
-        $controller->index();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $controller->apply();
+        } else {
+            $controller->myApplications();
+        }
+        break;
+    case '/application/pilot':
+        requireAuth($basePath);
+        $controller = new ApplicationController();
+        $controller->pilotApplications();
         break;
     case '/internship':
         requireAuth($basePath);
         $controller = new InternshipController();
         $controller->index();
+        break;
+    case '/internship/detail':
+        requireAuth($basePath);
+        $controller = new InternshipController();
+        $controller->detailPage();
         break;
     case '/form':
         requireAuth($basePath);
@@ -161,7 +176,19 @@ switch ($requestPath) {
             echo json_encode(['error' => 'Bad request']);
         }
         break;
-    case '/api/internships/delete':
+    case '/api/companies/search':
+        $controller = new BrowseController();
+        $controller->getCompanies();
+        break;
+    case '/api/companies/detail':
+        if (isset($_GET['id'])) {
+            $controller = new CompanyController();
+            $controller->getDetailed($_GET['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
+        break;
         requireAuth($basePath);
         if (isset($_POST['id'])) {
             $controller = new InternshipController();
@@ -179,6 +206,27 @@ switch ($requestPath) {
             http_response_code(400);
             echo json_encode(['error' => 'Bad request']);
         }
+        break;
+    case '/api/companies/rate':
+        requireAuth($basePath);
+        $controller = new CompanyController();
+        $controller->rate();
+        break;
+    case '/api/applications/check':
+        requireAuth($basePath);
+        if ($_SESSION['user']['role'] !== 'student') {
+            http_response_code(403);
+            return;
+        }
+        $internshipId = $_GET['internshipId'] ?? null;
+        if (!$internshipId) {
+            http_response_code(400);
+            return;
+        }
+        $model = new ApplicationModel();
+        $stmt = $model->db->prepare('SELECT COUNT(*) FROM Application WHERE IdInternship = :internshipId AND IdUser = :userId');
+        $stmt->execute(['internshipId' => $internshipId, 'userId' => $_SESSION['user']['id']]);
+        echo json_encode($stmt->fetchColumn() > 0);
         break;
     case '/api/companies/search':
         $controller = new CompanyController();

@@ -1,0 +1,88 @@
+{% extends "base.twig.html" %}
+
+{% block title %}{{ internship.Title }} - Internship Details{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="flex-between">
+        <div>
+            <h1>{{ internship.Title }}</h1>
+            <p style="color: var(--text-light);">{{ internship.CompanyName }}</p>
+        </div>
+        <a href="{{ baseUrl }}/browse" class="button secondary">← Back to Browse</a>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Description</h3>
+    <p>{{ internship.Description }}</p>
+</div>
+
+<div class="grid cols-2" style="margin-top: var(--spacing-2xl);">
+    <div class="card">
+        <h3>Details</h3>
+        <ul>
+            <li><strong>Company:</strong> {{ internship.CompanyName }}</li>
+            <li><strong>Category:</strong> {{ internship.CategoryName }}</li>
+            <li><strong>Budget:</strong> €{{ internship.Budget }}</li>
+            <li><strong>Duration:</strong> {{ internship.Time_ }} weeks</li>
+            <li><strong>Created:</strong> {{ internship.DateOfCreation }}</li>
+        </ul>
+    </div>
+
+    {% if internship.skills %}
+    <div class="card">
+        <h3>Required Skills</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-sm);">
+            {% for skill in internship.skills %}
+            <span style="background: var(--light-bg); padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-sm); font-size: 0.9rem;">{{ skill }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% if user and user.role == 'student' %}
+<div class="card" style="margin-top: var(--spacing-2xl);">
+    <h3>Apply for this Internship</h3>
+    {% if applied %}
+    <p style="color: var(--success-color);">You have already applied for this internship.</p>
+    {% else %}
+    <form id="applyForm" enctype="multipart/form-data" style="max-width: 500px;">
+        <input type="hidden" name="internshipId" value="{{ internship.IdInternship }}">
+        
+        <div class="form-group">
+            <label for="lm">Cover Letter (LM)</label>
+            <textarea name="lm" id="lm" required placeholder="Write your cover letter here..." rows="6"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="cv">CV (PDF only)</label>
+            <input type="file" name="cv" id="cv" accept=".pdf" required>
+        </div>
+        
+        <button type="submit" class="button">Submit Application</button>
+    </form>
+    {% endif %}
+</div>
+{% endif %}
+
+<script>
+document.getElementById('applyForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const response = await fetch('{{ baseUrl }}/application', {
+        method: 'POST',
+        body: formData
+    });
+    if (response.ok) {
+        alert('Application submitted successfully!');
+        location.reload();
+    } else if (response.status === 409) {
+        alert('You have already applied for this internship.');
+    } else {
+        alert('Error submitting application.');
+    }
+});
+</script>
+{% endblock %}

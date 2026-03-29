@@ -71,7 +71,7 @@ export default class OfferGrid {
                     <p>${item.Description}</p>
                     <p>Company: ${item.CompanyName}</p>
                     <p>Budget: ${item.Budget}</p>
-                    <button onclick="viewInternship(${item.IdInternship})">View Details</button>
+                    <button onclick="window.location.href='/internship/detail?id=${item.IdInternship}'">View Details</button>
                 `;
             } else {
                 const ratingHtml = item.average_rating ? `<p>Rating: ${'★'.repeat(Math.round(item.average_rating))} (${item.average_rating.toFixed(1)})</p>` : '<p>No ratings yet</p>';
@@ -97,13 +97,26 @@ export default class OfferGrid {
     }
 }
 
-window.viewInternship = (id) => {
-    // Open modal or redirect
-    fetch(`/api/internships/detail?id=${id}`)
-        .then(r => r.json())
-        .then(data => {
-            alert(`Details: ${JSON.stringify(data)}`);
-        });
+window.viewInternship = async (id) => {
+    const response = await fetch(`/api/internships/detail?id=${id}`);
+    const data = await response.json();
+    document.getElementById('internshipModalTitle').textContent = data.Title;
+    let body = `<p>${data.Description}</p>
+    <p>Company: ${data.CompanyName}</p>
+    <p>Budget: €${data.Budget}</p>
+    <p>Duration: ${data.Time_} weeks</p>`;
+    if (window.user && window.user.role === 'student') {
+        // Check if already applied
+        const appResponse = await fetch(`/api/applications/check?internshipId=${id}`);
+        const applied = await appResponse.json();
+        if (!applied) {
+            body += `<button onclick="applyToInternship(${id})">Apply</button>`;
+        } else {
+            body += '<p>You have already applied.</p>';
+        }
+    }
+    document.getElementById('internshipModalBody').innerHTML = body;
+    document.getElementById('internshipModal').style.display = 'flex';
 };
 
 window.viewCompany = (id) => {

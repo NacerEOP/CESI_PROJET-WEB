@@ -32,13 +32,14 @@
                             <li>{{ app.Title }} at {{ app.CompanyName }} - Status: Pending</li>
                         {% endfor %}
                     </ul>
+                    <a href="{{ baseUrl }}/application" class="button" style="width: 100%; margin-top: var(--spacing-md);">View All Applications</a>
                 {% else %}
                     <p>No applications yet.</p>
                 {% endif %}
             </div>
             <div class="card">
-                <h3>🏢 Companies</h3>
-                <p>Explore partner companies</p>
+                <h3>🏢 Browse Internships</h3>
+                <p>Find and apply to internship opportunities</p>
                 <a href="{{ baseUrl }}/browse" class="button" style="width: 100%;">Browse</a>
             </div>
         {% elseif role == 'pilot' %}
@@ -55,14 +56,9 @@
                 {% endif %}
             </div>
             <div class="card">
-                <h3>🏢 Company Reviews</h3>
-                {% if companies %}
-                    <ul>
-                        {% for company in companies %}
-                            <li>{{ company.Name }}: {{ company.Description }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+                <h3>📋 Student Applications</h3>
+                <p>View applications from your students</p>
+                <a href="{{ baseUrl }}/application/pilot" class="button" style="width: 100%;">View Applications</a>
             </div>
         {% elseif role == 'admin' %}
             <div class="card">

@@ -40,6 +40,11 @@ class CompanyModel
         $stmt->execute([$id, $id]);
         $company['avg_rating'] = round($stmt->fetchColumn(), 2);
 
+        // Rating count
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM (SELECT 1 FROM RatingAdmin WHERE IdCompany = ? UNION ALL SELECT 1 FROM RatingPilot WHERE IdCompany = ?) AS ratings');
+        $stmt->execute([$id, $id]);
+        $company['rating_count'] = $stmt->fetchColumn();
+
         // Related offers
         $stmt = $this->db->prepare('SELECT IdInternship, Title FROM Internships WHERE IdCompany = ?');
         $stmt->execute([$id]);

@@ -127,8 +127,8 @@
                         style="background: var(--light-bg); padding: var(--spacing-xs) var(--spacing-md); border-radius: var(--radius-md); font-size: 0.85rem;">{{
                         i.CategoryName|default('General') }}</span></td>
                 <td>€{{ i.Budget|default(0) }}</td>
-                <td>{{ i.TemDureeInternship|default(0) }} weeks</td>
-                <td>{{ i.DateInternship|default('N/A') }}</td>
+                <td>{{ i.Time_|default(0) }} weeks</td>
+                <td>{{ i.DateOfCreation|default('N/A')|date('Y-m-d') }}</td>
                 {% if user is defined and user.role in ['admin', 'pilot'] %}
                 <td>
                     <button class="button" onclick="openInternshipEditModal({{ i.IdInternship }})"

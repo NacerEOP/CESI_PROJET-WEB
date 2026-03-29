@@ -6,6 +6,7 @@ use App\Models\Auth;
 use App\Models\UserModel;
 use App\Models\ApplicationModel;
 use App\Models\CompanyModel;
+use App\Models\DbInternshipModel;
 
 class DashboardController extends BaseController
 {
@@ -19,6 +20,10 @@ class DashboardController extends BaseController
             'user' => $user,
             'role' => $role,
         ];
+
+        // Add internship stats for all users
+        $internshipModel = new DbInternshipModel();
+        $data['internshipStats'] = $internshipModel->getStats();
 
         if ($role === 'student') {
             // Get applied internships

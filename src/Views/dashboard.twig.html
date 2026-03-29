@@ -94,6 +94,39 @@
         </div>
     </div>
 
+    <!-- Internship Statistics -->
+    {% if internshipStats %}
+    <div style="margin-top: var(--spacing-2xl); padding-top: var(--spacing-2xl); border-top: 1px solid var(--border-color);">
+        <h3>📈 Internship Statistics</h3>
+        <div class="grid cols-2" style="margin-top: var(--spacing-lg);">
+            <div class="card">
+                <h4>Total Offers</h4>
+                <p style="font-size: 2rem; font-weight: bold; color: var(--primary-color);">{{ internshipStats.total_offers }}</p>
+            </div>
+            <div class="card">
+                <h4>Average Applications per Offer</h4>
+                <p style="font-size: 2rem; font-weight: bold; color: var(--primary-color);">{{ internshipStats.avg_applications }}</p>
+            </div>
+        </div>
+        <div class="card" style="margin-top: var(--spacing-lg);">
+            <h4>Duration Distribution</h4>
+            <ul>
+                {% for duration, count in internshipStats.duration_distribution %}
+                <li>{{ duration }} months: {{ count }} offers</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card" style="margin-top: var(--spacing-lg);">
+            <h4>Top Wishlisted Offers</h4>
+            <ol>
+                {% for offer in internshipStats.top_wishlist %}
+                <li>{{ offer.Title }} ({{ offer.wish_count }} wishes)</li>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
+    {% endif %}
+
     {% if user.role in ['admin', 'pilot'] %}
     <div
         style="margin-top: var(--spacing-2xl); padding-top: var(--spacing-2xl); border-top: 1px solid var(--border-color);">

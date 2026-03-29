@@ -137,6 +137,61 @@ switch ($requestPath) {
         $controller = new BrowseController();
         $controller->getInternships();
         break;
+    case '/api/internships/search':
+        $controller = new InternshipController();
+        $controller->search();
+        break;
+    case '/api/internships/stats':
+        $controller = new InternshipController();
+        $controller->getStats();
+        break;
+    case '/api/internships/create':
+        requireAuth($basePath);
+        $controller = new InternshipController();
+        $controller->create();
+        break;
+    case '/api/internships/update':
+        requireAuth($basePath);
+        if (isset($_GET['id'])) {
+            $controller = new InternshipController();
+            $controller->update($_GET['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
+        break;
+    case '/api/internships/delete':
+        requireAuth($basePath);
+        if (isset($_GET['id'])) {
+            $controller = new InternshipController();
+            $controller->delete($_GET['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
+        break;
+    case '/api/internships/detail':
+        if (isset($_GET['id'])) {
+            $controller = new InternshipController();
+            $controller->getDetailed($_GET['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
+        break;
+    case '/api/companies/search':
+        $controller = new CompanyController();
+        $controller->search();
+        break;
+    case '/api/companies/detail':
+        if (isset($_GET['id'])) {
+            $controller = new CompanyController();
+            $controller->getDetailed($_GET['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
+        break;
     case '/api/companies/create':
         requireAuth($basePath);
         $controller = new CompanyController();
@@ -161,9 +216,9 @@ switch ($requestPath) {
         $controller = new CompanyController();
         $controller->getRatings();
         break;
-    case '/upload-cv':
+    case '/api/companies':
         $controller = new BrowseController();
-        $controller->uploadCV();
+        $controller->getCompanies();
         break;
     default:
         http_response_code(404);

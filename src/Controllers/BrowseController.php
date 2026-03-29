@@ -3,15 +3,18 @@
 namespace App\Controllers;
 
 use App\Models\DbInternshipModel;
+use App\Models\CompanyModel;
 
 class BrowseController extends BaseController
 {
     private $internshipModel;
+    private $companyModel;
 
     public function __construct()
     {
         parent::__construct();
         $this->internshipModel = new DbInternshipModel();
+        $this->companyModel = new CompanyModel();
     }
 
     public function index()
@@ -33,6 +36,24 @@ class BrowseController extends BaseController
         echo json_encode([
             "data" => $internships,
             "total" => count($internships)
+        ]);
+    }
+
+    public function getCompanies()
+    {
+        $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $perPage = 3;
+        $offset = ($page - 1) * $perPage;
+
+        $companies = $this->companyModel->getAll();
+
+        // For now, simple pagination
+        $paginated = array_slice($companies, $offset, $perPage);
+
+        header("Content-Type: application/json");
+        echo json_encode([
+            "data" => $paginated,
+            "total" => count($companies)
         ]);
     }
 

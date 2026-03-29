@@ -28,6 +28,51 @@ class CompanyController extends BaseController
         ]);
     }
 
+    public function getDetailed($id)
+    {
+        try {
+            $company = $this->model->getDetailedById($id);
+            if (!$company) {
+                http_response_code(404);
+                echo json_encode(['error' => 'Company not found']);
+                return;
+            }
+            header('Content-Type: application/json');
+            echo json_encode($company);
+        } catch (\Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code(500);
+            echo json_encode(['error' => 'Internal server error: ' . $e->getMessage()]);
+        }
+    }
+
+    public function search()
+    {
+        try {
+            $filters = [
+                'query' => $_GET['q'] ?? '',
+                'country' => $_GET['country'] ?? '',
+            ];
+            $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+            $perPage = 20;
+            $offset = ($page - 1) * $perPage;
+
+            $companies = $this->model->search($filters, $perPage, $offset);
+
+            header('Content-Type: application/json');
+            echo json_encode([
+                'data' => $companies,
+                'page' => $page,
+                'per_page' => $perPage,
+                'total' => count($companies), // approximate
+            ]);
+        } catch (\Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code(500);
+            echo json_encode(['error' => 'Internal server error: ' . $e->getMessage()]);
+        }
+    }
+
     public function create()
     {
         if (!Auth::hasRole(['admin', 'pilot'])) {

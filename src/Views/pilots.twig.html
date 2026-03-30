@@ -1,0 +1,458 @@
+{% extends "base.twig.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background-color: var(--bg-color);
+        padding: var(--spacing-xl);
+        border-radius: var(--border-radius);
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--text-light);
+    }
+
+    .modal-close:hover {
+        color: var(--text-dark);
+    }
+</style>
+
+<div class="page-header">
+    <div class="flex-between">
+        <div>
+            <h1>{{ title }}</h1>
+            <p style="color: var(--text-light);">Manage promotion pilots (SFx12-15)</p>
+        </div>
+        {% if user is defined and user.role == 'admin' %}
+        <button class="button" onclick="openCreatePilotModal()">+
+            Add Pilot</button>
+        {% endif %}
+    </div>
+</div>
+
+{% if user is not defined or user.role != 'admin' %}
+<div class="alert info">
+    <p style="margin: 0;">Only administrators can manage pilots.</p>
+</div>
+{% endif %}
+
+<div style="margin: var(--spacing-lg) 0; display: flex; gap: var(--spacing-sm); flex-wrap: wrap; align-items: center;">
+    <form method="get" action="{{ baseUrl }}/pilots"
+        style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap; align-items: center; width: 100%;">
+        <input type="text" name="q" id="pilots-search-q" placeholder="Search pilots by name or email"
+            value="{{ filters.query|default('') }}" style="flex:1; min-width: 200px;">
+        <button type="submit" class="button">Search</button>
+        <a href="{{ baseUrl }}/pilots" class="button secondary">Clear</a>
+    </form>
+</div>
+
+<div style="overflow-x: auto;">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Country</th>
+                <th>Join Date</th>
+                <th>Students</th>
+                {% if user is defined and user.role == 'admin' %}
+                <th>Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% if pilots|length > 0 %}
+            {% for p in pilots %}
+            <tr>
+                <td style="font-weight: 500;">{{ p.LastName }}, {{ p.FirstName }}</td>
+                <td>{{ p.Email }}</td>
+                <td>{{ p.UserPhone|default('N/A') }}</td>
+                <td>{{ p.CountryName|default('Unknown') }}</td>
+                <td>{{ p.JoinDate|date('Y-m-d') }}</td>
+                <td>
+                    <span id="students-count-{{ p.IdUser }}">Loading...</span>
+                </td>
+                {% if user is defined and user.role == 'admin' %}
+                <td>
+                    <button class="button view-pilot"
+                        style="padding: var(--spacing-xs) var(--spacing-sm); margin-right: 5px;"
+                        data-pilot-id="{{ p.IdUser }}"
+                        data-pilot-name="{{ p.FirstName }} {{ p.LastName }}">View</button>
+                    <button class="button edit-pilot"
+                        style="padding: var(--spacing-xs) var(--spacing-sm); margin-right: 5px;"
+                        data-pilot-id="{{ p.IdUser }}">Edit</button>
+                    <button class="button danger btn-delete" data-pilot-id="{{ p.IdUser }}"
+                        style="padding: var(--spacing-xs) var(--spacing-sm);">Delete</button>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; padding: var(--spacing-lg);">
+                    <p style="margin: 0; color: var(--text-light);">No pilots yet. {% if user is defined and user.role
+                        == 'admin' %}<a href="#" onclick="openCreatePilotModal(); return false;">Create one</a>{% endif
+                        %}</p>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pilot Details Modal -->
+<div id="pilotModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="pilotModalTitle" style="margin: 0;">Pilot Details</h2>
+            <button class="modal-close" onclick="closePilotModal()">&times;</button>
+        </div>
+        <div id="pilotDetailsContent">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Pilot Edit Modal -->
+<div id="pilotEditModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="pilot-edit-modal-title">Edit Pilot</h2>
+            <button class="modal-close" onclick="closePilotEditModal()">&times;</button>
+        </div>
+        <form id="pilot-edit-form" style="max-width: 600px; margin-top: var(--spacing-lg);">
+            <input type="hidden" id="pilot-edit-id" name="id" value="">
+            <div class="form-group">
+                <div>
+                    <label for="pilot-edit-firstName">First Name *</label>
+                    <input type="text" name="firstName" id="pilot-edit-firstName" required
+                        placeholder="Enter first name">
+                </div>
+                <div>
+                    <label for="pilot-edit-lastName">Last Name *</label>
+                    <input type="text" name="lastName" id="pilot-edit-lastName" required placeholder="Enter last name">
+                </div>
+                <div>
+                    <label for="pilot-edit-email">Email *</label>
+                    <input type="email" name="email" id="pilot-edit-email" required placeholder="pilot@example.com">
+                </div>
+                <div>
+                    <label for="pilot-edit-phone">Phone</label>
+                    <input type="text" name="phone" id="pilot-edit-phone" placeholder="+1 (555) 000-0000">
+                </div>
+                <div>
+                    <label for="pilot-edit-dob">Date of Birth</label>
+                    <input type="date" name="dob" id="pilot-edit-dob">
+                </div>
+                <div>
+                    <label for="pilot-edit-country">Country</label>
+                    <input type="number" name="country" id="pilot-edit-country" value="1" placeholder="1">
+                </div>
+                <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm);">
+                    <button type="submit" class="button">Save Changes</button>
+                    <button type="button" class="button secondary" onclick="closePilotEditModal()">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Pilot Create Modal -->
+<div id="pilotCreateModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create New Pilot</h2>
+            <button class="modal-close" onclick="closeCreatePilotModal()">&times;</button>
+        </div>
+        <form id="pilot-create-form" style="max-width: 600px; margin-top: var(--spacing-lg);">
+            <div class="form-group">
+                <div>
+                    <label for="pilot-firstName">First Name *</label>
+                    <input type="text" name="firstName" id="pilot-firstName" required placeholder="Enter first name">
+                </div>
+                <div>
+                    <label for="pilot-lastName">Last Name *</label>
+                    <input type="text" name="lastName" id="pilot-lastName" required placeholder="Enter last name">
+                </div>
+                <div>
+                    <label for="pilot-email">Email *</label>
+                    <input type="email" name="email" id="pilot-email" required placeholder="pilot@example.com">
+                </div>
+                <div>
+                    <label for="pilot-password">Password *</label>
+                    <input type="password" name="password" id="pilot-password" required placeholder="Enter password">
+                </div>
+                <div>
+                    <label for="pilot-phone">Phone</label>
+                    <input type="text" name="phone" id="pilot-phone" placeholder="+1 (555) 000-0000">
+                </div>
+                <div>
+                    <label for="pilot-dob">Date of Birth *</label>
+                    <input type="date" name="dob" id="pilot-dob" required>
+                </div>
+                <div>
+                    <label for="pilot-country">Country</label>
+                    <input type="number" name="country" id="pilot-country" value="1" placeholder="1">
+                </div>
+                <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm);">
+                    <button type="submit" class="button">Create Pilot</button>
+                    <button type="button" class="button secondary" onclick="closeCreatePilotModal()">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="application/json" id="pilots-data">{{ pilots|json_encode|raw }}</script>
+<script type="application/json" id="user-data">{{ user|default(null)|json_encode|raw }}</script>
+<script type="application/json" id="base-url-data">{{ baseUrl|default('') }}</script>
+
+<script>
+    // Load template data
+    window.PILOTS_DATA = JSON.parse(document.getElementById('pilots-data').textContent);
+    window.USER_DATA = JSON.parse(document.getElementById('user-data').textContent);
+    window.BASE_URL = document.getElementById('base-url-data').textContent;
+
+    let currentPilotId = null;
+    var user = window.USER_DATA;
+
+    function api(path) {
+        if (typeof window.APP_API_URL === 'string' && window.APP_API_URL.length) {
+            const cleaned = path.toString().replace(/^\/+/, '');
+            return window.APP_API_URL.replace(/\/+$/, '') + '/' + cleaned;
+        }
+        const baseUrl = window.BASE_URL.replace(/\/+$/, '');
+        const prefix = baseUrl.length ? baseUrl + '/api' : '/api';
+        const cleaned = path.toString().replace(/^\/+/, '');
+        return prefix.replace(/\/+$/, '') + '/' + cleaned;
+    }
+
+    function openPilotModal(pilotId, pilotName) {
+        currentPilotId = pilotId;
+        document.getElementById('pilotModalTitle').textContent = pilotName;
+        document.getElementById('pilotModal').classList.add('show');
+        loadPilotDetails(pilotId);
+    }
+
+    function closePilotModal() {
+        document.getElementById('pilotModal').classList.remove('show');
+        currentPilotId = null;
+    }
+
+    function loadPilotDetails(pilotId) {
+        const url = api('pilots/detail?id=' + encodeURIComponent(pilotId));
+        fetch(url)
+            .then(r => {
+                if (!r.ok) throw new Error('Failed to load pilot details: ' + r.statusText);
+                return r.json();
+            })
+            .then(data => {
+                const content = document.getElementById('pilotDetailsContent');
+                content.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                        <div><strong>Name:</strong> ${data.LastName}, ${data.FirstName}</div>
+                        <div><strong>Email:</strong> ${data.Email}</div>
+                        <div><strong>Phone:</strong> ${data.UserPhone || 'N/A'}</div>
+                        <div><strong>Country:</strong> ${data.CountryName || 'Unknown'}</div>
+                        <div><strong>Date of Birth:</strong> ${data.DoB}</div>
+                        <div><strong>Join Date:</strong> ${data.JoinDate}</div>
+                        <div><strong>Students:</strong> ${data.students_count}</div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Error loading pilot details:', error);
+                document.getElementById('pilotDetailsContent').innerHTML = '<p style="color: red;">Error loading pilot details.</p>';
+            });
+    }
+
+    function openPilotEditModal(pilotId) {
+        // Load pilot data and populate form
+        const url = api('pilots/detail?id=' + encodeURIComponent(pilotId));
+        fetch(url)
+            .then(r => {
+                if (!r.ok) throw new Error('Failed to load pilot: ' + r.statusText);
+                return r.json();
+            })
+            .then(data => {
+                document.getElementById('pilot-edit-id').value = data.IdUser;
+                document.getElementById('pilot-edit-firstName').value = data.FirstName;
+                document.getElementById('pilot-edit-lastName').value = data.LastName;
+                document.getElementById('pilot-edit-email').value = data.Email;
+                document.getElementById('pilot-edit-phone').value = data.UserPhone || '';
+                document.getElementById('pilot-edit-dob').value = data.DoB;
+                document.getElementById('pilot-edit-country').value = data.Id_Country;
+                document.getElementById('pilot-edit-modal-title').textContent = 'Edit Pilot';
+                document.getElementById('pilotEditModal').classList.add('show');
+            })
+            .catch(error => {
+                console.error('Error loading pilot for edit:', error);
+                alert('Error loading pilot data.');
+            });
+    }
+
+    function closePilotEditModal() {
+        document.getElementById('pilotEditModal').classList.remove('show');
+    }
+
+    function openCreatePilotModal() {
+        document.getElementById('pilot-create-form').reset();
+        document.getElementById('pilotCreateModal').classList.add('show');
+    }
+
+    function closeCreatePilotModal() {
+        document.getElementById('pilotCreateModal').classList.remove('show');
+    }
+
+    // Load students count for each pilot
+    document.addEventListener('DOMContentLoaded', function () {
+        window.PILOTS_DATA.forEach(p => loadStudentsCount(p.IdUser));
+    });
+
+    function loadStudentsCount(pilotId) {
+        const url = api('pilots/detail?id=' + encodeURIComponent(pilotId));
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                const element = document.getElementById('students-count-' + pilotId);
+                if (element) {
+                    element.textContent = data.students_count;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading students count:', error);
+            });
+    }
+
+    // Form submissions
+    document.getElementById('pilot-edit-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const pilotId = formData.get('id');
+
+        fetch(api('pilots/update?id=' + pilotId), {
+            method: 'POST',
+            body: formData
+        })
+            .then(r => {
+                if (!r.ok) throw new Error('Failed to update pilot: ' + r.statusText);
+                return r.json();
+            })
+            .then(data => {
+                alert('Pilot updated successfully!');
+                closePilotEditModal();
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error updating pilot:', error);
+                alert('Error updating pilot.');
+            });
+    });
+
+    document.getElementById('pilot-create-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch(api('pilots/create'), {
+            method: 'POST',
+            body: formData
+        })
+            .then(r => {
+                if (!r.ok) throw new Error('Failed to create pilot: ' + r.statusText);
+                return r.json();
+            })
+            .then(data => {
+                alert('Pilot created successfully!');
+                closeCreatePilotModal();
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error creating pilot:', error);
+                alert('Error creating pilot.');
+            });
+    });
+
+    // View pilot modal
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('view-pilot')) {
+            const pilotId = e.target.getAttribute('data-pilot-id');
+            const pilotName = e.target.getAttribute('data-pilot-name');
+            openPilotModal(pilotId, pilotName);
+        }
+    });
+
+    // Edit pilot modal
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('edit-pilot')) {
+            const pilotId = e.target.getAttribute('data-pilot-id');
+            openPilotEditModal(pilotId);
+        }
+    });
+
+    // Delete functionality
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+            const pilotId = e.target.getAttribute('data-pilot-id');
+            if (confirm('Are you sure you want to delete this pilot? This action cannot be undone.')) {
+                const formData = new FormData();
+                formData.append('id', pilotId);
+
+                fetch(api('pilots/delete?id=' + pilotId), {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(r => {
+                        if (r.status === 204) {
+                            alert('Pilot deleted successfully!');
+                            location.reload();
+                        } else {
+                            return r.json().then(data => {
+                                throw new Error(data.error || 'Failed to delete pilot');
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting pilot:', error);
+                        alert('Error deleting pilot: ' + error.message);
+                    });
+            }
+        }
+    });
+</script>
+{% endblock %}

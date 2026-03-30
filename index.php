@@ -49,6 +49,7 @@ use App\Controllers\ApplicationController;
 use App\Controllers\InternshipController;
 use App\Controllers\FormController;
 use App\Controllers\CompanyController;
+use App\Controllers\PilotController;
 use App\Models\Auth;
 use App\Models\ApplicationModel;
 
@@ -143,6 +144,11 @@ switch ($requestPath) {
     case '/companies':
         requireAuth($basePath);
         $controller = new CompanyController();
+        $controller->index();
+        break;
+    case '/pilots':
+        requireAuth($basePath);
+        $controller = new PilotController();
         $controller->index();
         break;
     case '/logout':
@@ -288,6 +294,46 @@ switch ($requestPath) {
     case '/api/companies':
         $controller = new BrowseController();
         $controller->getCompanies();
+        break;
+    case '/api/pilots/search':
+        requireAuth($basePath);
+        $controller = new PilotController();
+        $controller->search();
+        break;
+    case '/api/pilots/detail':
+        requireAuth($basePath);
+        if (isset($_GET['id'])) {
+            $controller = new PilotController();
+            $controller->getDetailed($_GET['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
+        break;
+    case '/api/pilots/create':
+        requireAuth($basePath);
+        $controller = new PilotController();
+        $controller->create();
+        break;
+    case '/api/pilots/update':
+        requireAuth($basePath);
+        if (isset($_GET['id'])) {
+            $controller = new PilotController();
+            $controller->update($_GET['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
+        break;
+    case '/api/pilots/delete':
+        requireAuth($basePath);
+        if (isset($_POST['id'])) {
+            $controller = new PilotController();
+            $controller->delete($_POST['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
         break;
     default:
         http_response_code(404);

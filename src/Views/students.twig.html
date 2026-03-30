@@ -1,0 +1,477 @@
+{% extends "base.twig.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background-color: var(--bg-color);
+        padding: var(--spacing-xl);
+        border-radius: var(--border-radius);
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--text-light);
+    }
+
+    .modal-close:hover {
+        color: var(--text-dark);
+    }
+</style>
+
+<div class="page-header">
+    <div class="flex-between">
+        <div>
+            <h1>{{ title }}</h1>
+            <p style="color: var(--text-light);">Manage students (SFx16-19)</p>
+        </div>
+        <button class="button" onclick="openCreateStudentModal()">+
+            Add Student</button>
+    </div>
+</div>
+
+<div style="margin: var(--spacing-lg) 0; display: flex; gap: var(--spacing-sm); flex-wrap: wrap; align-items: center;">
+    <form method="get" action="{{ baseUrl }}/students"
+        style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap; align-items: center; width: 100%;">
+        <input type="text" name="q" id="students-search-q" placeholder="Search students by name or email"
+            value="{{ filters.query|default('') }}" style="flex:1; min-width: 200px;">
+        <button type="submit" class="button">Search</button>
+        <a href="{{ baseUrl }}/students" class="button secondary">Clear</a>
+    </form>
+</div>
+
+<div style="overflow-x: auto;">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>School Level</th>
+                <th>School Year</th>
+                <th>Major</th>
+                <th>Pilot</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if students|length > 0 %}
+            {% for s in students %}
+            <tr>
+                <td style="font-weight: 500;">{{ s.LastName }}, {{ s.FirstName }}</td>
+                <td>{{ s.Email }}</td>
+                <td>{{ s.SchoolLevel|default('N/A') }}</td>
+                <td>{{ s.SchoolYear|default('N/A') }}</td>
+                <td>{{ s.Major|default('N/A') }}</td>
+                <td>{{ s.PilotFirstName }} {{ s.PilotLastName }}</td>
+                <td>
+                    <button class="button view-student"
+                        style="padding: var(--spacing-xs) var(--spacing-sm); margin-right: 5px;"
+                        data-student-id="{{ s.IdUser }}"
+                        data-student-name="{{ s.FirstName }} {{ s.LastName }}">View</button>
+                    <button class="button edit-student"
+                        style="padding: var(--spacing-xs) var(--spacing-sm); margin-right: 5px;"
+                        data-student-id="{{ s.IdUser }}">Edit</button>
+                    <button class="button danger btn-delete" data-student-id="{{ s.IdUser }}"
+                        style="padding: var(--spacing-xs) var(--spacing-sm);">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; padding: var(--spacing-lg);">
+                    <p style="margin: 0; color: var(--text-light);">No students yet. <a href="#"
+                            onclick="openCreateStudentModal(); return false;">Create one</a></p>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Student Details Modal -->
+<div id="studentModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="studentModalTitle" style="margin: 0;">Student Details</h2>
+            <button class="modal-close" onclick="closeStudentModal()">&times;</button>
+        </div>
+        <div id="studentDetailsContent">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Student Edit Modal -->
+<div id="studentEditModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="student-edit-modal-title">Edit Student</h2>
+            <button class="modal-close" onclick="closeStudentEditModal()">&times;</button>
+        </div>
+        <form id="student-edit-form" style="max-width: 600px; margin-top: var(--spacing-lg);">
+            <input type="hidden" id="student-edit-id" name="id" value="">
+            <div class="form-group">
+                <div>
+                    <label for="student-edit-firstName">First Name *</label>
+                    <input type="text" name="firstName" id="student-edit-firstName" required
+                        placeholder="Enter first name">
+                </div>
+                <div>
+                    <label for="student-edit-lastName">Last Name *</label>
+                    <input type="text" name="lastName" id="student-edit-lastName" required
+                        placeholder="Enter last name">
+                </div>
+                <div>
+                    <label for="student-edit-email">Email *</label>
+                    <input type="email" name="email" id="student-edit-email" required placeholder="student@example.com">
+                </div>
+                <div>
+                    <label for="student-edit-phone">Phone</label>
+                    <input type="text" name="phone" id="student-edit-phone" placeholder="+1 (555) 000-0000">
+                </div>
+                <div>
+                    <label for="student-edit-dob">Date of Birth</label>
+                    <input type="date" name="dob" id="student-edit-dob">
+                </div>
+                <div>
+                    <label for="student-edit-schoolLevel">School Level</label>
+                    <input type="text" name="schoolLevel" id="student-edit-schoolLevel" placeholder="e.g., Bachelor's">
+                </div>
+                <div>
+                    <label for="student-edit-schoolYear">School Year</label>
+                    <input type="number" name="schoolYear" id="student-edit-schoolYear" placeholder="e.g., 3">
+                </div>
+                <div>
+                    <label for="student-edit-major">Major</label>
+                    <input type="text" name="major" id="student-edit-major" placeholder="e.g., Computer Science">
+                </div>
+                {% if user.role == 'admin' %}
+                <div>
+                    <label for="student-edit-pilotId">Pilot</label>
+                    <select name="pilotId" id="student-edit-pilotId">
+                        {% for p in pilots %}
+                        <option value="{{ p.IdUser }}">{{ p.FirstName }} {{ p.LastName }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm);">
+                    <button type="submit" class="button">Save Changes</button>
+                    <button type="button" class="button secondary" onclick="closeStudentEditModal()">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Student Create Modal -->
+<div id="studentCreateModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create New Student</h2>
+            <button class="modal-close" onclick="closeCreateStudentModal()">&times;</button>
+        </div>
+        <form id="student-create-form" style="max-width: 600px; margin-top: var(--spacing-lg);">
+            <div class="form-group">
+                <div>
+                    <label for="student-firstName">First Name *</label>
+                    <input type="text" name="firstName" id="student-firstName" required placeholder="Enter first name">
+                </div>
+                <div>
+                    <label for="student-lastName">Last Name *</label>
+                    <input type="text" name="lastName" id="student-lastName" required placeholder="Enter last name">
+                </div>
+                <div>
+                    <label for="student-email">Email *</label>
+                    <input type="email" name="email" id="student-email" required placeholder="student@example.com">
+                </div>
+                <div>
+                    <label for="student-password">Password *</label>
+                    <input type="password" name="password" id="student-password" required placeholder="Enter password">
+                </div>
+                <div>
+                    <label for="student-phone">Phone</label>
+                    <input type="text" name="phone" id="student-phone" placeholder="+1 (555) 000-0000">
+                </div>
+                <div>
+                    <label for="student-dob">Date of Birth *</label>
+                    <input type="date" name="dob" id="student-dob" required>
+                </div>
+                <div>
+                    <label for="student-schoolLevel">School Level</label>
+                    <input type="text" name="schoolLevel" id="student-schoolLevel" placeholder="e.g., Bachelor's">
+                </div>
+                <div>
+                    <label for="student-schoolYear">School Year</label>
+                    <input type="number" name="schoolYear" id="student-schoolYear" placeholder="e.g., 3">
+                </div>
+                <div>
+                    <label for="student-major">Major</label>
+                    <input type="text" name="major" id="student-major" placeholder="e.g., Computer Science">
+                </div>
+                {% if user.role == 'admin' %}
+                <div>
+                    <label for="student-pilotId">Pilot *</label>
+                    <select name="pilotId" id="student-pilotId" required>
+                        <option value="">Select a pilot</option>
+                        {% for p in pilots %}
+                        <option value="{{ p.IdUser }}">{{ p.FirstName }} {{ p.LastName }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm);">
+                    <button type="submit" class="button">Create Student</button>
+                    <button type="button" class="button secondary" onclick="closeCreateStudentModal()">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="application/json" id="students-data">{{ students|json_encode|raw }}</script>
+<script type="application/json" id="user-data">{{ user|default(null)|json_encode|raw }}</script>
+<script type="application/json" id="base-url-data">{{ baseUrl|default('') }}</script>
+
+<script>
+    // Load template data
+    window.STUDENTS_DATA = JSON.parse(document.getElementById('students-data').textContent);
+    window.USER_DATA = JSON.parse(document.getElementById('user-data').textContent);
+    window.BASE_URL = document.getElementById('base-url-data').textContent;
+
+    let currentStudentId = null;
+    var user = window.USER_DATA;
+
+    function api(path) {
+        if (typeof window.APP_API_URL === 'string' && window.APP_API_URL.length) {
+            const cleaned = path.toString().replace(/^\/+/, '');
+            return window.APP_API_URL.replace(/\/+$/, '') + '/' + cleaned;
+        }
+        const baseUrl = window.BASE_URL.replace(/\/+$/, '');
+        const prefix = baseUrl.length ? baseUrl + '/api' : '/api';
+        const cleaned = path.toString().replace(/^\/+/, '');
+        return prefix.replace(/\/+$/, '') + '/' + cleaned;
+    }
+
+    function openStudentModal(studentId, studentName) {
+        currentStudentId = studentId;
+        document.getElementById('studentModalTitle').textContent = studentName;
+        document.getElementById('studentModal').classList.add('show');
+        loadStudentDetails(studentId);
+    }
+
+    function closeStudentModal() {
+        document.getElementById('studentModal').classList.remove('show');
+        currentStudentId = null;
+    }
+
+    function loadStudentDetails(studentId) {
+        const url = api('students/detail?id=' + encodeURIComponent(studentId));
+        fetch(url)
+            .then(r => {
+                if (!r.ok) throw new Error('Failed to load student details: ' + r.statusText);
+                return r.json();
+            })
+            .then(data => {
+                const content = document.getElementById('studentDetailsContent');
+                content.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                        <div><strong>Name:</strong> ${data.LastName}, ${data.FirstName}</div>
+                        <div><strong>Email:</strong> ${data.Email}</div>
+                        <div><strong>Phone:</strong> ${data.UserPhone || 'N/A'}</div>
+                        <div><strong>Date of Birth:</strong> ${data.DoB}</div>
+                        <div><strong>School Level:</strong> ${data.SchoolLevel || 'N/A'}</div>
+                        <div><strong>School Year:</strong> ${data.SchoolYear || 'N/A'}</div>
+                        <div><strong>Major:</strong> ${data.Major || 'N/A'}</div>
+                        <div><strong>Pilot:</strong> ${data.PilotFirstName} ${data.PilotLastName}</div>
+                        <div><strong>Join Date:</strong> ${data.JoinDate}</div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Error loading student details:', error);
+                document.getElementById('studentDetailsContent').innerHTML = '<p style="color: red;">Error loading student details.</p>';
+            });
+    }
+
+    function openStudentEditModal(studentId) {
+        // Load student data and populate form
+        const url = api('students/detail?id=' + encodeURIComponent(studentId));
+        fetch(url)
+            .then(r => {
+                if (!r.ok) throw new Error('Failed to load student: ' + r.statusText);
+                return r.json();
+            })
+            .then(data => {
+                document.getElementById('student-edit-id').value = data.IdUser;
+                document.getElementById('student-edit-firstName').value = data.FirstName;
+                document.getElementById('student-edit-lastName').value = data.LastName;
+                document.getElementById('student-edit-email').value = data.Email;
+                document.getElementById('student-edit-phone').value = data.UserPhone || '';
+                document.getElementById('student-edit-dob').value = data.DoB;
+                document.getElementById('student-edit-schoolLevel').value = data.SchoolLevel || '';
+                document.getElementById('student-edit-schoolYear').value = data.SchoolYear || '';
+                document.getElementById('student-edit-major').value = data.Major || '';
+                if (user.role === 'admin') {
+                    document.getElementById('student-edit-pilotId').value = data.PilotId;
+                }
+                document.getElementById('student-edit-modal-title').textContent = 'Edit Student';
+                document.getElementById('studentEditModal').classList.add('show');
+            })
+            .catch(error => {
+                console.error('Error loading student for edit:', error);
+                alert('Error loading student data.');
+            });
+    }
+
+    function closeStudentEditModal() {
+        document.getElementById('studentEditModal').classList.remove('show');
+    }
+
+    function openCreateStudentModal() {
+        document.getElementById('student-create-form').reset();
+        document.getElementById('studentCreateModal').classList.add('show');
+    }
+
+    function closeCreateStudentModal() {
+        document.getElementById('studentCreateModal').classList.remove('show');
+    }
+
+    // Form submissions
+    document.getElementById('student-edit-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const studentId = formData.get('id');
+
+        fetch(api('students/update?id=' + studentId), {
+            method: 'POST',
+            body: formData
+        })
+            .then(r => {
+                if (!r.ok) {
+                    return r.json().then(data => {
+                        throw new Error(data.error || 'Failed to update student');
+                    });
+                }
+                return r.json();
+            })
+            .then(data => {
+                alert('Student updated successfully!');
+                closeStudentEditModal();
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error updating student:', error);
+                alert('Error updating student: ' + error.message);
+            });
+    });
+
+    document.getElementById('student-create-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch(api('students/create'), {
+            method: 'POST',
+            body: formData
+        })
+            .then(r => {
+                if (!r.ok) {
+                    return r.json().then(data => {
+                        throw new Error(data.error || 'Failed to create student');
+                    });
+                }
+                return r.json();
+            })
+            .then(data => {
+                alert('Student created successfully!');
+                closeCreateStudentModal();
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error creating student:', error);
+                alert('Error creating student: ' + error.message);
+            });
+    });
+
+    // View student modal
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('view-student')) {
+            const studentId = e.target.getAttribute('data-student-id');
+            const studentName = e.target.getAttribute('data-student-name');
+            openStudentModal(studentId, studentName);
+        }
+    });
+
+    // Edit student modal
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('edit-student')) {
+            const studentId = e.target.getAttribute('data-student-id');
+            openStudentEditModal(studentId);
+        }
+    });
+
+    // Delete functionality
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+            const studentId = e.target.getAttribute('data-student-id');
+            if (confirm('Are you sure you want to delete this student? This action cannot be undone.')) {
+                const formData = new FormData();
+                formData.append('id', studentId);
+
+                fetch(api('students/delete?id=' + studentId), {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(r => {
+                        if (r.status === 204) {
+                            alert('Student deleted successfully!');
+                            location.reload();
+                        } else {
+                            return r.json().then(data => {
+                                throw new Error(data.error || 'Failed to delete student');
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting student:', error);
+                        alert('Error deleting student.');
+                    });
+            }
+        }
+    });
+</script>
+
+{% endblock %}

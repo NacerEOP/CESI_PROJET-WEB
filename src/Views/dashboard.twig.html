@@ -61,6 +61,11 @@
             <p>View applications from your students</p>
             <a href="{{ baseUrl }}/application/pilot" class="button" style="width: 100%;">View Applications</a>
         </div>
+        <div class="card">
+            <h3>🎓 My Students</h3>
+            <p>Manage your assigned students</p>
+            <a href="{{ baseUrl }}/students" class="button" style="width: 100%;">Manage Students</a>
+        </div>
         {% elseif role == 'admin' %}
         <div class="card">
             <h3>📊 Website Traffic</h3>
@@ -80,6 +85,11 @@
             <h3>👨‍🏫 Pilot Management</h3>
             <p>Manage promotion pilots</p>
             <a href="{{ baseUrl }}/pilots" class="button" style="width: 100%;">Manage Pilots</a>
+        </div>
+        <div class="card">
+            <h3>🎓 Student Management</h3>
+            <p>Manage students</p>
+            <a href="{{ baseUrl }}/students" class="button" style="width: 100%;">Manage Students</a>
         </div>
         {% endif %}
 

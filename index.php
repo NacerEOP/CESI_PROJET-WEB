@@ -50,6 +50,7 @@ use App\Controllers\InternshipController;
 use App\Controllers\FormController;
 use App\Controllers\CompanyController;
 use App\Controllers\PilotController;
+use App\Controllers\StudentController;
 use App\Models\Auth;
 use App\Models\ApplicationModel;
 
@@ -149,6 +150,11 @@ switch ($requestPath) {
     case '/pilots':
         requireAuth($basePath);
         $controller = new PilotController();
+        $controller->index();
+        break;
+    case '/students':
+        requireAuth($basePath);
+        $controller = new StudentController();
         $controller->index();
         break;
     case '/logout':
@@ -329,6 +335,46 @@ switch ($requestPath) {
         requireAuth($basePath);
         if (isset($_POST['id'])) {
             $controller = new PilotController();
+            $controller->delete($_POST['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
+        break;
+    case '/api/students/search':
+        requireAuth($basePath);
+        $controller = new StudentController();
+        $controller->search();
+        break;
+    case '/api/students/detail':
+        requireAuth($basePath);
+        if (isset($_GET['id'])) {
+            $controller = new StudentController();
+            $controller->getDetailed($_GET['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
+        break;
+    case '/api/students/create':
+        requireAuth($basePath);
+        $controller = new StudentController();
+        $controller->create();
+        break;
+    case '/api/students/update':
+        requireAuth($basePath);
+        if (isset($_GET['id'])) {
+            $controller = new StudentController();
+            $controller->update($_GET['id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad request']);
+        }
+        break;
+    case '/api/students/delete':
+        requireAuth($basePath);
+        if (isset($_POST['id'])) {
+            $controller = new StudentController();
             $controller->delete($_POST['id']);
         } else {
             http_response_code(400);

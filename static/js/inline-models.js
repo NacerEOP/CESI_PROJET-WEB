@@ -71,9 +71,12 @@ export class InlineModel {
     this._modelRadius = null;
     this._customCameraY = null;
     this._baseQuaternion = null;
+    this._resizeObserver = null;
+    this._isInitialSetup = true;
 
     this._onScroll = this._onScroll.bind(this);
     this._onResize = this._onResize.bind(this);
+    this._onContainerResize = this._onContainerResize.bind(this);
     this._update = this._update.bind(this);
   }
 
@@ -81,7 +84,7 @@ export class InlineModel {
     this._setupCanvas();
     this.manager = new ThreeManager(this.canvas, { alpha: true, antialias: true });
 
-    // Ensure the renderer matches the current container size
+    // Resize immediately on init BEFORE loading model
     this._resizeCanvas();
 
     // Keep the scene transparent so HTML can show through
@@ -99,6 +102,11 @@ export class InlineModel {
     this.manager.start();
 
     this._registerListeners();
+    
+    // Mark initial setup as complete - future resizes will recalculate camera position
+    this._isInitialSetup = false;
+    
+    // Initial update
     this._update();
   }
 
@@ -199,32 +207,8 @@ export class InlineModel {
       // Store radius for later use (lighting, etc)
       this._modelRadius = radius;
 
-      // Place camera so model fits nicely
-      // Use custom FOV if provided in data attribute
-      const customFov = parseFloat(this.container.dataset.fov);
-      const fovDeg = !isNaN(customFov) ? customFov : 110;
-      const fov = fovDeg * (Math.PI / 180);
-      const distance = Math.abs(radius / Math.sin(fov / 2)) * 1.2;
-      
-      // Get custom camera Y height if provided
-      const customCameraY = parseFloat(this.container.dataset.cameraY);
-      const cameraYOffset = !isNaN(customCameraY) ? customCameraY : distance;
-      this._customCameraY = cameraYOffset;
-      
-      // Position camera above the model for top-down view
-      this.manager.camera.position.set(0, cameraYOffset, 0);
-      this.manager.camera.lookAt(0, 0, 0);
-
-      // Set FOV for the inline camera and update projection
-      this.manager.camera.fov = fovDeg;
-      this.manager.camera.updateProjectionMatrix();
-      
-      // Extend frustum distance to avoid clipping when camera moves around (including parallax shifts)
-      this.manager.camera.near = 0.1;
-      this.manager.camera.far = Math.max(2000, distance * 30, radius * 50);
-      this.manager.camera.updateProjectionMatrix();
-
-      this._baseDistance = distance;
+      // Position camera to fit the model
+      this._positionCamera();
 
       // Add surface lighting with rim lights around the model
       const disableLights = this._getBoolAttr('light', false);
@@ -251,6 +235,54 @@ export class InlineModel {
     }
   }
 
+  _positionCamera() {
+    const radius = this._modelRadius;
+    if (!radius) return;
+
+    // Use custom FOV if provided in data attribute
+    const customFov = parseFloat(this.container.dataset.fov);
+    const fovDeg = !isNaN(customFov) ? customFov : 110;
+    const fov = fovDeg * (Math.PI / 180);
+
+    // Calculate half angles based on aspect ratio
+    const halfFovVertical = fov / 2;
+    const aspect = this.manager.camera.aspect;
+    const halfFovHorizontal = Math.atan(Math.tan(halfFovVertical) * aspect);
+
+    // The limiting angle is the smaller one
+    const limitingAngle = Math.min(halfFovVertical, halfFovHorizontal);
+
+    // Always calculate distance based on aspect ratio and model size
+    const calculatedDistance = Math.abs(radius / Math.sin(limitingAngle)) * 1.2;
+    
+    // For camera Y: on initial setup, use data-camera-y if provided
+    // On resize, always use calculated distance so model scales responsively
+    let cameraYOffset;
+    if (this._isInitialSetup) {
+      const customCameraY = parseFloat(this.container.dataset.cameraY);
+      cameraYOffset = !isNaN(customCameraY) ? customCameraY : calculatedDistance;
+    } else {
+      // On resize: always use calculated distance so the model scales
+      cameraYOffset = calculatedDistance;
+    }
+    
+    this._customCameraY = cameraYOffset;
+    
+    this.manager.camera.position.set(0, cameraYOffset, 0);
+    this.manager.camera.lookAt(0, 0, 0);
+
+    // Set FOV for the inline camera and update projection
+    this.manager.camera.fov = fovDeg;
+    this.manager.camera.updateProjectionMatrix();
+    
+    // Extend frustum distance to avoid clipping when camera moves around (including parallax shifts)
+    this.manager.camera.near = 0.1;
+    this.manager.camera.far = Math.max(2000, calculatedDistance * 30, radius * 50);
+    this.manager.camera.updateProjectionMatrix();
+
+    this._baseDistance = calculatedDistance;
+  }
+
   _getBoolAttr(name, defaultValue) {
     const attr = this.container.dataset[name];
     if (attr === undefined) return defaultValue;
@@ -258,42 +290,52 @@ export class InlineModel {
   }
 
   _resizeCanvas() {
-    if (!this.canvas) return;
-    const rect = this.canvas.getBoundingClientRect();
+    if (!this.canvas || !this.manager || !this.manager.renderer || !this.manager.camera) return;
 
-    // Account for output zoom to render at higher resolution when zoomed
+    // Get the actual displayed size of the canvas element
+    const width = this.canvas.clientWidth;
+    const height = this.canvas.clientHeight;
+
+    if (width <= 0 || height <= 0) return;
+
+    // Get pixel ratio accounting for zoom
     const outputZoom = parseFloat(this.container.dataset.outputZoom) || 1.0;
-    const effectivePixelRatio = window.devicePixelRatio * Math.max(1, outputZoom);
+    const pixelRatio = window.devicePixelRatio * Math.max(1, outputZoom);
 
-    this.canvas.width = Math.max(1, Math.floor(rect.width * effectivePixelRatio));
-    this.canvas.height = Math.max(1, Math.floor(rect.height * effectivePixelRatio));
+    // Ensure canvas CSS dimensions stay at 100% so attribute width/height don't override
+    this.canvas.style.width = '100%';
+    this.canvas.style.height = '100%';
+    this.canvas.style.display = 'block';
 
-    // Update the ThreeManager renderer/camera config if needed
-    if (this.manager) {
-      // Use the public resize if available
-      if (typeof this.manager._resize === 'function') {
-        this.manager._resize();
-      } else if (this.manager.renderer && this.manager.camera) {
-        // Use the actual high-res canvas dimensions for renderer
-        const renderWidth = this.canvas.width;
-        const renderHeight = this.canvas.height;
+    // Manually set canvas pixel dimensions to match the displayed size
+    this.canvas.width = Math.round(width * pixelRatio);
+    this.canvas.height = Math.round(height * pixelRatio);
 
-        // Update camera aspect ratio based on logical (CSS) size, not render size
-        const logicalWidth = rect.width;
-        const logicalHeight = rect.height;
-        this.manager.camera.aspect = logicalWidth / logicalHeight;
-        this.manager.camera.updateProjectionMatrix();
+    // Set renderer to render at the displayed size
+    // Pass updateStyle=false so we don't override our careful CSS setup
+    this.manager.renderer.setPixelRatio(1); // We've already accounted for pixel ratio in canvas dimensions
+    this.manager.renderer.setSize(width, height, false);
 
-        // Set renderer to high-res canvas size and pixel ratio
-        this.manager.renderer.setSize(renderWidth, renderHeight, false);
-        this.manager.renderer.setPixelRatio(effectivePixelRatio);
-      }
+    // Update camera aspect
+    const newAspect = width / height;
+    this.manager.camera.aspect = newAspect;
+    this.manager.camera.updateProjectionMatrix();
+
+    // Reposition camera to fit the model
+    if (this._modelRadius) {
+      this._positionCamera();
     }
   }
 
   _registerListeners() {
     window.addEventListener('scroll', this._onScroll, { passive: true });
     window.addEventListener('resize', this._onResize);
+
+    // Use ResizeObserver to watch for container size changes
+    if (window.ResizeObserver) {
+      this._resizeObserver = new ResizeObserver(this._onContainerResize);
+      this._resizeObserver.observe(this.container);
+    }
   }
 
   _onScroll() {
@@ -309,6 +351,18 @@ export class InlineModel {
     if (!this._raf) {
       this._raf = requestAnimationFrame(this._update);
     }
+  }
+
+  _onContainerResize() {
+    this._needsUpdate = true;
+    this._resizeCanvas();
+    
+    // Force an immediate update to render changes
+    if (this._raf) {
+      cancelAnimationFrame(this._raf);
+    }
+    this._raf = null;
+    this._update();
   }
 
   _update() {
@@ -405,13 +459,16 @@ export class InlineModel {
 
       // Project world origin (model center) into normalized device coordinates [-1,1]
       const ndc = new THREE.Vector3(0, 0, 0).project(this.manager.camera);
-      const canvasRect = this.canvas.getBoundingClientRect();
+      
+      // Use container's client dimensions (the actual CSS display size)
+      const width = this.container.clientWidth;
+      const height = this.container.clientHeight;
 
       // Do NOT clamp NDC - let the offset compensate for off-screen projection
-      const projectedX = ((ndc.x + 1) / 2) * canvasRect.width;
-      const projectedY = ((-ndc.y + 1) / 2) * canvasRect.height;
-      const centerX = canvasRect.width / 2;
-      const centerY = canvasRect.height / 2;
+      const projectedX = ((ndc.x + 1) / 2) * width;
+      const projectedY = ((-ndc.y + 1) / 2) * height;
+      const centerX = width / 2;
+      const centerY = height / 2;
 
       // Calculate offset to re-center the projected model
       const offsetX = centerX - projectedX;
@@ -433,6 +490,10 @@ export class InlineModel {
   dispose() {
     window.removeEventListener('scroll', this._onScroll);
     window.removeEventListener('resize', this._onResize);
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
     if (this.manager) {
       this.manager.dispose();
       this.manager = null;

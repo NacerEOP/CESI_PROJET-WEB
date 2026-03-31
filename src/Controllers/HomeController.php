@@ -8,8 +8,12 @@ class HomeController extends BaseController
 {
     public function index()
     {
+        $model = new DbInternshipModel();
+        $internshipCount = $model->count();
+        
         $this->render('home', [
-            'title' => 'Find Your Internship Today!'
+            'title' => 'Find Your Internship Today!',
+            'internshipCount' => $internshipCount
         ]);
     }
 

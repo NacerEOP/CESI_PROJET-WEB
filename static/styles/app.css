@@ -114,6 +114,11 @@ main {
     padding: 0 var(--spacing-lg);
 }
 
+.content-wrapper {
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+}
+
 .page-header {
     margin-bottom: var(--spacing-2xl);
     padding-bottom: var(--spacing-xl);
@@ -700,6 +705,15 @@ tbody tr:last-child td {
    Responsive
    ================================ */
 @media (max-width: 768px) {
+    main {
+        padding-left: var(--spacing-lg);
+        padding-right: var(--spacing-lg);
+    }
+    .content-wrapper {
+        padding-left: var(--spacing-lg);
+        padding-right: var(--spacing-lg);
+    }
+
     h1 {
         font-size: 1.75rem;
     }
@@ -753,7 +767,14 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 480px) {
-   
+    main {
+        padding-left: var(--spacing-lg);
+        padding-right: var(--spacing-lg);
+    }
+    .content-wrapper {
+        padding-left: var(--spacing-lg);
+        padding-right: var(--spacing-lg);
+    }
 
     .card {
         padding: var(--spacing-lg);

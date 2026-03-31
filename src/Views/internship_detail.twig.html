@@ -35,7 +35,9 @@
         <h3>Required Skills</h3>
         <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-sm);">
             {% for skill in internship.skills %}
-            <span style="background: var(--light-bg); padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-sm); font-size: 0.9rem;">{{ skill }}</span>
+            <span
+                style="background: var(--light-bg); padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-sm); font-size: 0.9rem;">{{
+                skill }}</span>
             {% endfor %}
         </div>
     </div>
@@ -44,23 +46,32 @@
 
 {% if user and user.role == 'student' %}
 <div class="card" style="margin-top: var(--spacing-2xl);">
+    <h3>Actions</h3>
+    <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+        <button id="wishlistBtn" class="button secondary" data-internship-id="{{ internship.IdInternship }}">
+            <span id="wishlistIcon">⏳</span> <span id="wishlistText">Loading...</span>
+        </button>
+    </div>
+</div>
+
+<div class="card" style="margin-top: var(--spacing-2xl);">
     <h3>Apply for this Internship</h3>
     {% if applied %}
     <p style="color: var(--success-color);">You have already applied for this internship.</p>
     {% else %}
     <form id="applyForm" enctype="multipart/form-data" style="max-width: 500px;">
         <input type="hidden" name="internshipId" value="{{ internship.IdInternship }}">
-        
+
         <div class="form-group">
             <label for="lm">Cover Letter (LM)</label>
             <textarea name="lm" id="lm" required placeholder="Write your cover letter here..." rows="6"></textarea>
         </div>
-        
+
         <div class="form-group">
             <label for="cv">CV (PDF only)</label>
             <input type="file" name="cv" id="cv" accept=".pdf" required>
         </div>
-        
+
         <button type="submit" class="button">Submit Application</button>
     </form>
     {% endif %}
@@ -68,21 +79,107 @@
 {% endif %}
 
 <script>
-document.getElementById('applyForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const response = await fetch('{{ baseUrl }}/application', {
-        method: 'POST',
-        body: formData
-    });
-    if (response.ok) {
-        alert('Application submitted successfully!');
-        location.reload();
-    } else if (response.status === 409) {
-        alert('You have already applied for this internship.');
-    } else {
-        alert('Error submitting application.');
+    // Initialize wish-list button on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeWishlistButton({{ internship.IdInternship }}, {{ inWishlist|default(false) ? 'true' : 'false' }});
+    // Add event listener to wishlist button
+    document.getElementById('wishlistBtn').addEventListener('click', function () {
+        const internshipId = this.getAttribute('data-internship-id');
+        toggleWishlist(internshipId);
+    });});
+
+    function initializeWishlistButton(internshipId, inWishlist) {
+        const btn = document.getElementById('wishlistBtn');
+        const icon = document.getElementById('wishlistIcon');
+        const text = document.getElementById('wishlistText');
+
+        if (inWishlist) {
+            btn.className = 'button danger';
+            icon.textContent = '❤️';
+            text.textContent = 'Remove from Wish List';
+        } else {
+            btn.className = 'button secondary';
+            icon.textContent = '🤍';
+            text.textContent = 'Add to Wish List';
+        }
     }
-});
+
+    async function toggleWishlist(internshipId) {
+        const baseUrl = window.APP_BASE_URL || '';
+        const btn = document.getElementById('wishlistBtn');
+        const icon = document.getElementById('wishlistIcon');
+        const text = document.getElementById('wishlistText');
+
+        // Disable button during request
+        btn.disabled = true;
+        const originalText = text.textContent;
+        const originalIcon = icon.textContent;
+
+        icon.textContent = '⏳';
+        text.textContent = 'Processing...';
+
+        try {
+            const isInWishlist = btn.classList.contains('danger');
+            const endpoint = isInWishlist ? 'remove' : 'add';
+
+            const response = await fetch(`${baseUrl}/api/wishlist/${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `internshipId=${internshipId}`
+            });
+
+            let result;
+            try {
+                result = await response.json();
+            } catch (jsonError) {
+                const errorText = await response.text();
+                throw new Error('Invalid JSON response: ' + errorText);
+            }
+
+            if (response.ok && result.success) {
+                // Toggle the button state
+                if (isInWishlist) {
+                    btn.className = 'button secondary';
+                    icon.textContent = '🤍';
+                    text.textContent = 'Add to Wish List';
+                } else {
+                    btn.className = 'button danger';
+                    icon.textContent = '❤️';
+                    text.textContent = 'Remove from Wish List';
+                }
+            } else {
+                alert('Error: ' + (result.message || 'Unable to update wish list'));
+                // Restore original state
+                text.textContent = originalText;
+                icon.textContent = originalIcon;
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+            // Restore original state
+            text.textContent = originalText;
+            icon.textContent = originalIcon;
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    document.getElementById('applyForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const response = await fetch('{{ baseUrl }}/application', {
+            method: 'POST',
+            body: formData
+        });
+        if (response.ok) {
+            alert('Application submitted successfully!');
+            location.reload();
+        } else if (response.status === 409) {
+            alert('You have already applied for this internship.');
+        } else {
+            alert('Error submitting application.');
+        }
+    });
 </script>
 {% endblock %}

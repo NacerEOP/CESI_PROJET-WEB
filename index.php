@@ -51,6 +51,7 @@ use App\Controllers\FormController;
 use App\Controllers\CompanyController;
 use App\Controllers\PilotController;
 use App\Controllers\StudentController;
+use App\Controllers\WishListController;
 use App\Models\Auth;
 use App\Models\ApplicationModel;
 
@@ -380,6 +381,26 @@ switch ($requestPath) {
             http_response_code(400);
             echo json_encode(['error' => 'Bad request']);
         }
+        break;
+    case '/wishlist':
+        requireAuth($basePath);
+        $controller = new WishListController();
+        $controller->index();
+        break;
+    case '/api/wishlist/add':
+        requireAuth($basePath);
+        $controller = new WishListController();
+        $controller->add();
+        break;
+    case '/api/wishlist/remove':
+        requireAuth($basePath);
+        $controller = new WishListController();
+        $controller->remove();
+        break;
+    case '/api/wishlist/check':
+        requireAuth($basePath);
+        $controller = new WishListController();
+        $controller->check();
         break;
     default:
         http_response_code(404);

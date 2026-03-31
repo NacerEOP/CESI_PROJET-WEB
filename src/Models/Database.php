@@ -12,7 +12,7 @@ class Database
         $host = 'localhost';
         $db   = 'find_your_internship';
         $user = 'root';
-        $pass = '';
+        $pass = '@2007';
         $charset = 'utf8mb4';
 
         $dsn = "mysql:host=$host;dbname=$db;charset=$charset";

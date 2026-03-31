@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Database;
 use App\Models\DbInternshipModel;
 use App\Models\Auth;
+use App\Models\WishListModel;
 use App\Config\AppConfig;
 
 class InternshipController extends BaseController
@@ -34,16 +35,23 @@ class InternshipController extends BaseController
 
         $user = Auth::user();
         $applied = false;
+        $inWishlist = false;
+
         if ($user && $user['role'] === 'student') {
             // Check if applied
             $stmt = $this->db->prepare('SELECT COUNT(*) FROM Application WHERE IdInternship = ? AND IdUser = ?');
             $stmt->execute([$id, $user['id']]);
             $applied = $stmt->fetchColumn() > 0;
+
+            // Check if in wish-list
+            $wishlistModel = new WishListModel();
+            $inWishlist = $wishlistModel->isInWishList($user['id'], $id);
         }
 
         $this->render('internship_detail', [
             'internship' => $internship,
             'applied' => $applied,
+            'inWishlist' => $inWishlist,
             'user' => $user
         ]);
     }

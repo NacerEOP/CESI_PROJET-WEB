@@ -1,0 +1,119 @@
+{% extends "base.twig.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="flex-between">
+        <div>
+            <h1>{{ title }}</h1>
+            <p style="color: var(--text-light); margin-bottom: 0;">{{ wishListCount }} internship{{ wishListCount != 1 ?
+                's' : '' }} in your wish list</p>
+        </div>
+        <a href="{{ baseUrl }}/browse" class="button secondary">← Continue Browsing</a>
+    </div>
+</div>
+
+{% if wishList %}
+<div class="grid cols-1" style="gap: var(--spacing-lg);">
+    {% for internship in wishList %}
+    <div class="card">
+        <div class="flex-between" style="margin-bottom: var(--spacing-md);">
+            <div>
+                <h3 style="margin-bottom: var(--spacing-xs);">{{ internship.Title }}</h3>
+                <p style="color: var(--text-light); margin: 0; font-size: 0.9rem;">{{ internship.CompanyName }} • {{
+                    internship.CategoryName }}</p>
+            </div>
+            <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+                <span
+                    style="background: var(--primary-color); color: white; padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-sm); font-size: 0.8rem;">€{{
+                    internship.Budget }}</span>
+                <button class="button danger small remove-btn" data-internship-id="{{ internship.IdInternship }}">
+                    <span class="icon">🗑️</span> Remove
+                </button>
+            </div>
+        </div>
+
+        <p style="margin-bottom: var(--spacing-md); color: var(--text-light);">{{ internship.Description }}</p>
+
+        <div style="display: flex; gap: var(--spacing-lg); align-items: flex-end;">
+            <div style="flex: 1;">
+                <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-sm);">
+                    <span style="font-size: 0.9rem;"><strong>Duration:</strong> {{ internship.Time_ }} weeks</span>
+                    <span style="font-size: 0.9rem;"><strong>Created:</strong> {{ internship.DateOfCreation }}</span>
+                </div>
+            </div>
+            <a href="{{ baseUrl }}/internship/detail?id={{ internship.IdInternship }}" class="button">View Details</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: var(--spacing-3xl);">
+    <div style="font-size: 3rem; margin-bottom: var(--spacing-lg);">📋</div>
+    <h3 style="margin-bottom: var(--spacing-md);">Your wish list is empty</h3>
+    <p style="color: var(--text-light); margin-bottom: var(--spacing-xl);">Start exploring internships and add them to
+        your wish list to keep track of opportunities you're interested in.</p>
+    <a href="{{ baseUrl }}/browse" class="button">Browse Internships</a>
+</div>
+{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Add event listeners to all remove buttons
+        document.querySelectorAll('.remove-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const internshipId = this.getAttribute('data-internship-id');
+                removeFromWishlist(internshipId, this);
+            });
+        });
+    });
+
+    async function removeFromWishlist(internshipId, buttonElement) {
+        if (!confirm('Are you sure you want to remove this internship from your wish list?')) {
+            return;
+        }
+
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = '<span class="icon">⏳</span> Removing...';
+
+        try {
+            const response = await fetch('{{ baseUrl }}/api/wishlist/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `internshipId=${internshipId}`
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Remove the card from the DOM
+                buttonElement.closest('.card').remove();
+
+                // Update the count in the header
+                const countElement = document.querySelector('.page-header p');
+                if (countElement) {
+                    const currentCount = parseInt(countElement.textContent.match(/\d+/)[0]);
+                    const newCount = currentCount - 1;
+                    countElement.textContent = newCount + ' internship' + (newCount !== 1 ? 's' : '') + ' in your wish list';
+
+                    // If no items left, reload the page to show empty state
+                    if (newCount === 0) {
+                        location.reload();
+                    }
+                }
+            } else {
+                alert('Error: ' + result.message);
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = '<span class="icon">🗑️</span> Remove';
+            }
+        } catch (error) {
+            alert('An error occurred. Please try again.');
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = '<span class="icon">🗑️</span> Remove';
+        }
+    }
+</script>
+{% endblock %}

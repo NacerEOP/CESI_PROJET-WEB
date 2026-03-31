@@ -39,16 +39,20 @@
                 <li><a href="{{ baseUrl }}/dashboard">Dashboard</a></li>
                 <li><a href="{{ baseUrl }}/help">Help</a></li>
             </ul>
-            
+
             {% if authUser %}
             <div class="user-menu-container">
-                <img class="user-profile-picture" id="userProfileBtn" src="{{ baseUrl }}/static/assets/images/default-user-pfp.jpg" alt="Profile">
+                <img class="user-profile-picture" id="userProfileBtn"
+                    src="{{ baseUrl }}/static/assets/images/default-user-pfp.jpg" alt="Profile">
                 <div class="user-dropdown" id="userDropdown">
                     <div class="dropdown-header">
                         <span class="user-name">{{ authUser.firstName }} {{ authUser.lastName }}</span>
                         <span class="user-role">{{ authUser.role|upper }}</span>
                     </div>
                     <hr>
+                    {% if authUser.role == 'student' %}
+                    <a href="{{ baseUrl }}/wishlist" class="dropdown-item">❤️ Wish List</a>
+                    {% endif %}
                     <a href="{{ baseUrl }}/profile" class="dropdown-item">👤 Profile</a>
                     <a href="{{ baseUrl }}/settings" class="dropdown-item">⚙️ Settings</a>
                     <hr>
@@ -56,7 +60,8 @@
                 </div>
             </div>
             {% else %}
-            <img class="user-profile-picture" src="{{ baseUrl }}/static/assets/images/default-user-pfp.jpg" alt="Profile">
+            <img class="user-profile-picture" src="{{ baseUrl }}/static/assets/images/default-user-pfp.jpg"
+                alt="Profile">
             {% endif %}
         </nav>
         {% block header %}{% endblock %}

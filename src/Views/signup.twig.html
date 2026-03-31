@@ -32,12 +32,64 @@
             </div>
 
             <div>
+                <label for="passwordConfirm">Confirm Password</label>
+                <input type="password" id="passwordConfirm" name="passwordConfirm" required placeholder="••••••••">
+            </div>
+
+            <div>
+                <label for="dob">Date of Birth</label>
+                <input type="date" id="dob" name="dob" required>
+            </div>
+
+            <div>
+                <label for="country">Country</label>
+                <select id="country" name="country" required>
+                    <option value="">Select your country</option>
+                    <option value="1">United States</option>
+                    <option value="2">Canada</option>
+                    <option value="3">United Kingdom</option>
+                    <option value="4">Germany</option>
+                    <option value="5">France</option>
+                    <!-- Add more as needed -->
+                </select>
+            </div>
+
+            <div>
                 <label for="role">Account Type</label>
-                <select id="role" name="role" required>
+                <select id="role" name="role" required onchange="toggleStudentFields()">
                     <option value="">Select your role</option>
                     <option value="student">Student</option>
                     <option value="pilot">Pilot</option>
                 </select>
+            </div>
+
+            <div id="studentFields" style="display: none;">
+                <div>
+                    <label for="schoolLevel">School Level</label>
+                    <select id="schoolLevel" name="schoolLevel">
+                        <option value="Bachelor">Bachelor</option>
+                        <option value="Master">Master</option>
+                        <option value="PhD">PhD</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="schoolYear">School Year</label>
+                    <input type="number" id="schoolYear" name="schoolYear" min="1" max="5" value="1">
+                </div>
+
+                <div>
+                    <label for="major">Major</label>
+                    <input type="text" id="major" name="major" placeholder="Computer Science">
+                </div>
+
+                <div>
+                    <label for="pilot">Assigned Pilot</label>
+                    <select id="pilot" name="pilot">
+                        <option value="6">Olivia Martinez</option>
+                        <!-- Add more pilots as needed -->
+                    </select>
+                </div>
             </div>
 
             <button type="submit" style="width: 100%; padding: var(--spacing-md);">Create Account</button>
@@ -48,4 +100,12 @@
         <p>Already have an account? <a href="{{ baseUrl }}/login">Sign in</a></p>
     </div>
 </div>
+
+<script>
+    function toggleStudentFields() {
+        const role = document.getElementById('role').value;
+        const studentFields = document.getElementById('studentFields');
+        studentFields.style.display = role === 'student' ? 'block' : 'none';
+    }
+</script>
 {% endblock %}

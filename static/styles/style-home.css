@@ -34,12 +34,11 @@
 .offers-carousel {
   position: relative;
   margin-top: 45px;
-  background: linear-gradient(to right, rgba(0,0,0,0.3), transparent 10%, transparent 90%, rgba(0,0,0,0.3));
+
   height: 400px;
   width: 100%;
   overflow: hidden;
-  border-radius: 12px;
-  border: 1px solid rgba(19, 103, 138, 0.2);
+  
 }
 
 .offers-track {

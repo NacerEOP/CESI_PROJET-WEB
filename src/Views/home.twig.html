@@ -26,26 +26,11 @@
     </div>
 
 <div style="height: 1000px;">
-    <h2 class="centered-title" id="t1">Small Overview</h2>
-    <p id="p1">Offers you might be interested in</p>
-    <div id="suggest-cont" style="position: relative;">
-        <canvas id="gl-canvas"></canvas>
-        <div class="suggest"></div>
-        <div class="suggest"></div>
-        <div class="suggest"></div>
-    </div>
-
-    <h2 class="centered-title" style="margin-top: 60px;">Inline 3D Model</h2>
-    <p class="centered-title">Scroll the page to see the model perspective shift.</p>
-    <div style="display:flex;justify-content:center;">
-        <div data-inline-model data-model="static/assets/3dModels/Test-CUBE.glb" data-scale="0.8" data-scroll-speed="0.45" data-fov="20"  data-camera-y="10"
-            style="width:320px;height:320px;border:1px solid rgba(255,255,255,0.2);border-radius:12px;overflow:hidden;">
-        </div>
-    </div>
-     <div style="display:flex;justify-content:left;">
-        <div data-inline-model data-model="static/assets/3dModels/Test-CUBE.glb" data-scale="0.8" data-scroll-speed="0.45" data-fov="70"  
-        data-camera-y="4" data-parallax-rotation-amp="1"
-            style="width:320px;height:320px;border:1px solid rgba(255,255,255,0.2);border-radius:12px;overflow:hidden;">
+    <h2 class="centered-title" id="t1">Featured Offers</h2>
+    <p id="p1">Explore internship opportunities tailored for you</p>
+    <div id="offers-container" class="offers-carousel">
+        <div class="offers-track" id="offers-track">
+            <!-- Offers will be loaded here by JavaScript -->
         </div>
     </div>
 </div>
@@ -61,5 +46,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script type="module" src="static/js/home.js"></script>
+<script type="module" src="static/js/pages/home.js"></script>
 {% endblock %}

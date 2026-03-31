@@ -406,6 +406,10 @@ switch ($requestPath) {
         $controller = new WishListController();
         $controller->check();
         break;
+    case '/api/offers/random':
+        $controller = new HomeController();
+        $controller->getRandomOffers();
+        break;
     default:
         http_response_code(404);
         echo '404 Not Found';

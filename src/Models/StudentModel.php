@@ -35,8 +35,10 @@ class StudentModel
         $params = [];
 
         if (!empty($filters['query'])) {
-            $query .= ' AND (u.FirstName LIKE :query OR u.LastName LIKE :query OR u.Email LIKE :query)';
-            $params['query'] = '%' . $filters['query'] . '%';
+            $query .= ' AND (u.FirstName LIKE :queryFirstName OR u.LastName LIKE :queryLastName OR u.Email LIKE :queryEmail)';
+            $params['queryFirstName'] = '%' . $filters['query'] . '%';
+            $params['queryLastName'] = '%' . $filters['query'] . '%';
+            $params['queryEmail'] = '%' . $filters['query'] . '%';
         }
 
         if (!empty($filters['pilotId'])) {

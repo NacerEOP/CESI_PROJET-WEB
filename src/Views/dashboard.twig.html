@@ -148,20 +148,7 @@
             </div>
             <button class="carousel-nav" id="stats-next" aria-label="Next stats">›</button>
         </div>
-        <script>
-            const carousel = document.getElementById('stats-carousel');
-            const prevBtn = document.getElementById('stats-prev');
-            const nextBtn = document.getElementById('stats-next');
-            const scrollAmount = 320;
-
-            prevBtn.addEventListener('click', () => {
-                carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-            });
-
-            nextBtn.addEventListener('click', () => {
-                carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-            });
-        </script>
+        <script src="static/js/pages/dashboard.js"></script>
         {% endif %}
 
         {% if user.role in ['admin', 'pilot'] %}

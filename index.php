@@ -96,6 +96,10 @@ switch ($requestPath) {
         $controller = new HelpController();
         $controller->index();
         break;
+    case '/legal':
+        $controller = new HelpController();
+        $controller->legal();
+        break;
     case '/login':
         $controller = new LoginController();
         $controller->index();

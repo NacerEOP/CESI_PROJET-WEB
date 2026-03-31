@@ -10,4 +10,11 @@ class HelpController extends BaseController
             'title' => 'Help'
         ]);
     }
+
+    public function legal()
+    {
+        $this->render('legal', [
+            'title' => 'Legal Notice'
+        ]);
+    }
 }

@@ -257,13 +257,14 @@ class CompanyController extends BaseController
                 http_response_code(200);
                 header('Content-Type: application/json');
                 echo json_encode([
+                    'success' => true,
                     'message' => 'Rating saved successfully',
                     'rating' => $result
                 ]);
             } else {
                 http_response_code(500);
                 header('Content-Type: application/json');
-                echo json_encode(['error' => 'Failed to save rating']);
+                echo json_encode(['success' => false, 'error' => 'Failed to save rating']);
             }
         } catch (\Exception $e) {
             http_response_code(500);

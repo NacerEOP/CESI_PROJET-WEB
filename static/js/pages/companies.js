@@ -1,5 +1,22 @@
 let currentCompanyId = null;
 
+// Initialize user data from JSON script tag
+function initializeUserData() {
+    if (typeof window.USER_DATA === 'undefined') {
+        const userDataEl = document.getElementById('user-data');
+        if (userDataEl && userDataEl.textContent) {
+            try {
+                window.USER_DATA = JSON.parse(userDataEl.textContent);
+            } catch (e) {
+                console.error('Failed to parse user data:', e);
+                window.USER_DATA = null;
+            }
+        } else {
+            window.USER_DATA = null;
+        }
+    }
+}
+
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -77,45 +94,80 @@ function loadCompanyRatings(companyId) {
                     const ratingText = document.getElementById('ratingText');
                     if (ratingValue) ratingValue.value = data.userRating.Rating;
                     if (ratingText) ratingText.value = data.userRating.RatingText || '';
-                    updateStarDisplay();
                 }
+                
+                // Re-attach star handlers after form is visible
+                setTimeout(() => {
+                    updateStarDisplay();
+                    attachStarClickHandlers();
+                }, 10);
             }
         })
         .catch(err => { const sec = document.getElementById('companyRatingSection'); if (sec) sec.innerHTML = `<div class="alert danger">Error loading ratings: ${err.message}</div>`; });
 }
 
 function updateStarDisplay() {
-    const rating = parseInt(document.getElementById('ratingValue').value || 0);
-    document.querySelectorAll('#ratingStars .star').forEach(star => {
-        star.classList.toggle('filled', parseInt(star.getAttribute('data-rating')) <= rating);
+    const ratingInput = document.getElementById('ratingValue');
+    if (!ratingInput) return;
+    
+    const rating = parseInt(ratingInput.value || 0);
+    const stars = document.querySelectorAll('#ratingStars .star');
+    
+    stars.forEach(star => {
+        const starRating = parseInt(star.getAttribute('data-rating'));
+        if (starRating <= rating) {
+            star.classList.add('filled');
+        } else {
+            star.classList.remove('filled');
+        }
     });
 }
 
-function setupRatingActions() {
-    const user = window.USER_DATA;
-    if (!user || !['admin', 'pilot'].includes(user.role)) return;
-
-    document.querySelectorAll('#ratingStars .star').forEach(star => {
+function attachStarClickHandlers() {
+    const stars = document.querySelectorAll('#ratingStars .star');
+    const starsContainer = document.getElementById('ratingStars');
+    
+    // Remove old listeners by cloning (ensure clean event attachment)
+    stars.forEach(star => {
+        const newStar = star.cloneNode(true);
+        star.parentNode.replaceChild(newStar, star);
+    });
+    
+    // Get fresh references after DOM update
+    const refreshedStars = document.querySelectorAll('#ratingStars .star');
+    const refreshedContainer = document.getElementById('ratingStars');
+    
+    refreshedStars.forEach(star => {
         star.addEventListener('click', function () {
             const rating = parseInt(this.getAttribute('data-rating'));
-            document.getElementById('ratingValue').value = rating;
-            updateStarDisplay();
+            const ratingInput = document.getElementById('ratingValue');
+            if (ratingInput) {
+                ratingInput.value = rating;
+                updateStarDisplay();
+            }
         });
 
         star.addEventListener('mouseover', function () {
             const rating = parseInt(this.getAttribute('data-rating'));
-            document.querySelectorAll('#ratingStars .star').forEach(s => {
+            refreshedStars.forEach(s => {
                 s.classList.toggle('hover', parseInt(s.getAttribute('data-rating')) <= rating);
             });
         });
     });
 
-    const starsContainer = document.getElementById('ratingStars');
-    if (starsContainer) {
-        starsContainer.addEventListener('mouseout', function () {
-            document.querySelectorAll('#ratingStars .star').forEach(s => s.classList.remove('hover'));
+    if (refreshedContainer) {
+        refreshedContainer.addEventListener('mouseout', function () {
+            refreshedStars.forEach(s => s.classList.remove('hover'));
         });
     }
+}
+
+function setupRatingActions() {
+    initializeUserData();
+    const user = window.USER_DATA;
+    if (!user || !user.role || !['admin', 'pilot'].includes(user.role)) return;
+
+    attachStarClickHandlers();
 
     const ratingForm = document.getElementById('ratingForm');
     if (ratingForm) {

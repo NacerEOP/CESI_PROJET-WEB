@@ -20,42 +20,46 @@ export default class Sidebar {
 
     renderInternshipFilters() {
         this.container.innerHTML = `
-            <h3>Filters</h3>
-            <div>
-                <label>Skills:</label>
-                <input type="text" id="skills-filter" placeholder="e.g., JavaScript, Python">
+            <div class="sidebar-filters">
+                <h3>Filters</h3>
+                <div class="filter-group">
+                    <label>Skills:</label>
+                    <input type="text" id="skills-filter" placeholder="e.g., JavaScript, Python">
+                </div>
+                <div class="filter-group">
+                    <label>Category:</label>
+                    <select id="category-filter">
+                        <option value="">All</option>
+                        <!-- Add categories dynamically -->
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Budget Min:</label>
+                    <input type="number" id="budget-min">
+                </div>
+                <div class="filter-group">
+                    <label>Budget Max:</label>
+                    <input type="number" id="budget-max">
+                </div>
+                <button id="apply-filters" class="button">Apply</button>
             </div>
-            <div>
-                <label>Category:</label>
-                <select id="category-filter">
-                    <option value="">All</option>
-                    <!-- Add categories dynamically -->
-                </select>
-            </div>
-            <div>
-                <label>Budget Min:</label>
-                <input type="number" id="budget-min">
-            </div>
-            <div>
-                <label>Budget Max:</label>
-                <input type="number" id="budget-max">
-            </div>
-            <button id="apply-filters">Apply</button>
         `;
         document.getElementById('apply-filters').addEventListener('click', this.applyFilters.bind(this));
     }
 
     renderCompanyFilters() {
         this.container.innerHTML = `
-            <h3>Filters</h3>
-            <div>
-                <label>Country:</label>
-                <select id="country-filter">
-                    <option value="">All</option>
-                    <!-- Add countries dynamically -->
-                </select>
+            <div class="sidebar-filters">
+                <h3>Filters</h3>
+                <div class="filter-group">
+                    <label>Country:</label>
+                    <select id="country-filter">
+                        <option value="">All</option>
+                        <!-- Add countries dynamically -->
+                    </select>
+                </div>
+                <button id="apply-filters" class="button">Apply</button>
             </div>
-            <button id="apply-filters">Apply</button>
         `;
         document.getElementById('apply-filters').addEventListener('click', this.applyFilters.bind(this));
     }

@@ -262,8 +262,10 @@ export class InlineModel {
       const customCameraY = parseFloat(this.container.dataset.cameraY);
       cameraYOffset = !isNaN(customCameraY) ? customCameraY : calculatedDistance;
     } else {
-      // On resize: always use calculated distance so the model scales
-      cameraYOffset = calculatedDistance;
+      // On resize: adjust distance based on aspect ratio to maintain proportional spacing
+      // For wider canvases, reduce distance to make model larger and fill more space
+      const aspectAdjustment = Math.max(0.4, Math.min(1.2, 1.0 / Math.sqrt(aspect))); // Closer for wider screens
+      cameraYOffset = calculatedDistance * aspectAdjustment;
     }
     
     this._customCameraY = cameraYOffset;

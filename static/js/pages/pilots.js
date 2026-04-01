@@ -67,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!clicked) return;
 
         if (clicked.classList.contains('view-pilot')) {
-            console.log('pilots.js: view-pilot clicked', clicked.dataset.pilotId);
             const pilotId = clicked.dataset.pilotId;
             const pilotName = clicked.dataset.pilotName;
             openPilotModal(pilotId, pilotName);
@@ -75,14 +74,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (clicked.classList.contains('edit-pilot')) {
-            console.log('pilots.js: edit-pilot clicked', clicked.dataset.pilotId);
             openPilotEditModal(clicked.dataset.pilotId);
             return;
         }
 
         if (clicked.classList.contains('btn-delete')) {
             const pilotId = clicked.dataset.pilotId;
-            console.log('pilots.js: delete-pilot clicked', pilotId);
             if (confirm('Are you sure you want to delete this pilot? This action cannot be undone.')) {
                 const formData = new FormData();
                 formData.append('id', pilotId);

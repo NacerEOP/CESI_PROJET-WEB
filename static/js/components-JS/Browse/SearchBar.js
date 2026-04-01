@@ -1,6 +1,10 @@
 export default class SearchBar {
     constructor() {
         this.container = document.getElementById('search-bar');
+        if (!this.container) {
+            console.error('SearchBar: container #search-bar not found');
+            return;
+        }
         this.input = document.createElement('input');
         this.input.type = 'text';
         this.input.placeholder = 'Search...';
@@ -9,8 +13,8 @@ export default class SearchBar {
     }
 
     onSearch() {
-        // Trigger search
-        const event = new CustomEvent('search', { detail: { query: this.input.value } });
+        const query = this.input.value;
+        const event = new CustomEvent('search', { detail: { query: query } });
         document.dispatchEvent(event);
     }
 }

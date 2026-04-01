@@ -13,7 +13,9 @@ export default class OfferGrid {
             this.loadData();
         });
         document.addEventListener('search', (e) => {
+            console.log('[OfferGrid] Search event received, query:', e.detail.query);
             this.query = e.detail.query;
+            this.page = 1;
             this.loadData();
         });
         document.addEventListener('filter', (e) => {
@@ -45,10 +47,13 @@ export default class OfferGrid {
                 params.set(key, value);
             }
         }
-        const url = this.currentTab === 'internships' ? `/api/internships/search?${params}` : `/api/companies/search?${params}`;
+        const path = this.currentTab === 'internships' ? 'internships/search' : 'companies/search';
+        const url = apiPath(path) + '?' + params.toString();
+        console.log('[OfferGrid] Loading data - tab:', this.currentTab, 'query:', this.query, 'url:', url);
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, { credentials: 'same-origin' });
             const result = await response.json();
+            console.log('[OfferGrid] Response:', result);
             this.data = result.data || [];
             const event = new CustomEvent('dataLoaded', { detail: { totalPages: result.per_page ? Math.ceil(result.total / result.per_page) : 1 } });
             document.dispatchEvent(event);
@@ -62,6 +67,7 @@ export default class OfferGrid {
 
     render() {
         this.container.innerHTML = '';
+        console.log('[OfferGrid] Rendering', this.data.length, 'items for tab:', this.currentTab);
         this.data.forEach(item => {
             const card = document.createElement('div');
             card.className = 'card';
@@ -98,7 +104,7 @@ export default class OfferGrid {
 }
 
 window.viewInternship = async (id) => {
-    const response = await fetch(`/api/internships/detail?id=${id}`);
+    const response = await fetch(apiPath('internships/detail') + '?id=' + id, { credentials: 'same-origin' });
     const data = await response.json();
     document.getElementById('internshipModalTitle').textContent = data.Title;
     let body = `<p>${data.Description}</p>
@@ -120,7 +126,7 @@ window.viewInternship = async (id) => {
 };
 
 window.viewCompany = (id) => {
-    fetch(`/api/companies/detail?id=${id}`)
+    fetch(apiPath('companies/detail') + '?id=' + id, { credentials: 'same-origin' })
         .then(r => r.json())
         .then(data => {
             alert(`Details: ${JSON.stringify(data)}`);

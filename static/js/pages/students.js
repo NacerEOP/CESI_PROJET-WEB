@@ -65,20 +65,17 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!clicked) return;
 
         if (clicked.classList.contains('view-student')) {
-            console.log('students.js: view-student clicked', clicked.dataset.studentId);
             openStudentModal(clicked.dataset.studentId, clicked.dataset.studentName);
             return;
         }
 
         if (clicked.classList.contains('edit-student')) {
-            console.log('students.js: edit-student clicked', clicked.dataset.studentId);
             openStudentEditModal(clicked.dataset.studentId);
             return;
         }
 
         if (clicked.classList.contains('btn-delete')) {
             const studentId = clicked.dataset.studentId;
-            console.log('students.js: delete-student clicked', studentId);
             if (confirm('Are you sure you want to delete this student? This action cannot be undone.')) {
                 const formData = new FormData();
                 formData.append('id', studentId);
@@ -104,7 +101,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 window.openStudentModal = function(studentId, studentName) {
-    console.log('openStudentModal', studentId, studentName);
     window.currentStudentId = studentId;
     const modalTitle = document.getElementById('studentModalTitle');
     if (modalTitle) modalTitle.textContent = studentName;

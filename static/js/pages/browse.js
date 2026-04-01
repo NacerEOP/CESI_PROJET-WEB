@@ -5,8 +5,6 @@ import OfferGrid from "../components-JS/Browse/OfferGrid.js";
 import Pagination from "../components-JS/Browse/Pagination.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Browse page initialized");
-
   let currentTab = 'internships';
 
   // Tab switching
@@ -55,12 +53,12 @@ document.addEventListener("DOMContentLoaded", () => {
 // Modal functions
 // (Removed internship modals, now using dedicated page)
 
-function apiPath(path) {
+window.apiPath = function(path) {
     const baseUrl = (window.APP_BASE_URL || '').replace(/\/+$/, '');
     const prefix = baseUrl.length ? baseUrl + '/api' : '/api';
     const cleaned = path.toString().replace(/^\/+/, '');
     return prefix.replace(/\/+$/, '') + '/' + cleaned;
-}
+};
 
 function updateStarDisplay() {
     const ratingValue = document.getElementById('ratingValue');
@@ -128,19 +126,16 @@ function submitRating() {
     params.append('rating', rating);
     params.append('ratingText', ratingText);
     
-    console.log('Submitting rating:', { companyId, rating, ratingText });
-    
     fetch(apiPath('companies/rate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: params.toString()
+        body: params.toString(),
+        credentials: 'same-origin'
     })
     .then(r => {
-        console.log('Response status:', r.status);
         return r.json();
     })
     .then(result => {
-        console.log('Response data:', result);
         if (result.message || result.success) {
             alert('Rating submitted successfully!');
             loadCompanyRatings(companyId);
@@ -163,10 +158,9 @@ function loadCompanyRatings(companyId) {
 
     document.getElementById('modalCompanyId').value = companyId;
 
-    fetch(apiPath(`companies/ratings?companyId=${encodeURIComponent(companyId)}`))
+    fetch(apiPath('companies/ratings') + '?companyId=' + encodeURIComponent(companyId), { credentials: 'same-origin' })
         .then(response => response.json())
         .then(data => {
-            console.log('Loaded ratings:', data);
             if (!ratingSection) return;
 
             let html = '<div class="company-rating-display">';
@@ -190,10 +184,8 @@ function loadCompanyRatings(companyId) {
 
             if (ratingForm) {
                 const user = window.USER_DATA;
-                console.log('Current user:', user);
                 
                 if (user && user.role && ['admin', 'pilot'].includes(user.role)) {
-                    console.log('User is admin/pilot, showing form');
                     ratingForm.style.display = 'block';
                     if (ratingFormPlaceholder) ratingFormPlaceholder.style.display = 'none';
 
@@ -210,14 +202,12 @@ function loadCompanyRatings(companyId) {
                         attachStarClickHandlers();
                     }, 50);
                 } else {
-                    console.log('User not authorized to rate');
                     ratingForm.style.display = 'none';
                     if (ratingFormPlaceholder) ratingFormPlaceholder.style.display = 'block';
                 }
             }
         })
         .catch(error => {
-            console.error('Error loading ratings', error);
             if (ratingSection) {
                 ratingSection.innerHTML = '<p class="text-danger">Failed to load ratings</p>';
             }
@@ -249,6 +239,16 @@ function openEditCompanyModal() {
 function closeEditCompanyModal() {
     document.getElementById('editCompanyModal').style.display = 'none';
 }
+
+// Make modal functions globally accessible
+window.openCompanyModal = openCompanyModal;
+window.closeCompanyModal = closeCompanyModal;
+window.openCreateCompanyModal = openCreateCompanyModal;
+window.closeCreateCompanyModal = closeCreateCompanyModal;
+window.openEditCompanyModal = openEditCompanyModal;
+window.closeEditCompanyModal = closeEditCompanyModal;
+window.submitRating = submitRating;
+
 
 // Rating stars and submit functionality
 function attachRatingFormListener() {
@@ -307,15 +307,12 @@ function attachRatingFormListener() {
 function setupRatingActions() {
     const user = window.USER_DATA;
     if (!user || !user.role || !['admin', 'pilot'].includes(user.role)) {
-        console.log('User not authorized for ratings');
         return;
     }
-    console.log('Rating system initialized for user:', user);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     window.USER_DATA = document.getElementById('user-data') ? JSON.parse(document.getElementById('user-data').textContent || '{}') : null;
-    console.log('USER_DATA loaded:', window.USER_DATA);
     setupRatingActions();
     
     // Attach form submit handler

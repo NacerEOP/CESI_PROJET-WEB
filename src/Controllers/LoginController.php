@@ -38,7 +38,7 @@ class LoginController extends BaseController
     public function logout()
     {
         Auth::logout();
-        header('Location: ' . AppConfig::getBasePath() . '/login');
+        header('Location: ' . AppConfig::getBasePath() . '/home');
         exit;
     }
 }

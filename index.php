@@ -76,10 +76,6 @@ $requestPath = parse_url($request, PHP_URL_PATH);
 switch ($requestPath) {
     case '/':
     case '/home':
-        if (!Auth::isLoggedIn()) {
-            header('Location: ' . $basePath . '/login');
-            exit;
-        }
         $controller = new HomeController();
         $controller->index();
         break;

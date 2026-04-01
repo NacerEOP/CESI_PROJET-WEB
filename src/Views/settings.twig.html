@@ -10,7 +10,16 @@
 {% if user is defined and user %}
 <div class="grid cols-2">
     <div class="card">
-        <h3>🔕 Notifications</h3>
+        <h3>🎨 Theme</h3>
+        <p>Choose your preferred theme</p>
+        <div class="form-group">
+            <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                <input type="checkbox" id="theme-toggle" style="width: auto;">
+                <label for="theme-toggle" style="margin: 0;">Dark Mode</label>
+            </div>
+            <p style="color: var(--text-light); font-size: 0.9rem; margin-top: var(--spacing-sm);">Toggle between light and dark themes</p>
+        </div>
+    </div>
         <p>Manage your notification preferences</p>
         <form method="POST">
             <div class="form-group">

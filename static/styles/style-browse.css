@@ -56,9 +56,9 @@ main {
 
 #pagination button {
     padding: 8px 12px;
-    border: 1px solid #9aeba3;
-    background-color: white;
-    color: #012030;
+    border: 1px solid var(--accent-color);
+    background-color: var(--surface);
+    color: var(--text-dark);
     border-radius: 4px;
     cursor: pointer;
     font-size: 1em;
@@ -66,12 +66,12 @@ main {
 }
 
 #pagination button:hover {
-    background-color: #9aeba3;
-    color: white;
+    background-color: var(--accent-color);
+    color: var(--surface);
 }
 
 #pagination button:active {
-    background-color: #012030;
-    color: #9aeba3;
-    border-color: #012030;
+    background-color: var(--dark-bg);
+    color: var(--accent-color);
+    border-color: var(--dark-bg);
 }

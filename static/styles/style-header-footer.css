@@ -34,7 +34,7 @@ nav ul {
 }
 
 nav ul li a {
-    color: #9aeba3;
+    color: var(--accent-color);
     position: relative;
     mix-blend-mode: difference;
     text-decoration: none;
@@ -91,8 +91,8 @@ nav ul li a {
     position: absolute;
     right: 0;
     top: 70px;
-    background: rgba(1, 32, 48, 0.95);
-    border: 1px solid rgba(154, 235, 163, 0.3);
+    background: var(--dark-bg);
+    border: 1px solid var(--accent-color);
     border-radius: 12px;
     min-width: 220px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);

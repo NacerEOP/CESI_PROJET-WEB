@@ -13,7 +13,6 @@ export default class OfferGrid {
             this.loadData();
         });
         document.addEventListener('search', (e) => {
-            console.log('[OfferGrid] Search event received, query:', e.detail.query);
             this.query = e.detail.query;
             this.page = 1;
             this.loadData();
@@ -49,17 +48,14 @@ export default class OfferGrid {
         }
         const path = this.currentTab === 'internships' ? 'internships/search' : 'companies/search';
         const url = apiPath(path) + '?' + params.toString();
-        console.log('[OfferGrid] Loading data - tab:', this.currentTab, 'query:', this.query, 'url:', url);
         try {
             const response = await fetch(url, { credentials: 'same-origin' });
             const result = await response.json();
-            console.log('[OfferGrid] Response:', result);
             this.data = result.data || [];
             const event = new CustomEvent('dataLoaded', { detail: { totalPages: result.per_page ? Math.ceil(result.total / result.per_page) : 1 } });
             document.dispatchEvent(event);
             this.render();
         } catch (error) {
-            console.error('Error loading data:', error);
             this.data = [];
             this.render();
         }
@@ -67,7 +63,6 @@ export default class OfferGrid {
 
     render() {
         this.container.innerHTML = '';
-        console.log('[OfferGrid] Rendering', this.data.length, 'items for tab:', this.currentTab);
         this.data.forEach(item => {
             const card = document.createElement('div');
             card.className = 'card';

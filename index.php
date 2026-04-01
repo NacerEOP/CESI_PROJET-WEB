@@ -203,10 +203,6 @@ switch ($requestPath) {
             echo json_encode(['error' => 'Bad request']);
         }
         break;
-    case '/api/companies/search':
-        $controller = new BrowseController();
-        $controller->getCompanies();
-        break;
     case '/api/companies/detail':
         if (isset($_GET['id'])) {
             $controller = new CompanyController();

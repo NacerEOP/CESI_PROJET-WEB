@@ -140,6 +140,7 @@ main {
     margin-bottom: var(--spacing-2xl);
     padding-bottom: var(--spacing-xl);
     border-bottom: 1px solid var(--border-color);
+    text-align: center;
 }
 
 /* ================================

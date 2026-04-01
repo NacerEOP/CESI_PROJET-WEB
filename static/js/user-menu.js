@@ -4,7 +4,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    const userProfileBtn = document.getElementById('userProfileBtn');
+    const userProfileBtn = document.getElementById('userProfileBtn') || document.querySelector('.user-profile-picture');
     const userDropdown = document.getElementById('userDropdown');
 
     if (!userProfileBtn || !userDropdown) {
@@ -30,5 +30,12 @@ document.addEventListener('DOMContentLoaded', function() {
         item.addEventListener('click', function() {
             userDropdown.classList.remove('active');
         });
+    });
+
+    // Close dropdown when pressing Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            userDropdown.classList.remove('active');
+        }
     });
 });

@@ -123,6 +123,14 @@ class PilotController extends BaseController
 
     public function update($id)
     {
+        $id = $id ?? ($_POST['id'] ?? null);
+        if (empty($id)) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Pilot ID is required']);
+            return;
+        }
+
         if (!Auth::hasRole('admin')) {
             http_response_code(403);
             header('Content-Type: application/json');
@@ -166,6 +174,14 @@ class PilotController extends BaseController
 
     public function delete($id)
     {
+        $id = $id ?? ($_POST['id'] ?? null);
+        if (empty($id)) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Pilot ID is required']);
+            return;
+        }
+
         if (!Auth::hasRole('admin')) {
             http_response_code(403);
             header('Content-Type: application/json');

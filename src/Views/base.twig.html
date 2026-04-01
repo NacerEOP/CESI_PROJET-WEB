@@ -5,10 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="{{ baseUrl }}/">
-    <link rel="stylesheet" href="static/styles/style-header-footer.css">
-    <link rel="stylesheet" href="static/styles/style.css">
-    <link rel="stylesheet" href="static/styles/animations.css">
-    <link rel="stylesheet" href="static/styles/app.css">
+    <script type="application/json" id="app-config-data">{"baseUrl":"{{ baseUrl|default('') }}"}</script>
+    <script src="/static/js/pages/app-config.js"></script>
+    <link rel="stylesheet" href="/static/styles/style-header-footer.css">
+    <link rel="stylesheet" href="/static/styles/style.css">
+    <link rel="stylesheet" href="/static/styles/animations.css">
+    <link rel="stylesheet" href="/static/styles/app.css">
     <title>{% block title %}{% endblock %}</title>
     {% block styles %}{% endblock %}
     <script type="importmap">
@@ -26,12 +28,7 @@
         <nav class="nav-bar">
             <ul>
                 <div class="centered-to-parent" id="nav-bg"></div>
-                <li class="logo-item">
-                    <a href="{{ baseUrl }}/">
-                        <img src="{{ baseUrl }}/static/assets/images/Ajob4uLogoIcon.png" alt="Ajob4u Logo" class="navbar-logo-icon">
-                        Home
-                    </a>
-                </li>
+                <li><a href="{{ baseUrl }}/">Home</a></li>
                 <li><a href="{{ baseUrl }}/browse">Browse</a></li>
                 <li><a href="{{ baseUrl }}/dashboard">Dashboard</a></li>
                 <li><a href="{{ baseUrl }}/help">Help</a></li>
@@ -39,7 +36,8 @@
 
             {% if authUser %}
             <div class="user-menu-container">
-                <img class="user-profile-picture" id="userProfileBtn" src="{{ baseUrl }}/static/assets/images/default-user-pfp.jpg" alt="Profile">
+                <img class="user-profile-picture" id="userProfileBtn"
+                    src="{{ baseUrl }}/static/assets/images/default-user-pfp.jpg" alt="Profile">
                 <div class="user-dropdown" id="userDropdown">
                     <div class="dropdown-header">
                         <span class="user-name">{{ authUser.firstName }} {{ authUser.lastName }}</span>
@@ -47,35 +45,38 @@
                     </div>
                     <hr>
                     {% if authUser.role == 'student' %}
-                    <a href="{{ baseUrl }}/wishlist" class="dropdown-item">Wish List</a>
+                    <a href="{{ baseUrl }}/wishlist" class="dropdown-item"> Wish List</a>
                     {% endif %}
-                    <a href="{{ baseUrl }}/profile" class="dropdown-item">Profile</a>
-                    <a href="{{ baseUrl }}/settings" class="dropdown-item">Settings</a>
+                    <a href="{{ baseUrl }}/profile" class="dropdown-item"> Profile</a>
+                    <a href="{{ baseUrl }}/settings" class="dropdown-item"> Settings</a>
                     <hr>
-                    <a href="{{ baseUrl }}/logout" class="dropdown-item logout">Logout</a>
+                    <a href="{{ baseUrl }}/logout" class="dropdown-item logout"> Logout</a>
                 </div>
             </div>
             {% else %}
-            <img class="user-profile-picture" src="{{ baseUrl }}/static/assets/images/default-user-pfp.jpg" alt="Profile">
+            <img class="user-profile-picture" src="{{ baseUrl }}/static/assets/images/default-user-pfp.jpg"
+                alt="Profile">
             {% endif %}
         </nav>
         {% block header %}{% endblock %}
     </header>
 
     <main>
-        <div class="content-wrapper">
-            {% block content %}{% endblock %}
-        </div>
+        {% block content %}{% endblock %}
     </main>
 
     <footer class="site-footer">
         <div class="footer-inner">
-            <p>&copy; 2026 CESI Project Web. All rights reserved. | <a href="{{ baseUrl }}/legal" class="footer-link">Read full legal notice</a></p>
+            <p><strong>Legal Notice (Mentions Légales)</strong></p>
+            <p>Company: Web4All | Website: Ajob4u</p>
+            <p>Web4All operates the Ajob4u platform. All content is provided "as is" in accordance with applicable
+                regulations, including user data protection and accessibility requirements.</p>
+            <p><a href="{{ baseUrl }}/legal" class="footer-link">Read full legal notice</a></p>
         </div>
     </footer>
 
-    <script type="module" src="static/js/inline-models.js"></script>
-    <script src="static/js/user-menu.js"></script>
+    <script type="module" src="/static/js/inline-models.js"></script>
+    <script src="/static/js/user-menu.js"></script>
     {% block scripts %}{% endblock %}
 </body>
 

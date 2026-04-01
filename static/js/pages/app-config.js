@@ -1,4 +1,5 @@
 (function() {
+    console.log('app-config.js starting');
     const configScript = document.getElementById('app-config-data');
     let baseUrl = '';
 
@@ -6,6 +7,7 @@
         try {
             const parsed = JSON.parse(configScript.textContent);
             baseUrl = parsed.baseUrl || '';
+            console.log('parsed baseUrl:', baseUrl);
         } catch (e) {
             console.warn('Invalid app config JSON', e);
         }
@@ -17,4 +19,5 @@
         const cleaned = (path || '').toString().replace(/^\/+/, '');
         return window.APP_API_URL.replace(/\/+$/, '') + '/' + cleaned;
     };
+    console.log('app-config.js done, api defined:', typeof window.api, 'APP_API_URL:', window.APP_API_URL);
 })();

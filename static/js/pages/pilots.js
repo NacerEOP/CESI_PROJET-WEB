@@ -1,6 +1,25 @@
 document.addEventListener('DOMContentLoaded', function () {
-    window.PILOTS_DATA = window.PILOTS_DATA || [];
-    window.USER_DATA = window.USER_DATA || null;
+    const pilotsDataScript = document.getElementById('pilots-data');
+    const userDataScript = document.getElementById('user-data');
+
+    window.PILOTS_DATA = [];
+    window.USER_DATA = null;
+
+    if (pilotsDataScript && pilotsDataScript.textContent.trim()) {
+        try {
+            window.PILOTS_DATA = JSON.parse(pilotsDataScript.textContent);
+        } catch (error) {
+            console.error('Failed to parse pilots-data JSON', error);
+        }
+    }
+
+    if (userDataScript && userDataScript.textContent.trim()) {
+        try {
+            window.USER_DATA = JSON.parse(userDataScript.textContent);
+        } catch (error) {
+            console.error('Failed to parse user-data JSON', error);
+        }
+    }
 
     function loadStudentsCount(pilotId) {
         fetch(api('pilots/detail?id=' + encodeURIComponent(pilotId)))
@@ -23,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const formData = new FormData(this);
             const pilotId = formData.get('id');
 
-            fetch(api('pilots/update?id=' + pilotId), { method: 'POST', body: formData })
+            fetch(api('pilots/update?id=' + pilotId), { method: 'POST', body: formData, credentials: 'same-origin' })
                 .then(r => { if (!r.ok) throw new Error('Failed to update pilot: ' + r.statusText); return r.json(); })
                 .then(() => { alert('Pilot updated successfully!'); closePilotEditModal(); location.reload(); })
                 .catch(err => { console.error('Error updating pilot:', err); alert('Error updating pilot.' ); });
@@ -36,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             const formData = new FormData(this);
 
-            fetch(api('pilots/create'), { method: 'POST', body: formData })
+            fetch(api('pilots/create'), { method: 'POST', body: formData, credentials: 'same-origin' })
                 .then(r => { if (!r.ok) throw new Error('Failed to create pilot: ' + r.statusText); return r.json(); })
                 .then(() => { alert('Pilot created successfully!'); closeCreatePilotModal(); location.reload(); })
                 .catch(err => { console.error('Error creating pilot:', err); alert('Error creating pilot.' ); });
@@ -44,23 +63,30 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.addEventListener('click', function (e) {
-        const target = e.target;
-        if (target.classList.contains('view-pilot')) {
-            const pilotId = target.dataset.pilotId;
-            const pilotName = target.dataset.pilotName;
+        const clicked = e.target.closest('button, a');
+        if (!clicked) return;
+
+        if (clicked.classList.contains('view-pilot')) {
+            console.log('pilots.js: view-pilot clicked', clicked.dataset.pilotId);
+            const pilotId = clicked.dataset.pilotId;
+            const pilotName = clicked.dataset.pilotName;
             openPilotModal(pilotId, pilotName);
+            return;
         }
 
-        if (target.classList.contains('edit-pilot')) {
-            openPilotEditModal(target.dataset.pilotId);
+        if (clicked.classList.contains('edit-pilot')) {
+            console.log('pilots.js: edit-pilot clicked', clicked.dataset.pilotId);
+            openPilotEditModal(clicked.dataset.pilotId);
+            return;
         }
 
-        if (target.classList.contains('btn-delete')) {
-            const pilotId = target.dataset.pilotId;
+        if (clicked.classList.contains('btn-delete')) {
+            const pilotId = clicked.dataset.pilotId;
+            console.log('pilots.js: delete-pilot clicked', pilotId);
             if (confirm('Are you sure you want to delete this pilot? This action cannot be undone.')) {
                 const formData = new FormData();
                 formData.append('id', pilotId);
-                fetch(api('pilots/delete?id=' + pilotId), { method: 'POST', body: formData })
+                fetch(api('pilots/delete?id=' + pilotId), { method: 'POST', body: formData, credentials: 'same-origin' })
                     .then(r => {
                         if (r.status === 204) {
                             alert('Pilot deleted successfully!'); location.reload();
@@ -94,7 +120,7 @@ window.closePilotModal = function() {
 };
 
 window.loadPilotDetails = function(pilotId) {
-    fetch(api('pilots/detail?id=' + encodeURIComponent(pilotId)))
+    return fetch(api('pilots/detail?id=' + encodeURIComponent(pilotId)), { credentials: 'same-origin' })
         .then(r => { if (!r.ok) throw new Error('Failed to load pilot details: ' + r.statusText); return r.json(); })
         .then(data => {
             const content = document.getElementById('pilotDetailsContent');

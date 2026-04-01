@@ -328,9 +328,10 @@ switch ($requestPath) {
         break;
     case '/api/pilots/update':
         requireAuth($basePath);
-        if (isset($_GET['id'])) {
+        $pilotId = $_GET['id'] ?? $_POST['id'] ?? null;
+        if ($pilotId) {
             $controller = new PilotController();
-            $controller->update($_GET['id']);
+            $controller->update($pilotId);
         } else {
             http_response_code(400);
             echo json_encode(['error' => 'Bad request']);
@@ -338,9 +339,10 @@ switch ($requestPath) {
         break;
     case '/api/pilots/delete':
         requireAuth($basePath);
-        if (isset($_POST['id'])) {
+        $pilotId = $_POST['id'] ?? $_GET['id'] ?? null;
+        if ($pilotId) {
             $controller = new PilotController();
-            $controller->delete($_POST['id']);
+            $controller->delete($pilotId);
         } else {
             http_response_code(400);
             echo json_encode(['error' => 'Bad request']);
@@ -368,9 +370,10 @@ switch ($requestPath) {
         break;
     case '/api/students/update':
         requireAuth($basePath);
-        if (isset($_GET['id'])) {
+        $studentId = $_GET['id'] ?? $_POST['id'] ?? null;
+        if ($studentId) {
             $controller = new StudentController();
-            $controller->update($_GET['id']);
+            $controller->update($studentId);
         } else {
             http_response_code(400);
             echo json_encode(['error' => 'Bad request']);
@@ -378,9 +381,10 @@ switch ($requestPath) {
         break;
     case '/api/students/delete':
         requireAuth($basePath);
-        if (isset($_POST['id'])) {
+        $studentId = $_POST['id'] ?? $_GET['id'] ?? null;
+        if ($studentId) {
             $controller = new StudentController();
-            $controller->delete($_POST['id']);
+            $controller->delete($studentId);
         } else {
             http_response_code(400);
             echo json_encode(['error' => 'Bad request']);

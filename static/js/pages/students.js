@@ -1,6 +1,25 @@
 document.addEventListener('DOMContentLoaded', function () {
-    window.STUDENTS_DATA = window.STUDENTS_DATA || [];
-    window.USER_DATA = window.USER_DATA || null;
+    const studentsDataScript = document.getElementById('students-data');
+    const userDataScript = document.getElementById('user-data');
+
+    window.STUDENTS_DATA = [];
+    window.USER_DATA = null;
+
+    if (studentsDataScript && studentsDataScript.textContent.trim()) {
+        try {
+            window.STUDENTS_DATA = JSON.parse(studentsDataScript.textContent);
+        } catch (error) {
+            console.error('Failed to parse students-data JSON', error);
+        }
+    }
+
+    if (userDataScript && userDataScript.textContent.trim()) {
+        try {
+            window.USER_DATA = JSON.parse(userDataScript.textContent);
+        } catch (error) {
+            console.error('Failed to parse user-data JSON', error);
+        }
+    }
 
     function loadStudentDetailsCount(studentId) {
         fetch(api('students/detail?id=' + encodeURIComponent(studentId)))
@@ -22,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             const formData = new FormData(this);
             const studentId = formData.get('id');
-            fetch(api('students/update?id=' + studentId), { method: 'POST', body: formData })
+            fetch(api('students/update?id=' + studentId), { method: 'POST', body: formData, credentials: 'same-origin' })
                 .then(r => { if (!r.ok) return r.json().then(data => { throw new Error(data.error || 'Failed to update student'); }); return r.json(); })
                 .then(() => { alert('Student updated successfully!'); closeStudentEditModal(); location.reload(); })
                 .catch(err => { console.error('Error updating student:', err); alert('Error updating student: ' + err.message); });
@@ -34,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
         studentCreateForm.addEventListener('submit', function (e) {
             e.preventDefault();
             const formData = new FormData(this);
-            fetch(api('students/create'), { method: 'POST', body: formData })
+            fetch(api('students/create'), { method: 'POST', body: formData, credentials: 'same-origin' })
                 .then(r => { if (!r.ok) return r.json().then(data => { throw new Error(data.error || 'Failed to create student'); }); return r.json(); })
                 .then(() => { alert('Student created successfully!'); closeCreateStudentModal(); location.reload(); })
                 .catch(err => { console.error('Error creating student:', err); alert('Error creating student: ' + err.message); });
@@ -42,23 +61,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.addEventListener('click', function (e) {
-        const target = e.target;
-        if (!target) return;
+        const clicked = e.target.closest('button, a');
+        if (!clicked) return;
 
-        if (target.classList.contains('view-student')) {
-            openStudentModal(target.dataset.studentId, target.dataset.studentName);
+        if (clicked.classList.contains('view-student')) {
+            console.log('students.js: view-student clicked', clicked.dataset.studentId);
+            openStudentModal(clicked.dataset.studentId, clicked.dataset.studentName);
+            return;
         }
 
-        if (target.classList.contains('edit-student')) {
-            openStudentEditModal(target.dataset.studentId);
+        if (clicked.classList.contains('edit-student')) {
+            console.log('students.js: edit-student clicked', clicked.dataset.studentId);
+            openStudentEditModal(clicked.dataset.studentId);
+            return;
         }
 
-        if (target.classList.contains('btn-delete')) {
-            const studentId = target.dataset.studentId;
+        if (clicked.classList.contains('btn-delete')) {
+            const studentId = clicked.dataset.studentId;
+            console.log('students.js: delete-student clicked', studentId);
             if (confirm('Are you sure you want to delete this student? This action cannot be undone.')) {
                 const formData = new FormData();
                 formData.append('id', studentId);
-                fetch(api('students/delete?id=' + studentId), { method: 'POST', body: formData })
+                fetch(api('students/delete?id=' + studentId), { method: 'POST', body: formData, credentials: 'same-origin' })
                     .then(r => {
                         if (r.status === 204) {
                             alert('Student deleted successfully!'); location.reload();
@@ -80,11 +104,16 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 window.openStudentModal = function(studentId, studentName) {
+    console.log('openStudentModal', studentId, studentName);
     window.currentStudentId = studentId;
     const modalTitle = document.getElementById('studentModalTitle');
     if (modalTitle) modalTitle.textContent = studentName;
-    document.getElementById('studentModal').classList.add('show');
-    loadStudentDetails(studentId);
+    const modal = document.getElementById('studentModal');
+    if (modal) modal.classList.add('show');
+    loadStudentDetails(studentId).catch(err => {
+        console.error('openStudentModal load details failed', err);
+        alert('Unable to load student details. Check console for details.');
+    });
 };
 
 window.closeStudentModal = function() {
@@ -93,7 +122,7 @@ window.closeStudentModal = function() {
 };
 
 window.loadStudentDetails = function(studentId) {
-    fetch(api('students/detail?id=' + encodeURIComponent(studentId)))
+    return fetch(api('students/detail?id=' + encodeURIComponent(studentId)), { credentials: 'same-origin' })
         .then(r => { if (!r.ok) throw new Error('Failed to load student details: ' + r.statusText); return r.json(); })
         .then(data => {
             const content = document.getElementById('studentDetailsContent');

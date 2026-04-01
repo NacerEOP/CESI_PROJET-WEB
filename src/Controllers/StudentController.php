@@ -94,6 +94,13 @@ class StudentController extends BaseController
 
     public function update($id)
     {
+        $id = $id ?? ($_POST['id'] ?? null);
+        if (empty($id)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Student ID is required']);
+            return;
+        }
+
         // Check permissions
         if (!Auth::hasRole(['admin', 'pilot'])) {
             http_response_code(403);
@@ -137,6 +144,13 @@ class StudentController extends BaseController
 
     public function delete($id)
     {
+        $id = $id ?? ($_POST['id'] ?? null);
+        if (empty($id)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Student ID is required']);
+            return;
+        }
+
         // Check permissions
         if (!Auth::hasRole(['admin', 'pilot'])) {
             http_response_code(403);
